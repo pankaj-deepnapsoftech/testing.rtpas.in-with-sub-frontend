@@ -71,6 +71,7 @@ const RegisterComponent: React.FC<RegisterComponentProps> = ({
         email,
         password,
         phone,
+        isSuper:true
       }).unwrap();
       toast.success(response.message);
       setShowRegisterComponent(false);
