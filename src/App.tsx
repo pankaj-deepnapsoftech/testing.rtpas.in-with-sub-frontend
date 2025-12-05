@@ -12,6 +12,8 @@ import NotFound from "./pages/NotFound";
 import { useCookies } from "react-cookie";
 import SubscriptionExpired from "./pages/SubscriptionEnd";
 import PricingSection from "./pages/PricingModel";
+import LandingLayout from "./landing/LandingLayout";
+import PublicRoutes from "./routes/Public.routes";
 
 const App: React.FC = () => {
   const [cookies] = useCookies();
@@ -26,6 +28,16 @@ const App: React.FC = () => {
             <Route path="/login" element={<Login />} />
             <Route path="/subscription-end" element={<SubscriptionExpired />} />
             <Route path="/pricing-modal" element={<PricingSection />} />
+
+
+            {!cookies.access_token && (
+              <Route element={<LandingLayout />}>
+                {PublicRoutes.map((route, index) => (
+                  <Route key={index} path={route.path} element={route.element} />
+                ))}
+              </Route>
+            )}
+
             {/* <Route path="/register" element={<Register />} /> */}
             {cookies?.access_token && <Route path="/" element={<Layout />}>
               {routes.map((route, ind) => {
