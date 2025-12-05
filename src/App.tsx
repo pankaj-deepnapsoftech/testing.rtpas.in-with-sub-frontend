@@ -9,8 +9,12 @@ import Layout from "./pages/Layout";
 import routes from "./routes/routes";
 import { useSelector } from "react-redux";
 import NotFound from "./pages/NotFound";
+import { useCookies } from "react-cookie";
+import SubscriptionExpired from "./pages/SubscriptionEnd";
+import PricingSection from "./pages/PricingModel";
 
 const App: React.FC = () => {
+  const [cookies] = useCookies();
   const { allowedroutes, isSuper } = useSelector((state: any) => state.auth);
 
   return (
@@ -20,8 +24,10 @@ const App: React.FC = () => {
         <BrowserRouter>
           <Routes>
             <Route path="/login" element={<Login />} />
+            <Route path="/subscription-end" element={<SubscriptionExpired />} />
+            <Route path="/pricing-modal" element={<PricingSection />} />
             {/* <Route path="/register" element={<Register />} /> */}
-            <Route path="/" element={<Layout />}>
+            {cookies?.access_token && <Route path="/" element={<Layout />}>
               {routes.map((route, ind) => {
                 const isAllowed =
                   isSuper ||
@@ -52,7 +58,7 @@ const App: React.FC = () => {
                   );
                 }
               })}
-            </Route>
+            </Route>}
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
