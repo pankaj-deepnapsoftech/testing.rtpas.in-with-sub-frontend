@@ -1,19 +1,15 @@
-import { FaQuoteLeft, FaRegCheckCircle } from "react-icons/fa";
-import { IoDocumentTextOutline, IoStorefrontOutline } from "react-icons/io5";
+import { FaRegCheckCircle } from "react-icons/fa";
+import { IoDocumentTextOutline } from "react-icons/io5";
 import {
   MdOutlineShoppingCart,
   MdOutlineSpeed,
-  MdOutlineSell,
-  MdOutlineAttachMoney,
   MdOutlinePayment,
   MdOutlineProductionQuantityLimits,
-  MdTask,
-  MdOutlineRefresh,
 } from "react-icons/md";
 import { CgProfile } from "react-icons/cg";
 
 import { RiBillLine } from "react-icons/ri";
-import { TbLockAccess, TbTruckDelivery, TbUsersGroup } from "react-icons/tb";
+import { TbLockAccess, TbTruckDelivery } from "react-icons/tb";
 import { SlDirection } from "react-icons/sl";
 import { FaHandsHelping } from "react-icons/fa";
 import { SiScrapy } from "react-icons/si";
@@ -43,22 +39,15 @@ import Sales from "../pages/Sales";
 import Dispatch from "../pages/Dispatch";
 import Parties from "../pages/Parties";
 import { IoIosPeople } from "react-icons/io";
-import Task from "../pages/Task";
+
 import { 
   Box,
   Calendar,
   Component,
-  Construction,
-  Container,
   HandCoins,
-  Presentation,
   ScanBarcode,
-  ShieldCheck,
   Store,
-  TicketPercent,
-  Workflow,
   Wrench,
-  BarChart3,
   Activity,
 } from "lucide-react";
 import Dashboard from "../pages/Dashboard";
