@@ -61,7 +61,13 @@ const UserRole: React.FC = () => {
   const fetchRolesHandler = async () => {
     try {
       setIsLoadingRoles(true);
-      const response = await fetch(process.env.REACT_APP_BACKEND_URL + "role/");
+      const response = await fetch(process.env.REACT_APP_BACKEND_URL + "role/", {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${cookies?.access_token}`,
+        },
+      });
       const data = await response.json();
       if (!data.success) {
         throw new Error(data.message);
