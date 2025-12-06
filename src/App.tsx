@@ -19,6 +19,8 @@ const App: React.FC = () => {
   const [cookies] = useCookies();
   const { allowedroutes, isSuper } = useSelector((state: any) => state.auth);
 
+  console.log("this is just testing ===========>>>",cookies.access_token)
+
   return (
     <div className="relative min-h-[99vh] bg-gray-50">
       <div className="min-h-screen">
@@ -39,7 +41,7 @@ const App: React.FC = () => {
             )}
 
             {/* <Route path="/register" element={<Register />} /> */}
-             <Route path="/" element={<Layout />}>
+           { cookies.access_token  &&  <Route path="/" element={<Layout />}>
               {routes.map((route, ind) => {
                 const isAllowed =
                   isSuper ||
@@ -70,7 +72,7 @@ const App: React.FC = () => {
                   );
                 }
               })}
-            </Route>
+            </Route>}
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
