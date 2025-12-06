@@ -36,7 +36,6 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({
   approveEmployeeHandler,
   bulkApproveEmployeesHandler,
 }) => {
-
   const columns = useMemo(
     () => [
       {
@@ -58,6 +57,7 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({
   const dynamicBg = (index) => {
     return index % 2 !== 0 ? colors.table.stripe : colors.background.card;
   };
+
 
   const {
     getTableProps,
@@ -83,8 +83,10 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({
   );
 
   const [selectedEmployees, setSelectedEmployees] = useState<string[]>([]);
-  const isAllSelected = page.length > 0 && selectedEmployees.length === page.length;
-  const isIndeterminate = selectedEmployees.length > 0 && selectedEmployees.length < page.length;
+  const isAllSelected =
+    page.length > 0 && selectedEmployees.length === page.length;
+  const isIndeterminate =
+    selectedEmployees.length > 0 && selectedEmployees.length < page.length;
   const handleSelectAll = (checked: boolean) => {
     if (checked) setSelectedEmployees(page.map((row: any) => row.original._id));
     else setSelectedEmployees([]);
@@ -180,7 +182,7 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({
                   boxShadow: `0 0 0 1px ${colors.primary[500]}`,
                 }}
               >
-                {[5,10, 20, 50, 100, 100000].map((size) => (
+                {[5, 10, 20, 50, 100, 100000].map((size) => (
                   <option key={size} value={size}>
                     {size === 100000 ? "All" : size}
                   </option>
@@ -203,19 +205,20 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({
                   maxHeight: "500px", // or as per your design
                   overflowY: "auto",
                   overflowX: "auto", // if needed
-                }}>
+                }}
+              >
                 <Table
                   {...getTableProps()}
                   variant="simple"
                   size="md"
                   minWidth="800px"
-                ><Thead
-                  position="sticky"
-                  top={0}
-                  zIndex={2}
-                  bg={colors.table.header}
                 >
-
+                  <Thead
+                    position="sticky"
+                    top={0}
+                    zIndex={2}
+                    bg={colors.table.header}
+                  >
                     {headerGroups.map((hg) => (
                       <Tr
                         {...hg.getHeaderGroupProps()}
@@ -237,17 +240,22 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({
                             type="checkbox"
                             checked={isAllSelected}
                             ref={(el) => {
-                              if (el) (el as any).indeterminate = isIndeterminate;
+                              if (el)
+                                (el as any).indeterminate = isIndeterminate;
                             }}
                             onChange={(e) => handleSelectAll(e.target.checked)}
                           />
                         </Th>
                         {hg.headers.map((column) => (
                           <Th
-                            {...column.getHeaderProps(column.getSortByToggleProps())}
+                            {...column.getHeaderProps(
+                              column.getSortByToggleProps()
+                            )}
                             fontSize="14px"
                             fontWeight="600"
-                            position={column.id === "first_name" ? "sticky" : "sticky"}
+                            position={
+                              column.id === "first_name" ? "sticky" : "sticky"
+                            }
                             top={0}
                             left={column.id === "first_name" ? 40 : undefined}
                             zIndex={column.id === "first_name" ? 4 : 3}
@@ -256,13 +264,13 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({
                             <div className="flex items-center gap-1">
                               {column.render("Header")}
                               {column.isSorted &&
-                                (column.isSortedDesc ? <FaCaretDown /> : <FaCaretUp />)}
+                                (column.isSortedDesc ? (
+                                  <FaCaretDown />
+                                ) : (
+                                  <FaCaretUp />
+                                ))}
                             </div>
                           </Th>
-
-
-
-
                         ))}
                         <Th
                           fontSize="14px"
@@ -307,23 +315,42 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({
                           >
                             <input
                               type="checkbox"
-                              checked={selectedEmployees.includes(row.original._id)}
-                              onChange={(e) => handleSelectOne(row.original._id, e.target.checked)}
+                              checked={selectedEmployees.includes(
+                                row.original._id
+                              )}
+                              onChange={(e) =>
+                                handleSelectOne(
+                                  row.original._id,
+                                  e.target.checked
+                                )
+                              }
                             />
                           </Td>
                           {row.cells.map((cell) => (
                             <Td
                               {...cell.getCellProps()}
                               fontSize="14px"
-                              position={cell.column.id === "first_name" ? "sticky" : "static"}
-                              left={cell.column.id === "first_name" ? 40 : undefined}
-                              zIndex={cell.column.id === "first_name" ? 1 : undefined}
-                              bg={cell.column.id === "first_name" ? dynamicBg(index) : undefined}
+                              position={
+                                cell.column.id === "first_name"
+                                  ? "sticky"
+                                  : "static"
+                              }
+                              left={
+                                cell.column.id === "first_name" ? 40 : undefined
+                              }
+                              zIndex={
+                                cell.column.id === "first_name" ? 1 : undefined
+                              }
+                              bg={
+                                cell.column.id === "first_name"
+                                  ? dynamicBg(index)
+                                  : undefined
+                              }
                               px={4}
                               py={3}
                             >
                               {cell.column.id === "createdAt" ||
-                                cell.column.id === "updatedAt" ? (
+                              cell.column.id === "updatedAt" ? (
                                 moment(row.original[cell.column.id]).format(
                                   "DD/MM/YYYY"
                                 )
@@ -654,9 +681,8 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({
             </div>
           </div>
         </>
-      )
-      }
-    </div >
+      )}
+    </div>
   );
 };
 

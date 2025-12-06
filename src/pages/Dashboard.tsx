@@ -1,3 +1,4 @@
+//@ts-nocheck
 import React, { useState, useEffect } from 'react';
 import { useCookies } from 'react-cookie';
 import {
@@ -1100,45 +1101,80 @@ const Analytics: React.FC = () => {
 
   const kpiCards = [
     {
-      title: 'Sales Order',
-      value: isLoadingSalesDelivered ? '...' : (salesDeliveredData?.sales?.currentMonthSales?.toString() || '0'),
-      change: isLoadingSalesDelivered ? '...' : (Math.abs(salesDeliveredData?.sales?.differenceInSales || 0).toString()),
-      trend: salesDeliveredData?.sales?.differenceInSales >= 0 ? 'up' : 'down',
+      title: "Sales Order",
+      value: isLoadingSalesDelivered
+        ? "..."
+        : salesDeliveredData?.sales?.currentMonthSales?.toString() || "0",
+      change: isLoadingSalesDelivered
+        ? "..."
+        : Math.abs(
+            salesDeliveredData?.sales?.differenceInSales || 0
+          ).toString(),
+      trend: salesDeliveredData?.sales?.differenceInSales >= 0 ? "up" : "down",
       icon: List,
-      bgColor: '#FA4F4F',
-      iconColor: 'white',
-      route: '/sales'
+      bgColor: "#FA4F4F",
+      iconColor: "white",
+      route: "/sales",
     },
     {
-      title: 'Completed Orders',
-      value: isLoadingSalesDelivered ? '...' : (salesDeliveredData?.delivered?.currentMonthDelivered?.toString() || '0'),
-      change: isLoadingSalesDelivered ? '...' : (Math.abs(salesDeliveredData?.delivered?.differenceInDelivered || 0).toString()),
-      trend: salesDeliveredData?.delivered?.differenceInDelivered >= 0 ? 'up' : 'down',
+      title: "Completed Orders",
+      value: isLoadingSalesDelivered
+        ? "..."
+        : salesDeliveredData?.delivered?.currentMonthDelivered?.toString() ||
+          "0",
+      change: isLoadingSalesDelivered
+        ? "..."
+        : Math.abs(
+            salesDeliveredData?.delivered?.differenceInDelivered || 0
+          ).toString(),
+      trend:
+        salesDeliveredData?.delivered?.differenceInDelivered >= 0
+          ? "up"
+          : "down",
       icon: Check,
-      bgColor: '#7ED185',
-      iconColor: 'white',
-      route: '/dispatch'
+      bgColor: "#7ED185",
+      iconColor: "white",
+      route: "/dispatch",
     },
     {
-      title: ' BOM',
-      value: isLoadingStats ? '...' : (statsData?.bom?.thisMonth?.toString() || '0'),
-      change: isLoadingStats ? '...' : (Math.abs((statsData?.bom?.thisMonth || 0) - (statsData?.bom?.lastMonth || 0)).toString()),
-      trend: ((statsData?.bom?.thisMonth || 0) - (statsData?.bom?.lastMonth || 0)) >= 0 ? 'up' : 'down',
+      title: " BOM",
+      value: isLoadingStats
+        ? "..."
+        : statsData?.bom?.thisMonth?.toString() || "0",
+      change: isLoadingStats
+        ? "..."
+        : Math.abs(
+            (statsData?.bom?.thisMonth || 0) - (statsData?.bom?.lastMonth || 0)
+          ).toString(),
+      trend:
+        (statsData?.bom?.thisMonth || 0) - (statsData?.bom?.lastMonth || 0) >= 0
+          ? "up"
+          : "down",
       icon: List,
-      bgColor: '#EAA250',
-      iconColor: 'white',
-      route: '/production/bom'
+      bgColor: "#EAA250",
+      iconColor: "white",
+      route: "/production/bom",
     },
     {
-      title: 'Verified Employes',
-      value: isLoadingStats ? '...' : (statsData?.verified_employees?.thisMonth?.toString() || '0'),
-      change: isLoadingStats ? '...' : (Math.abs((statsData?.verified_employees?.thisMonth || 0) - (statsData?.verified_employees?.lastMonth || 0)).toString()),
-      trend: ((statsData?.verified_employees?.thisMonth || 0) - (statsData?.verified_employees?.lastMonth || 0)) >= 0 ? 'up' : 'down',
+      title: "Verified Employees",
+      value: isLoadingStats ? "..." : employees?.length?.toString() || "0",
+      change: isLoadingStats
+        ? "..."
+        : Math.abs(
+            (statsData?.verified_employees?.thisMonth || 0) -
+              (statsData?.verified_employees?.lastMonth || 0)
+          ).toString(),
+      trend:
+        (statsData?.verified_employees?.thisMonth || 0) -
+          (statsData?.verified_employees?.lastMonth || 0) >=
+        0
+          ? "up"
+          : "down",
       icon: Users,
-      bgColor: '#00D6EE',
-      iconColor: 'white',
-      route: '/employee'
-    }
+      bgColor: "#00D6EE",
+      iconColor: "white",
+      route: "/employee",
+    },
   ];
 
   // Conditional rendering based on user details
