@@ -13,7 +13,7 @@ import { useCookies } from "react-cookie";
 import SubscriptionExpired from "./pages/SubscriptionEnd";
 import PricingSection from "./pages/PricingModel";
 import LandingLayout from "./landing/LandingLayout";
-import PublicRoutes from "./routes/Public.routes";
+import PublicRoutes from "./routes/Public.routes"; 
 
 const App: React.FC = () => {
   const [cookies] = useCookies();
