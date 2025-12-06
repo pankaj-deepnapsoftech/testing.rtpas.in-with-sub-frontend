@@ -27,7 +27,7 @@ const App: React.FC = () => {
             <Route path="/subscription-end" element={<SubscriptionExpired />} />
             <Route path="/pricing-modal" element={<PricingSection />} />
             {/* <Route path="/register" element={<Register />} /> */}
-            {cookies?.access_token && <Route path="/" element={<Layout />}>
+             <Route path="/" element={<Layout />}>
               {routes.map((route, ind) => {
                 const isAllowed =
                   isSuper ||
@@ -58,7 +58,7 @@ const App: React.FC = () => {
                   );
                 }
               })}
-            </Route>}
+            </Route>
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>

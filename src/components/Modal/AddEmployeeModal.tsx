@@ -12,12 +12,12 @@ import {
   FormControl,
   FormLabel,
   FormErrorMessage,
-  Select,
   Spinner,
 } from "@chakra-ui/react";
 import { useEffect, useState, ChangeEvent } from "react";
 import { toast } from "react-toastify";
 import { useCookies } from "react-cookie";
+import Select from "react-select";
 
 interface AddEmployeeModalProps {
   isOpen: boolean;
@@ -31,7 +31,7 @@ interface FormState {
   email: string;
   phone: string;
   password: string;
-  role: string;
+  role: any; // Will be {value: string, label: string} from react-select
 }
 
 interface ErrorsState {
@@ -50,6 +50,10 @@ const AddEmployeeModal: React.FC<AddEmployeeModalProps> = ({
 }) => {
   const [cookies] = useCookies();
   const [loading, setLoading] = useState<boolean>(false);
+  const [roleOptions, setRoleOptions] = useState<
+    { value: string; label: string }[] | []
+  >([]);
+  const [isLoadingRoles, setIsLoadingRoles] = useState<boolean>(false);
 
   const initialFormState: FormState = {
     first_name: "",
@@ -57,25 +61,61 @@ const AddEmployeeModal: React.FC<AddEmployeeModalProps> = ({
     email: "",
     phone: "",
     password: "",
-    role: "",
+    role: null,
   };
 
   const [form, setForm] = useState<FormState>(initialFormState);
   const [errors, setErrors] = useState<ErrorsState>({});
+
+  // Fetch roles when modal opens
+  const fetchRolesHandler = async () => {
+    try {
+      setIsLoadingRoles(true);
+      const response = await fetch(
+        process.env.REACT_APP_BACKEND_URL + `role/`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${cookies?.access_token}`,
+          },
+        }
+      );
+      const data = await response.json();
+      if (!data.success) {
+        throw new Error(data.message);
+      }
+      const roles = data.roles;
+      const modifiedRoles = roles.map((role: any) => ({
+        value: role._id,
+        label: role.role,
+      }));
+      setRoleOptions(modifiedRoles);
+    } catch (error: any) {
+      toast.error(error?.message || "Failed to fetch roles");
+    } finally {
+      setIsLoadingRoles(false);
+    }
+  };
 
   // Reset form when modal opens
   useEffect(() => {
     if (isOpen) {
       setForm(initialFormState);
       setErrors({});
+      fetchRolesHandler();
     }
   }, [isOpen]);
 
   const handleChange = (
-    e: ChangeEvent<HTMLInputElement | HTMLSelectElement>
+    e: ChangeEvent<HTMLInputElement>
   ) => {
     setForm({ ...form, [e.target.name]: e.target.value });
     setErrors({ ...errors, [e.target.name]: "" });
+  };
+
+  const handleRoleChange = (selectedOption: any) => {
+    setForm({ ...form, role: selectedOption });
+    setErrors({ ...errors, role: "" });
   };
 
   // Validation
@@ -102,7 +142,7 @@ const AddEmployeeModal: React.FC<AddEmployeeModalProps> = ({
       tempErrors.password =
         "Password must be 8 character with uppercase, lowercase, number & special character";
 
-    if (!form.role.trim()) tempErrors.role = "Role is required";
+    if (!form.role || !form.role.value) tempErrors.role = "Role is required";
 
     setErrors(tempErrors);
     return Object.keys(tempErrors).length === 0;
@@ -114,22 +154,37 @@ const AddEmployeeModal: React.FC<AddEmployeeModalProps> = ({
     try {
       setLoading(true);
 
+      // Get role name from selected option to check if admin
+      const roleName = form.role?.label?.toLowerCase() || "";
+      const isAdmin = roleName === "admin";
+      
+      // Prepare user data - send role ID, not role name
+      const userData = {
+        first_name: form.first_name,
+        last_name: form.last_name,
+        email: form.email,
+        phone: form.phone,
+        password: form.password,
+        role: form.role.value, // Send role ID
+        isSuper: isAdmin, // Set isSuper to true for admins, false for employees/managers
+      };
+
       const response = await fetch(
-        `${process.env.REACT_APP_BACKEND_URL}/register`,
+        `${process.env.REACT_APP_BACKEND_URL}auth/`,
         {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${cookies.access_token}`,
           },
-          body: JSON.stringify(form),
+          body: JSON.stringify(userData),
         }
       );
 
       const result = await response.json();
-      if (!result.success) throw new Error(result.message);
+      if (!result.success) throw new Error(result.message || "Failed to create user");
 
-      toast.success("Employee added successfully");
+      toast.success(isAdmin ? "Admin added successfully" : "Employee added successfully");
       fetchEmployees();
       onClose();
 
@@ -211,16 +266,48 @@ const AddEmployeeModal: React.FC<AddEmployeeModalProps> = ({
           <FormControl isInvalid={!!errors.role} isRequired>
             <FormLabel>Role</FormLabel>
             <Select
-              name="role"
               value={form.role}
-              onChange={handleChange}
-              placeholder="Select role"
-            >
-              <option value="employee">Employee</option>
-              <option value="manager">Manager</option>
-              <option value="admin">Admin</option>
-            </Select>
-            <FormErrorMessage>{errors.role}</FormErrorMessage>
+              options={roleOptions}
+              onChange={handleRoleChange}
+              placeholder={isLoadingRoles ? "Loading roles..." : "Select role"}
+              isDisabled={isLoadingRoles}
+              styles={{
+                control: (provided: any) => ({
+                  ...provided,
+                  backgroundColor: "white",
+                  borderColor: errors.role ? "#E53E3E" : "#d1d5db",
+                  minHeight: "40px",
+                  "&:hover": {
+                    borderColor: errors.role ? "#E53E3E" : "#9ca3af",
+                  },
+                }),
+                option: (provided: any, state: any) => ({
+                  ...provided,
+                  backgroundColor: state.isFocused ? "#e5e7eb" : "white",
+                  color: "#374151",
+                  "&:hover": {
+                    backgroundColor: "#f3f4f6",
+                  },
+                }),
+                placeholder: (provided: any) => ({
+                  ...provided,
+                  color: "#9ca3af",
+                }),
+                singleValue: (provided: any) => ({
+                  ...provided,
+                  color: "#374151",
+                }),
+                menu: (provided: any) => ({
+                  ...provided,
+                  zIndex: 9999,
+                  backgroundColor: "white",
+                  border: "1px solid #d1d5db",
+                }),
+              }}
+            />
+            {errors.role && (
+              <FormErrorMessage mt={1}>{errors.role}</FormErrorMessage>
+            )}
           </FormControl>
         </ModalBody>
 
@@ -236,6 +323,7 @@ const AddEmployeeModal: React.FC<AddEmployeeModalProps> = ({
             onClick={submitHandler}
             isDisabled={loading}
           >
+            
             {loading ? <Spinner size="sm" /> : "Save"}
           </Button>
         </ModalFooter>
