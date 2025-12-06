@@ -7,6 +7,7 @@ import { ChakraProvider, extendTheme } from "@chakra-ui/react";
 import { Provider } from "react-redux";
 import store from "./redux/store";
 import { CookiesProvider } from "react-cookie";
+import { BrowserRouter } from "react-router-dom";
 
 const theme = extendTheme({
   config: {
@@ -20,13 +21,15 @@ const root = ReactDOM.createRoot(
 );
 root.render(
   // <React.StrictMode>
-  <CookiesProvider>
-    <Provider store={store}>
-      <ChakraProvider theme={theme}>
-        <App />
-      </ChakraProvider>
-    </Provider>
-  </CookiesProvider>
+  <BrowserRouter>
+    <CookiesProvider>
+      <Provider store={store}>
+        <ChakraProvider theme={theme}>
+          <App />
+        </ChakraProvider>
+      </Provider>
+    </CookiesProvider>
+  </BrowserRouter>
   // </React.StrictMode>
 );
 
