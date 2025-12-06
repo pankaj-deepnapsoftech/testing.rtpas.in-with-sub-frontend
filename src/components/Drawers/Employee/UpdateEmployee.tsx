@@ -80,7 +80,8 @@ const UpdateEmployee: React.FC<UpdateEmployeeProps> = ({
       setLastname(data.user?.last_name);
       setEmail(data.user.email);
       setPhone(data.user.phone);
-      setRole(data.user?.role);
+      const r = data.user?.role;
+      setRole(r ? { value: r._id, label: r.role } : null);
       setIsVerified(data.user.isVerified);
       setIsSuper(data.user.isSuper);
     } catch (error: any) {
