@@ -58,6 +58,7 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({
     return index % 2 !== 0 ? colors.table.stripe : colors.background.card;
   };
 
+  console.log("this is my employees", employees)
 
   const {
     getTableProps,
