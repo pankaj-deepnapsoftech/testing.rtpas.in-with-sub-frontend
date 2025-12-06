@@ -107,6 +107,7 @@ export default function PricingSection() {
             const verifyJson = await verifyResp.json();
             if (verifyJson?.success) {
               alert('Payment successful and verified.');
+              window.location.href = "/";
               // Optionally update UI / redirect
             } else {
               alert('Payment processed but verification failed.');

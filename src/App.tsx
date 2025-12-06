@@ -49,7 +49,6 @@ const App: React.FC = () => {
   );
 
 
-  console.log("this is app just testing",user)
 
     useEffect(() => {
     if (user && isSubscriptionEnd(user?.user?.[0]?.subscription_end)) {
