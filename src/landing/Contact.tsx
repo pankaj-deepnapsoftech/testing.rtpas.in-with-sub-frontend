@@ -51,38 +51,38 @@ const Contact = () => {
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    const getUsers = async () => {
-      try {
-        const token = localStorage.getItem("user");
-        if (!token) {
-          console.error("No token found");
-          return;
-        }
+  // useEffect(() => {
+  //   const getUsers = async () => {
+  //     try {
+  //       const token = localStorage.getItem("user");
+  //       if (!token) {
+  //         console.error("No token found");
+  //         return;
+  //       }
 
-        const response = await axios.post(
-          `${import.meta.env.VITE_BACKEND_BASE_URL}/contact/fillcontact`,
-          {}, // Empty object as request body (if needed)
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-              "Content-Type": "application/json",
-            },
-          }
-        );
+  //       const response = await axios.post(
+  //         `${import.meta.env.VITE_BACKEND_BASE_URL}/contact/fillcontact`,
+  //         {}, // Empty object as request body (if needed)
+  //         {
+  //           headers: {
+  //             Authorization: `Bearer ${token}`,
+  //             "Content-Type": "application/json",
+  //           },
+  //         }
+  //       );
 
-        if (Array.isArray(response.data)) {
-          setContact(response.data);
-        } else {
-          console.error("Unexpected API response:", response.data);
-        }
-      } catch (err) {
-        console.error("Fetching users failed:", err.response?.data || err.message);
-      }
-    };
+  //       if (Array.isArray(response.data)) {
+  //         setContact(response.data);
+  //       } else {
+  //         console.error("Unexpected API response:", response.data);
+  //       }
+  //     } catch (err) {
+  //       console.error("Fetching users failed:", err.response?.data || err.message);
+  //     }
+  //   };
 
-    getUsers();
-  }, []);
+  //   getUsers();
+  // }, []);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -99,24 +99,24 @@ const Contact = () => {
     setLoading(true);
     setMessage("");
 
-    try {
-      const response = await axios.post(
-        `${import.meta.env.VITE_BACKEND_BASE_URL}/contact/fillcontact`,
-        formData
-      );
+    // try {
+    //   const response = await axios.post(
+    //     `${import.meta.env.VITE_BACKEND_BASE_URL}/contact/fillcontact`,
+    //     formData
+    //   );
 
-      if (response.status === 200) {
-        setMessage("Your message has been sent successfully!");
-        toast.success("Your message has been sent successfully!");
-        setFormData({ name: "", email: "", phone: "", queries: "", city: "" }); // Clear form
-      } else {
-        setMessage("Failed to send message. Please try again.");
-      }
-    } catch (err) {
-      setMessage("Error: " + (err.response?.data?.message || "Something went wrong"));
-    } finally {
-      setLoading(false);
-    }
+    //   if (response.status === 200) {
+    //     setMessage("Your message has been sent successfully!");
+    //     toast.success("Your message has been sent successfully!");
+    //     setFormData({ name: "", email: "", phone: "", queries: "", city: "" }); // Clear form
+    //   } else {
+    //     setMessage("Failed to send message. Please try again.");
+    //   }
+    // } catch (err) {
+    //   setMessage("Error: " + (err.response?.data?.message || "Something went wrong"));
+    // } finally {
+    //   setLoading(false);
+    // }
   };
 
   const cardsContent = [
