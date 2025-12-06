@@ -18,6 +18,7 @@ import drawersSlice from "./reducers/drawersSlice";
 
 const store = configureStore({
   reducer: {
+     [api.reducerPath]:api.reducer,
     [authSlice.name]: authSlice.reducer,
     [drawersSlice.name]: drawersSlice.reducer,
     [processApi.reducerPath]: processApi.reducer, // ✅ ADD THIS
