@@ -28,6 +28,7 @@ const Layout: React.FC = () => {
       if (!data.success) {
         throw new Error(data.message);
       }
+      sessionStorage.setItem("Auth-data",JSON.stringify(data.user))
       setCookie("access_token", data.token, { maxAge: 86400 });
       dispatch(userExists(data.user));
     } catch (err: any) {

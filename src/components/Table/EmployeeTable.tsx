@@ -58,8 +58,6 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({
     return index % 2 !== 0 ? colors.table.stripe : colors.background.card;
   };
 
-  console.log("this is my employees", employees)
-
   const {
     getTableProps,
     getTableBodyProps,
@@ -82,6 +80,8 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({
     useSortBy,
     usePagination
   );
+
+  const isMobile = window.innerWidth < 768; 
 
   const [selectedEmployees, setSelectedEmployees] = useState<string[]>([]);
   const isAllSelected =
@@ -232,9 +232,9 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({
                           px={4}
                           py={3}
                           style={{ width: "40px" }}
-                          position="sticky"
-                          left={0}
-                          zIndex={5}
+                          position={isMobile ? "static" : "sticky"}
+                          left={isMobile ? undefined : 0}
+                          zIndex={isMobile ? 1 : 5}
                           bg={colors.table.header}
                         >
                           <input
@@ -247,6 +247,7 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({
                             onChange={(e) => handleSelectAll(e.target.checked)}
                           />
                         </Th>
+
                         {hg.headers.map((column) => (
                           <Th
                             {...column.getHeaderProps(
@@ -255,11 +256,21 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({
                             fontSize="14px"
                             fontWeight="600"
                             position={
-                              column.id === "first_name" ? "sticky" : "sticky"
+                              !isMobile && column.id === "first_name"
+                                ? "sticky"
+                                : "static"
                             }
                             top={0}
-                            left={column.id === "first_name" ? 40 : undefined}
-                            zIndex={column.id === "first_name" ? 4 : 3}
+                            left={
+                              !isMobile && column.id === "first_name"
+                                ? 40
+                                : undefined
+                            }
+                            zIndex={
+                              !isMobile && column.id === "first_name"
+                                ? 2
+                                : undefined
+                            }
                             bg={colors.table.header}
                           >
                             <div className="flex items-center gap-1">
@@ -309,7 +320,7 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({
                             px={4}
                             py={3}
                             style={{ width: "40px" }}
-                            position="sticky"
+                            position={!isMobile ? "sticky" : "static"}
                             left={0}
                             zIndex={2}
                             bg={dynamicBg(index)}
@@ -332,15 +343,19 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({
                               {...cell.getCellProps()}
                               fontSize="14px"
                               position={
-                                cell.column.id === "first_name"
+                                !isMobile && cell.column.id === "first_name"
                                   ? "sticky"
                                   : "static"
                               }
                               left={
-                                cell.column.id === "first_name" ? 40 : undefined
+                                !isMobile && cell.column.id === "first_name"
+                                  ? 40
+                                  : undefined
                               }
                               zIndex={
-                                cell.column.id === "first_name" ? 1 : undefined
+                                !isMobile && cell.column.id === "first_name"
+                                  ? 2
+                                  : undefined
                               }
                               bg={
                                 cell.column.id === "first_name"

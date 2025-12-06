@@ -8,7 +8,6 @@ import { toast } from "react-toastify";
 import { useCookies } from "react-cookie";
 import { useNavigate } from "react-router-dom";
 import UserDetailsMenu from "../../ui/UserDetailsMenu";
-import { colors } from "../../theme/colors";
 import { CheckSubscriptionIsEnd, LeftSubscriptionDays } from "../../utils/dateModifyer";
 import { useGetLoggedInUserQuery } from "../../redux/api/api";
 // import { MdOutlineDashboardCustomize } from "react-icons/md";
@@ -33,7 +32,6 @@ const Header: React.FC = () => {
     cookie.access_token ? id : ""
   );
 
-  console.log("thidss ajdfbhjdkfgh sjd",user);
 
   const backendUrl = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8096/api/';
 
@@ -162,7 +160,7 @@ const Header: React.FC = () => {
               Renew
             </button>
           ) : (
-            user?.user[0]?.subscription_count <= 1 && (
+            user?.user[0]?.subscription_count <= 1 && user?.user[0]?.isSuper && (
               <button
                 className="text-white bg-green-500 hover:bg-green-600 rounded-md px-2 py-1 text-sm"
                 onClick={() => navigate("/pricing-modal")}
