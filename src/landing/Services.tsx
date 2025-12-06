@@ -65,7 +65,7 @@ export default function ServicesSection() {
         <motion.h2
           initial={{ opacity: 0, y: -40 }}
           whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}   // ✅ stops repeat on scroll
+          viewport={{ once: true }}
           transition={{ duration: 0.7 }}
           className="text-5xl md:text-6xl font-extrabold text-blue-900 text-center"
         >
@@ -75,7 +75,7 @@ export default function ServicesSection() {
         <motion.p
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}   // ✅ stops repeat on scroll
+          viewport={{ once: true }}
           transition={{ delay: 0.2, duration: 0.8 }}
           className="text-blue-600 text-center max-w-2xl mx-auto mt-4 text-lg"
         >
@@ -89,7 +89,7 @@ export default function ServicesSection() {
               key={i}
               initial={{ opacity: 0, y: 40 }}
               whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}   // ✅ stops repeat on scroll
+              viewport={{ once: true }}
               transition={{ delay: i * 0.15, duration: 0.6 }}
               whileHover={{ scale: 1.05, rotate: 0.5 }}
               className="group bg-white/80 border border-blue-200 backdrop-blur-xl p-8 rounded-3xl shadow-xl cursor-pointer 

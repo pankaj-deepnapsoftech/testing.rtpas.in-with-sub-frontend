@@ -7,8 +7,12 @@ import { useCookies } from "react-cookie";
 
 export default function PricingSection() {
   const [isYearly, setIsYearly] = useState(false);
-   const navigate = useNavigate();
-   const [cookies] = useCookies();
+  const navigate = useNavigate();
+  const [cookies] = useCookies();
+  const [isUsersModalOpen, setIsUsersModalOpen] = useState(false);
+  const [pendingPlan, setPendingPlan] = useState<any>(null);
+  const [usersCount, setUsersCount] = useState<number>(1);
+  const [computedAmountPaise, setComputedAmountPaise] = useState<number>(0);
 
   // Load Razorpay checkout script dynamically
   const loadRazorpayScript = () => {
@@ -40,6 +44,16 @@ export default function PricingSection() {
       alert(`${plan.name} is free. Start your free trial!`);
       return;
     }
+    setPendingPlan(plan);
+    setUsersCount(1);
+    setComputedAmountPaise(amountNumber * 100);
+    setIsUsersModalOpen(true);
+  };
+
+  const proceedPayment = async () => {
+    if (!pendingPlan) return;
+    const basePriceInPaise = parseInt(String(pendingPlan.price || "0").replace(/[^0-9]/g, ""), 10) * 100;
+    const totalAmountPaise = basePriceInPaise * Math.max(1, usersCount);
 
     const ok = await loadRazorpayScript();
     if (!ok) {
@@ -47,14 +61,9 @@ export default function PricingSection() {
       return;
     }
 
-    // Amount should be in paise
-    const amountInPaise = amountNumber * 100;
-
-    // Call backend to create an order and save it server-side
     try {
       const apiBase = process.env.REACT_APP_BACKEND_URL || '';
       const base = apiBase ? apiBase.replace(/\/$/, '') : '';
-      // try to read JWT from cookies (optional)
       const token = cookies.access_token || null;
 
       const createResp = await fetch(`${base}/subscription/create`, {
@@ -63,7 +72,12 @@ export default function PricingSection() {
           'Content-Type': 'application/json',
           ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
-        body: JSON.stringify({ plan: plan.name, amount: amountInPaise, period: isYearly ? 'year' : 'month' }),
+        body: JSON.stringify({
+          plan: pendingPlan.name,
+          amount: totalAmountPaise,
+          period: isYearly ? 'year' : 'month',
+          allowedUsers: Math.max(1, usersCount),
+        }),
       });
 
       if (!createResp.ok) {
@@ -73,18 +87,20 @@ export default function PricingSection() {
 
       const { data } = await createResp.json();
       const orderId = data?.orderId;
-      const orderAmount = data?.amount ?? amountInPaise;
+      const orderAmount = data?.amount ?? totalAmountPaise;
 
       const options = {
         key: process.env.REACT_APP_RAZORPAY_KEY || 'YOUR_RAZORPAY_KEY',
         amount: orderAmount,
         currency: 'INR',
         name: 'RTPAS',
-        description: plan.name,
+        description: pendingPlan.name,
         order_id: orderId,
         handler: async function (response) {
-          // Send payment details to backend for verification
           try {
+            const apiBase = process.env.REACT_APP_BACKEND_URL || '';
+            const base = apiBase ? apiBase.replace(/\/$/, '') : '';
+            const token = cookies.access_token || null;
             const verifyResp = await fetch(`${base}/subscription/verify`, {
               method: 'POST',
               headers: {
@@ -108,7 +124,6 @@ export default function PricingSection() {
             if (verifyJson?.success) {
               alert('Payment successful and verified.');
               window.location.href = "/";
-              // Optionally update UI / redirect
             } else {
               alert('Payment processed but verification failed.');
             }
@@ -124,6 +139,9 @@ export default function PricingSection() {
       rzp.open();
     } catch (e) {
       alert('Unable to start payment: ' + (e.message || e));
+    } finally {
+      setIsUsersModalOpen(false);
+      setPendingPlan(null);
     }
   };
 
@@ -391,6 +409,30 @@ export default function PricingSection() {
             </motion.div>
           ))}
         </div>
+
+        {isUsersModalOpen && (
+          <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+            <div className="bg-white rounded-2xl shadow-xl w-full max-w-md p-6">
+              <h4 className="text-xl font-semibold mb-4">Number of Employees</h4>
+              <p className="text-sm mb-3">Enter how many employee accounts you need for this subscription.</p>
+              <input
+                type="number"
+                min={1}
+                value={usersCount}
+                onChange={(e) => setUsersCount(Math.max(1, parseInt(e.target.value || '1', 10)))}
+                className="w-full border rounded-lg px-3 py-2 mb-4"
+              />
+              <div className="text-sm mb-4">
+                <span className="font-medium">Estimated total:</span>{" "}
+                ₹{((parseInt(String(pendingPlan?.price || "0").replace(/[^0-9]/g, ""), 10) || 0) * Math.max(1, usersCount)).toLocaleString()} {isYearly ? '/year' : '/month'}
+              </div>
+              <div className="flex gap-3 justify-end">
+                <button className="px-4 py-2 rounded-lg border" onClick={() => setIsUsersModalOpen(false)}>Cancel</button>
+                <button className="px-4 py-2 rounded-lg bg-blue-600 text-white" onClick={proceedPayment}>Proceed to Payment</button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </section>
   );
