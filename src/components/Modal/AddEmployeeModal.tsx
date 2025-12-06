@@ -154,19 +154,14 @@ const AddEmployeeModal: React.FC<AddEmployeeModalProps> = ({
     try {
       setLoading(true);
 
-      // Get role name from selected option to check if admin
-      const roleName = form.role?.label?.toLowerCase() || "";
-      const isAdmin = roleName === "admin";
-      
-      // Prepare user data - send role ID, not role name
       const userData = {
         first_name: form.first_name,
         last_name: form.last_name,
         email: form.email,
         phone: form.phone,
         password: form.password,
-        role: form.role.value, // Send role ID
-        isSuper: isAdmin, // Set isSuper to true for admins, false for employees/managers
+        role: form.role.value,
+        isSuper: false,
       };
 
       const response = await fetch(
@@ -184,7 +179,7 @@ const AddEmployeeModal: React.FC<AddEmployeeModalProps> = ({
       const result = await response.json();
       if (!result.success) throw new Error(result.message || "Failed to create user");
 
-      toast.success(isAdmin ? "Admin added successfully" : "Employee added successfully");
+      toast.success("Employee added successfully");
       fetchEmployees();
       onClose();
 
