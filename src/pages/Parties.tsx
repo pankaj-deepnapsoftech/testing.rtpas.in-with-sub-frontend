@@ -48,7 +48,7 @@ const Parties = () => {
       );
       const data = await res.json();
       const rows = Array.isArray(data?.data) ? data.data : [];
-      setPartiesData(isSuper ? rows : rows.filter((p: any) => p.approved === true || p.approved === undefined));
+      setPartiesData(rows);
     } catch (error) {
       console.log(error);
     } finally {

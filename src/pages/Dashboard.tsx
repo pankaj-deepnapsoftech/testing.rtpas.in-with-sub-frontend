@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { useCookies } from 'react-cookie';
+import React, { useState, useEffect } from "react";
+import { useCookies } from "react-cookie";
 import {
   Box,
   Text,
@@ -25,8 +25,8 @@ import {
   ModalFooter,
   ModalBody,
   ModalCloseButton,
-} from '@chakra-ui/react';
-import { useNavigate } from 'react-router-dom';
+} from "@chakra-ui/react";
+import { useNavigate } from "react-router-dom";
 import {
   BarChart,
   Bar,
@@ -40,8 +40,8 @@ import {
   Line,
   PieChart,
   Pie,
-  Cell
-} from 'recharts';
+  Cell,
+} from "recharts";
 import {
   TrendingUp,
   TrendingDown,
@@ -52,20 +52,19 @@ import {
   ArrowDown,
   Eye,
   Edit,
-  Trash2
-} from 'lucide-react';
-import RoleModals from '../components/RoleModals';
-import InventoryDashboard from './InventoryDashboard'; // Import the InventoryDashboard component (adjust path as needed)
-import ProductionDashboard from './ProductionDashboard';
-import DesignerDashboard from './DesignerDashboard';
-import AccountantDashboard from './AccountantDashboard';
-import SalesDashboard from './SalesDashboard';
-import DispatchDashboard from './DispatchDashboard';
+  Trash2,
+} from "lucide-react";
+import RoleModals from "../components/RoleModals";
+import InventoryDashboard from "./InventoryDashboard"; // Import the InventoryDashboard component (adjust path as needed)
+import ProductionDashboard from "./ProductionDashboard";
+import DesignerDashboard from "./DesignerDashboard";
+import AccountantDashboard from "./AccountantDashboard";
+import SalesDashboard from "./SalesDashboard";
+import DispatchDashboard from "./DispatchDashboard";
 
-        
 const Analytics: React.FC = () => {
-  const [selectedPeriod, setSelectedPeriod] = useState('monthly');
-  const [salesPeriod, setSalesPeriod] = useState('Yearly');
+  const [selectedPeriod, setSelectedPeriod] = useState("monthly");
+  const [salesPeriod, setSalesPeriod] = useState("Yearly");
   const [salesYear, setSalesYear] = useState(new Date().getFullYear());
   const [salesData, setSalesData] = useState([]);
   const [isLoadingSales, setIsLoadingSales] = useState(false);
@@ -91,33 +90,54 @@ const Analytics: React.FC = () => {
   const [salesDeliveredData, setSalesDeliveredData] = useState<any>(null);
   const [isLoadingSalesDelivered, setIsLoadingSalesDelivered] = useState(false);
   const [cookies] = useCookies();
-  const [inventoryPeriod, setInventoryPeriod] = useState('Weekly');
-  const [productionPeriod, setProductionPeriod] = useState('Weekly');
-  const [dispatchPeriod, setDispatchPeriod] = useState('Yearly');
-  const [accountsPeriod, setAccountsPeriod] = useState('Weekly');
-  const [merchantPeriod, setMerchantPeriod] = useState('Weekly');
+  const [inventoryPeriod, setInventoryPeriod] = useState("Weekly");
+  const [productionPeriod, setProductionPeriod] = useState("Weekly");
+  const [dispatchPeriod, setDispatchPeriod] = useState("Yearly");
+  const [accountsPeriod, setAccountsPeriod] = useState("Weekly");
+  const [merchantPeriod, setMerchantPeriod] = useState("Weekly");
   const toast = useToast();
   const navigate = useNavigate();
 
-  const backendUrl = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8096/api/';
+const [employees, setEmployees] = useState<any[]>([]);
+const [isLoadingEmployees, setIsLoadingEmployees] = useState(false);
+
+
+  const backendUrl =
+    process.env.REACT_APP_BACKEND_URL || "http://localhost:8096/api/";
 
   // Modal states
-  const { isOpen: isViewOpen, onOpen: onViewOpen, onClose: onViewClose } = useDisclosure();
-  const { isOpen: isEditOpen, onOpen: onEditOpen, onClose: onEditClose } = useDisclosure();
-  const { isOpen: isDeleteOpen, onOpen: onDeleteOpen, onClose: onDeleteClose } = useDisclosure();
-  
+  const {
+    isOpen: isViewOpen,
+    onOpen: onViewOpen,
+    onClose: onViewClose,
+  } = useDisclosure();
+  const {
+    isOpen: isEditOpen,
+    onOpen: onEditOpen,
+    onClose: onEditClose,
+  } = useDisclosure();
+  const {
+    isOpen: isDeleteOpen,
+    onOpen: onDeleteOpen,
+    onClose: onDeleteClose,
+  } = useDisclosure();
+
   // Machine Status states
-  const { isOpen: isMachineStatusOpen, onOpen: onMachineStatusOpen, onClose: onMachineStatusClose } = useDisclosure();
+  const {
+    isOpen: isMachineStatusOpen,
+    onOpen: onMachineStatusOpen,
+    onClose: onMachineStatusClose,
+  } = useDisclosure();
   const [machineStatusData, setMachineStatusData] = useState<any[]>([]);
   const [isLoadingMachineStatus, setIsLoadingMachineStatus] = useState(false);
-  
-      // Selected role state
+
+  // Selected role state
   const [selectedRole, setSelectedRole] = useState<any>(null);
   const [editForm, setEditForm] = useState({
-    role: '',
-    description: '',
-    createdOn: '',
-    lastUpdated: ''
+    role: "",
+    description: "",
+    createdOn: "",
+    lastUpdated: "",
   });
 
   // User Roles Action Handlers
@@ -125,8 +145,12 @@ const Analytics: React.FC = () => {
     // Format dates for modal display
     const formattedRole = {
       ...role,
-      createdOn: role.createdAt ? new Date(role.createdAt).toLocaleDateString('en-GB') : role.createdOn || 'N/A',
-      lastUpdated: role.updatedAt ? new Date(role.updatedAt).toLocaleDateString('en-GB') : role.lastUpdated || 'N/A'
+      createdOn: role.createdAt
+        ? new Date(role.createdAt).toLocaleDateString("en-GB")
+        : role.createdOn || "N/A",
+      lastUpdated: role.updatedAt
+        ? new Date(role.updatedAt).toLocaleDateString("en-GB")
+        : role.lastUpdated || "N/A",
     };
     setSelectedRole(formattedRole);
     onViewOpen();
@@ -136,15 +160,19 @@ const Analytics: React.FC = () => {
     // Format dates for modal display
     const formattedRole = {
       ...role,
-      createdOn: role.createdAt ? new Date(role.createdAt).toLocaleDateString('en-GB') : role.createdOn || 'N/A',
-      lastUpdated: role.updatedAt ? new Date(role.updatedAt).toLocaleDateString('en-GB') : role.lastUpdated || 'N/A'
+      createdOn: role.createdAt
+        ? new Date(role.createdAt).toLocaleDateString("en-GB")
+        : role.createdOn || "N/A",
+      lastUpdated: role.updatedAt
+        ? new Date(role.updatedAt).toLocaleDateString("en-GB")
+        : role.lastUpdated || "N/A",
     };
     setSelectedRole(formattedRole);
     setEditForm({
       role: role.role,
       description: role.description,
       createdOn: formattedRole.createdOn,
-      lastUpdated: formattedRole.lastUpdated
+      lastUpdated: formattedRole.lastUpdated,
     });
     onEditOpen();
   };
@@ -162,23 +190,26 @@ const Analytics: React.FC = () => {
   const fetchUserDetails = async () => {
     setIsLoadingUser(true);
     try {
-      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}auth/user`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${cookies?.access_token}`
+      const response = await fetch(
+        `${process.env.REACT_APP_BACKEND_URL}auth/user`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${cookies?.access_token}`,
+          },
         }
-      });
+      );
 
       if (response.ok) {
         const data = await response.json();
         if (data.success) {
           setUserDetails(data.user);
         } else {
-          throw new Error(data.message || 'Failed to fetch user details');
+          throw new Error(data.message || "Failed to fetch user details");
         }
       } else {
-        throw new Error('Failed to fetch user details');
+        throw new Error("Failed to fetch user details");
       }
     } catch (error) {
       toast({
@@ -188,18 +219,49 @@ const Analytics: React.FC = () => {
         duration: 3000,
         isClosable: true,
       });
-      setUserDetails({ isSuper: false, role: { role: 'default' } }); // Default if fetch fails
+      setUserDetails({ isSuper: false, role: { role: "default" } }); // Default if fetch fails
     } finally {
       setIsLoadingUser(false);
     }
   };
+
+ const fetchEmployees = async () => {
+   setIsLoadingEmployees(true);
+   try {
+     const response = await fetch(
+       `${process.env.REACT_APP_BACKEND_URL}auth/all`,
+       {
+         method: "GET",
+         headers: {
+           "Content-Type": "application/json",
+           Authorization: `Bearer ${cookies?.access_token}`,
+         },
+       }
+     );
+
+     const data = await response.json();
+     console.log("EMPLOYEE API RESPONSE:", data);
+
+     if (data.success && Array.isArray(data.users)) {
+       setEmployees(data.users); // <-- CORRECT KEY
+     } else {
+       setEmployees([]);
+     }
+   } catch (error) {
+     console.error("Employee fetch error:", error);
+     setEmployees([]);
+   } finally {
+     setIsLoadingEmployees(false);
+   }
+ };
+
 
   // Fetch user details on mount
   useEffect(() => {
     if (cookies?.access_token) {
       fetchUserDetails();
     } else {
-      setUserDetails({ isSuper: false, role: { role: 'default' } }); // Default if no token
+      setUserDetails({ isSuper: false, role: { role: "default" } }); // Default if no token
       setIsLoadingUser(false);
     }
   }, [cookies?.access_token]);
@@ -209,13 +271,15 @@ const Analytics: React.FC = () => {
     setIsLoadingSales(true);
     try {
       const response = await fetch(
-        `${process.env.REACT_APP_BACKEND_URL}dashboard/sales?view=${salesPeriod.toLowerCase()}&year=${salesYear}`,
+        `${
+          process.env.REACT_APP_BACKEND_URL
+        }dashboard/sales?view=${salesPeriod.toLowerCase()}&year=${salesYear}`,
         {
-          method: 'GET',
+          method: "GET",
           headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${cookies?.access_token}`
-          }
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${cookies?.access_token}`,
+          },
         }
       );
 
@@ -223,11 +287,13 @@ const Analytics: React.FC = () => {
         const data = await response.json();
         if (data.success) {
           // Transform API data to chart format
-          const transformedData = data.labels.map((label: string, index: number) => ({
-            month: label,
-            value1: data.datasets[0]?.data[index] || 0,
-            value2: data.datasets[1]?.data[index] || 0
-          }));
+          const transformedData = data.labels.map(
+            (label: string, index: number) => ({
+              month: label,
+              value1: data.datasets[0]?.data[index] || 0,
+              value2: data.datasets[1]?.data[index] || 0,
+            })
+          );
           setSalesData(transformedData);
         } else {
           toast({
@@ -239,7 +305,7 @@ const Analytics: React.FC = () => {
           });
         }
       } else {
-        throw new Error('Failed to fetch sales data');
+        throw new Error("Failed to fetch sales data");
       }
     } catch (error) {
       toast({
@@ -265,32 +331,35 @@ const Analytics: React.FC = () => {
   const fetchDispatchData = async () => {
     setIsLoadingDispatch(true);
     try {
-      let url = `${process.env.REACT_APP_BACKEND_URL}dashboard/dispatch?view=${dispatchPeriod.toLowerCase()}&year=${new Date().getFullYear()}`;
+      let url = `${
+        process.env.REACT_APP_BACKEND_URL
+      }dashboard/dispatch?view=${dispatchPeriod.toLowerCase()}&year=${new Date().getFullYear()}`;
 
       // Add month parameter for monthly view
-      if (dispatchPeriod.toLowerCase() === 'monthly') {
+      if (dispatchPeriod.toLowerCase() === "monthly") {
         const currentMonth = new Date().getMonth() + 1; // 1-12
         url += `&month=${currentMonth}`;
       }
 
-
       const response = await fetch(url, {
-        method: 'GET',
+        method: "GET",
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${cookies?.access_token}`
-        }
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${cookies?.access_token}`,
+        },
       });
 
       if (response.ok) {
         const data = await response.json();
         if (data.success) {
           // Transform API data to chart format
-          const transformedData = data.labels.map((label: string, index: number) => ({
-            day: label,
-            dispatch: data.datasets[0]?.data[index] || 0,
-            deliver: data.datasets[1]?.data[index] || 0
-          }));
+          const transformedData = data.labels.map(
+            (label: string, index: number) => ({
+              day: label,
+              dispatch: data.datasets[0]?.data[index] || 0,
+              deliver: data.datasets[1]?.data[index] || 0,
+            })
+          );
           setApiDispatchData(transformedData);
         } else {
           toast({
@@ -302,7 +371,7 @@ const Analytics: React.FC = () => {
           });
         }
       } else {
-        throw new Error('Failed to fetch dispatch data');
+        throw new Error("Failed to fetch dispatch data");
       }
     } catch (error) {
       toast({
@@ -329,13 +398,15 @@ const Analytics: React.FC = () => {
     setIsLoadingInventory(true);
     try {
       const response = await fetch(
-        `${process.env.REACT_APP_BACKEND_URL}dashboard?filter=${inventoryPeriod.toLowerCase()}`,
+        `${
+          process.env.REACT_APP_BACKEND_URL
+        }dashboard?filter=${inventoryPeriod.toLowerCase()}`,
         {
-          method: 'GET',
+          method: "GET",
           headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${cookies?.access_token}`
-          }
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${cookies?.access_token}`,
+          },
         }
       );
 
@@ -353,7 +424,7 @@ const Analytics: React.FC = () => {
           });
         }
       } else {
-        throw new Error('Failed to fetch inventory data');
+        throw new Error("Failed to fetch inventory data");
       }
     } catch (error) {
       toast({
@@ -373,13 +444,15 @@ const Analytics: React.FC = () => {
     setIsLoadingProduction(true);
     try {
       const response = await fetch(
-        `${process.env.REACT_APP_BACKEND_URL}dashboard?filter=${productionPeriod.toLowerCase()}`,
+        `${
+          process.env.REACT_APP_BACKEND_URL
+        }dashboard?filter=${productionPeriod.toLowerCase()}`,
         {
-          method: 'GET',
+          method: "GET",
           headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${cookies?.access_token}`
-          }
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${cookies?.access_token}`,
+          },
         }
       );
 
@@ -397,7 +470,7 @@ const Analytics: React.FC = () => {
           });
         }
       } else {
-        throw new Error('Failed to fetch production data');
+        throw new Error("Failed to fetch production data");
       }
     } catch (error) {
       toast({
@@ -417,13 +490,15 @@ const Analytics: React.FC = () => {
     setIsLoadingMerchant(true);
     try {
       const response = await fetch(
-        `${process.env.REACT_APP_BACKEND_URL}dashboard?filter=${merchantPeriod.toLowerCase()}`,
+        `${
+          process.env.REACT_APP_BACKEND_URL
+        }dashboard?filter=${merchantPeriod.toLowerCase()}`,
         {
-          method: 'GET',
+          method: "GET",
           headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${cookies?.access_token}`
-          }
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${cookies?.access_token}`,
+          },
         }
       );
 
@@ -441,7 +516,7 @@ const Analytics: React.FC = () => {
           });
         }
       } else {
-        throw new Error('Failed to fetch merchant data');
+        throw new Error("Failed to fetch merchant data");
       }
     } catch (error) {
       toast({
@@ -482,11 +557,11 @@ const Analytics: React.FC = () => {
       const response = await fetch(
         `${process.env.REACT_APP_BACKEND_URL}resources`,
         {
-          method: 'GET',
+          method: "GET",
           headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${cookies?.access_token}`
-          }
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${cookies?.access_token}`,
+          },
         }
       );
 
@@ -504,7 +579,7 @@ const Analytics: React.FC = () => {
           });
         }
       } else {
-        throw new Error('Failed to fetch resources data');
+        throw new Error("Failed to fetch resources data");
       }
     } catch (error) {
       toast({
@@ -533,11 +608,11 @@ const Analytics: React.FC = () => {
       const response = await fetch(
         `${process.env.REACT_APP_BACKEND_URL}role/`,
         {
-          method: 'GET',
+          method: "GET",
           headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${cookies?.access_token}`
-          }
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${cookies?.access_token}`,
+          },
         }
       );
 
@@ -555,7 +630,7 @@ const Analytics: React.FC = () => {
           });
         }
       } else {
-        throw new Error('Failed to fetch roles data');
+        throw new Error("Failed to fetch roles data");
       }
     } catch (error) {
       toast({
@@ -585,11 +660,11 @@ const Analytics: React.FC = () => {
       const inventoryResponse = await fetch(
         `${process.env.REACT_APP_BACKEND_URL}bom/all/inventory/raw-materials`,
         {
-          method: 'GET',
+          method: "GET",
           headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${cookies?.access_token}`
-          }
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${cookies?.access_token}`,
+          },
         }
       );
 
@@ -597,11 +672,11 @@ const Analytics: React.FC = () => {
       const productionResponse = await fetch(
         `${process.env.REACT_APP_BACKEND_URL}production-process/all`,
         {
-          method: 'GET',
+          method: "GET",
           headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${cookies?.access_token}`
-          }
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${cookies?.access_token}`,
+          },
         }
       );
 
@@ -629,7 +704,7 @@ const Analytics: React.FC = () => {
       if (inventoryData.length > 0) {
         combinedData.push({
           ...inventoryData[0],
-          source: 'inventory'
+          source: "inventory",
         });
       }
 
@@ -637,7 +712,7 @@ const Analytics: React.FC = () => {
       if (productionData.length > 0) {
         combinedData.push({
           ...productionData[0],
-          source: 'production'
+          source: "production",
         });
       }
 
@@ -666,21 +741,22 @@ const Analytics: React.FC = () => {
   const fetchFinanceData = async () => {
     setIsLoadingFinance(true);
     try {
-      let url = `${process.env.REACT_APP_BACKEND_URL}dashboard/finance?view=${accountsPeriod.toLowerCase()}&year=${accountsYear}`;
+      let url = `${
+        process.env.REACT_APP_BACKEND_URL
+      }dashboard/finance?view=${accountsPeriod.toLowerCase()}&year=${accountsYear}`;
 
       // Add month parameter for monthly view
-      if (accountsPeriod.toLowerCase() === 'monthly') {
+      if (accountsPeriod.toLowerCase() === "monthly") {
         const currentMonth = new Date().getMonth() + 1; // 1-12
         url += `&mon=${currentMonth}`;
       }
 
-
       const response = await fetch(url, {
-        method: 'GET',
+        method: "GET",
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${cookies?.access_token}`
-        }
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${cookies?.access_token}`,
+        },
       });
 
       if (response.ok) {
@@ -697,7 +773,7 @@ const Analytics: React.FC = () => {
           });
         }
       } else {
-        throw new Error('Failed to fetch finance data');
+        throw new Error("Failed to fetch finance data");
       }
     } catch (error) {
       toast({
@@ -719,116 +795,137 @@ const Analytics: React.FC = () => {
     }
   }, [accountsPeriod, accountsYear, userDetails?.isSuper]);
 
-   // Fetch stats data from API
-   const fetchStatsData = async () => {
-     setIsLoadingStats(true);
-     try {
-       const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}dashboard/stats`, {
-         method: 'GET',
-         headers: {
-           'Content-Type': 'application/json',
-           'Authorization': `Bearer ${cookies?.access_token}`
-         }
-       });
+  // Fetch stats data from API
+  const fetchStatsData = async () => {
+    setIsLoadingStats(true);
+    try {
+      const response = await fetch(
+        `${process.env.REACT_APP_BACKEND_URL}dashboard/stats`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${cookies?.access_token}`,
+          },
+        }
+      );
 
-       if (response.ok) {
-         const data = await response.json();
-         if (data.success) {
-           setStatsData(data);
-         } else {
-           toast({
-             title: "Error",
-             description: data.message || "Failed to fetch stats data",
-             status: "error",
-             duration: 3000,
-             isClosable: true,
-           });
-         }
-       } else {
-         console.error('Stats API Error:', response.status, response.statusText);
-       }
-     } catch (error) {
-       toast({
-         title: "Error",
-         description: "Failed to fetch stats data",
-         status: "error",
-         duration: 3000,
-         isClosable: true,
-       });
-     } finally {
-       setIsLoadingStats(false);
-     }
-   };
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success) {
+          setStatsData(data);
+        } else {
+          toast({
+            title: "Error",
+            description: data.message || "Failed to fetch stats data",
+            status: "error",
+            duration: 3000,
+            isClosable: true,
+          });
+        }
+      } else {
+        console.error("Stats API Error:", response.status, response.statusText);
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to fetch stats data",
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+      });
+    } finally {
+      setIsLoadingStats(false);
+    }
+  };
 
-   // Fetch stats data on component mount
-   useEffect(() => {
-     if (userDetails?.isSuper) {
-       fetchStatsData();
-     }
-   }, [userDetails?.isSuper]);
+  // Fetch stats data on component mount
+  useEffect(() => {
+    if (userDetails?.isSuper) {
+      fetchStatsData();
+    }
+  }, [userDetails?.isSuper]);
 
-   // Fetch sales-delivered data from API
-   const fetchSalesDeliveredData = async () => {
-     setIsLoadingSalesDelivered(true);
-     try {
-       const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}dashboard/sales-delivered`, {
-         method: 'GET',
-         headers: {
-           'Content-Type': 'application/json',
-           'Authorization': `Bearer ${cookies?.access_token}`
-         }
-       });
+  // Fetch sales-delivered data from API
+  const fetchSalesDeliveredData = async () => {
+    setIsLoadingSalesDelivered(true);
+    try {
+      const response = await fetch(
+        `${process.env.REACT_APP_BACKEND_URL}dashboard/sales-delivered`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${cookies?.access_token}`,
+          },
+        }
+      );
 
-       if (response.ok) {
-         const data = await response.json();
-         if (data.success) {
-           setSalesDeliveredData(data);
-         } else {
-           toast({
-             title: "Error",
-             description: data.message || "Failed to fetch sales-delivered data",
-             status: "error",
-             duration: 3000,
-             isClosable: true,
-           });
-         }
-       } else {
-         console.error('Sales-Delivered API Error:', response.status, response.statusText);
-       }
-     } catch (error) {
-       toast({
-         title: "Error",
-         description: "Failed to fetch sales-delivered data",
-         status: "error",
-         duration: 3000,
-         isClosable: true,
-       });
-     } finally {
-       setIsLoadingSalesDelivered(false);
-     }
-   };
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success) {
+          setSalesDeliveredData(data);
+        } else {
+          toast({
+            title: "Error",
+            description: data.message || "Failed to fetch sales-delivered data",
+            status: "error",
+            duration: 3000,
+            isClosable: true,
+          });
+        }
+      } else {
+        console.error(
+          "Sales-Delivered API Error:",
+          response.status,
+          response.statusText
+        );
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to fetch sales-delivered data",
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+      });
+    } finally {
+      setIsLoadingSalesDelivered(false);
+    }
+  };
 
-   // Fetch sales-delivered data on component mount
-   useEffect(() => {
-     if (userDetails?.isSuper) {
-       fetchSalesDeliveredData();
-     }
-   }, [userDetails?.isSuper]);
+  // Fetch sales-delivered data on component mount
+  useEffect(() => {
+    if (userDetails?.isSuper) {
+      fetchSalesDeliveredData();
+    }
+  }, [userDetails?.isSuper]);
+
+ 
+
+useEffect(() => {
+  if (userDetails?.isSuper) {
+    fetchEmployees();
+  }
+}, [userDetails?.isSuper]);
+
+
+
 
   const handleSaveEdit = async () => {
     try {
       const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}role`, {
-        method: 'PUT',
+        method: "PUT",
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${cookies?.access_token}`
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${cookies?.access_token}`,
         },
         body: JSON.stringify({
           _id: selectedRole?._id,
           role: editForm.role,
           description: editForm.description,
-          permissions: selectedRole?.permissions || []
-        })
+          permissions: selectedRole?.permissions || [],
+        }),
       });
 
       const data = await response.json();
@@ -862,14 +959,14 @@ const Analytics: React.FC = () => {
   const handleConfirmDelete = async () => {
     try {
       const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}role`, {
-        method: 'DELETE',
+        method: "DELETE",
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${cookies?.access_token}`
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${cookies?.access_token}`,
         },
         body: JSON.stringify({
-          _id: selectedRole?._id
-        })
+          _id: selectedRole?._id,
+        }),
       });
 
       const data = await response.json();
@@ -906,11 +1003,11 @@ const Analytics: React.FC = () => {
       setIsLoadingMachineStatus(true);
       const response = await fetch(`${backendUrl}dashboard/machine-status`, {
         headers: {
-          'Authorization': `Bearer ${cookies?.access_token}`,
-          'Content-Type': 'application/json',
+          Authorization: `Bearer ${cookies?.access_token}`,
+          "Content-Type": "application/json",
         },
       });
-      
+
       if (response.ok) {
         const result = await response.json();
         if (result.success) {
@@ -932,7 +1029,7 @@ const Analytics: React.FC = () => {
           });
         }
       } else {
-        throw new Error('Failed to fetch machine status');
+        throw new Error("Failed to fetch machine status");
       }
     } catch (error) {
       toast({
@@ -949,216 +1046,288 @@ const Analytics: React.FC = () => {
 
   // Sales Overview Data (fallback data)
   const fallbackSalesData = [
-    { month: 'Jan', value1: 8, value2: 12 },
-    { month: 'Feb', value1: 12, value2: 18 },
-    { month: 'Mar', value1: 6, value2: 15 },
-    { month: 'Apr', value1: 16, value2: 22 },
-    { month: 'May', value1: 14, value2: 20 },
-    { month: 'Jun', value1: 10, value2: 28 },
-    { month: 'Jul', value1: 18, value2: 25 },
-    { month: 'Aug', value1: 22, value2: 30 },
-    { month: 'Sep', value1: 20, value2: 28 },
-    { month: 'Oct', value1: 24, value2: 32 },
-    { month: 'Nov', value1: 26, value2: 35 },
-    { month: 'Dec', value1: 28, value2: 38 },
+    { month: "Jan", value1: 8, value2: 12 },
+    { month: "Feb", value1: 12, value2: 18 },
+    { month: "Mar", value1: 6, value2: 15 },
+    { month: "Apr", value1: 16, value2: 22 },
+    { month: "May", value1: 14, value2: 20 },
+    { month: "Jun", value1: 10, value2: 28 },
+    { month: "Jul", value1: 18, value2: 25 },
+    { month: "Aug", value1: 22, value2: 30 },
+    { month: "Sep", value1: 20, value2: 28 },
+    { month: "Oct", value1: 24, value2: 32 },
+    { month: "Nov", value1: 26, value2: 35 },
+    { month: "Dec", value1: 28, value2: 38 },
   ];
 
   // Inventory Data (fallback data)
   const fallbackInventoryData = [
-    { name: 'Raw materials', value: 30, color: '#6AC6FF' },
-    { name: 'Work in progress', value: 25, color: '#78A5F7' },
-    { name: 'Finished goods', value: 20, color: '#FF86E1' },
-    { name: 'Indirect inventory', value: 25, color: '#FFC680' },
+    { name: "Raw materials", value: 30, color: "#6AC6FF" },
+    { name: "Work in progress", value: 25, color: "#78A5F7" },
+    { name: "Finished goods", value: 20, color: "#FF86E1" },
+    { name: "Indirect inventory", value: 25, color: "#FFC680" },
   ];
 
   // Transform API inventory data to chart format
-  const inventoryData = inventoryChartData ? [
-    {
-      name: 'Raw materials',
-      value: inventoryChartData.raw_materials || 0,
-      color: '#6AC6FF'
-    },
-    {
-      name: 'Work in progress',
-      value: inventoryChartData.work_in_progress || 0,
-      color: '#78A5F7'
-    },
-    {
-      name: 'Finished goods',
-      value: inventoryChartData.finished_goods || 0,
-      color: '#FF86E1'
-    },
-    {
-      name: 'Indirect inventory',
-      value: inventoryChartData.indirect_inventory || 0,
-      color: '#FFC680'
-    },
-  ] : fallbackInventoryData;
-
+  const inventoryData = inventoryChartData
+    ? [
+        {
+          name: "Raw materials",
+          value: inventoryChartData.raw_materials || 0,
+          color: "#6AC6FF",
+        },
+        {
+          name: "Work in progress",
+          value: inventoryChartData.work_in_progress || 0,
+          color: "#78A5F7",
+        },
+        {
+          name: "Finished goods",
+          value: inventoryChartData.finished_goods || 0,
+          color: "#FF86E1",
+        },
+        {
+          name: "Indirect inventory",
+          value: inventoryChartData.indirect_inventory || 0,
+          color: "#FFC680",
+        },
+      ]
+    : fallbackInventoryData;
 
   // Production Data (fallback data)
   const fallbackProductionData = [
-    { name: 'Completed', value: 124, color: '#51B6F5' },
-    { name: 'Progress', value: 85, color: '#F778D7' },
-    { name: 'Pre Production', value: 65, color: '#80ADFF' },
+    { name: "Completed", value: 124, color: "#51B6F5" },
+    { name: "Progress", value: 85, color: "#F778D7" },
+    { name: "Pre Production", value: 65, color: "#80ADFF" },
   ];
 
   // Transform API production data to chart format
-  const productionData = productionChartData ? [
-    {
-      name: 'Completed',
-      value: productionChartData.completed || 0,
-      color: '#51B6F5'
-    },
-    {
-      name: 'Progress',
-      value: productionChartData.progress || 0,
-      color: '#F778D7'
-    },
-    {
-      name: 'Pre Production',
-      value: productionChartData.pre_production || 0,
-      color: '#80ADFF'
-    },
-  ] : fallbackProductionData;
-
+  const productionData = productionChartData
+    ? [
+        {
+          name: "Completed",
+          value: productionChartData.completed || 0,
+          color: "#51B6F5",
+        },
+        {
+          name: "Progress",
+          value: productionChartData.progress || 0,
+          color: "#F778D7",
+        },
+        {
+          name: "Pre Production",
+          value: productionChartData.pre_production || 0,
+          color: "#80ADFF",
+        },
+      ]
+    : fallbackProductionData;
 
   // Dispatch Data (fallback data)
   const fallbackDispatchData = [
-    { day: 'Mon', dispatch: 15, deliver: 12 },
-    { day: 'Tue', dispatch: 22, deliver: 18 },
-    { day: 'Wed', dispatch: 18, deliver: 15 },
-    { day: 'Thu', dispatch: 25, deliver: 22 },
-    { day: 'Fri', dispatch: 30, deliver: 28 },
-    { day: 'Sat', dispatch: 12, deliver: 10 },
-    { day: 'Sun', dispatch: 8, deliver: 6 },
+    { day: "Mon", dispatch: 15, deliver: 12 },
+    { day: "Tue", dispatch: 22, deliver: 18 },
+    { day: "Wed", dispatch: 18, deliver: 15 },
+    { day: "Thu", dispatch: 25, deliver: 22 },
+    { day: "Fri", dispatch: 30, deliver: 28 },
+    { day: "Sat", dispatch: 12, deliver: 10 },
+    { day: "Sun", dispatch: 8, deliver: 6 },
   ];
 
   // Resources Data (fallback data)
   const fallbackResourcesData = [
-    { name: 'CNC', type: 'Machine', color: '#FA4F4F' },
-    { name: 'Packing assembl...', type: 'Assembly line', color: '#5D94F5' },
-    { name: 'Oil machine', type: 'Machine', color: '#FA4F4F' },
-    { name: 'Motor manufact...', type: 'Assembly line', color: '#5D94F5' },
+    { name: "CNC", type: "Machine", color: "#FA4F4F" },
+    { name: "Packing assembl...", type: "Assembly line", color: "#5D94F5" },
+    { name: "Oil machine", type: "Machine", color: "#FA4F4F" },
+    { name: "Motor manufact...", type: "Assembly line", color: "#5D94F5" },
   ];
 
   // Transform API finance data to chart format
-  const accountsData = financeData ? [
-    {
-      name: 'Proforma Invoice',
-      value: financeData.proforma_invoices?.total_count || 0,
-      color: '#78A5F7'
-    },
-    {
-      name: 'Tax Invoice',
-      value: financeData.invoices?.total_count || 0,
-      color: '#FFC680'
-    },
-    {
-      name: 'Payments',
-      value: financeData.payments?.total_count || 0,
-      color: '#F778D7'
-    },
-  ] : [
-    { name: 'Proforma Invoice', value: 0, color: '#78A5F7' },
-    { name: 'Tax Invoice', value: 0, color: '#FFC680' },
-    { name: 'Payments', value: 0, color: '#F778D7' },
-  ];
+  const accountsData = financeData
+    ? [
+        {
+          name: "Proforma Invoice",
+          value: financeData.proforma_invoices?.total_count || 0,
+          color: "#78A5F7",
+        },
+        {
+          name: "Tax Invoice",
+          value: financeData.invoices?.total_count || 0,
+          color: "#FFC680",
+        },
+        {
+          name: "Payments",
+          value: financeData.payments?.total_count || 0,
+          color: "#F778D7",
+        },
+      ]
+    : [
+        { name: "Proforma Invoice", value: 0, color: "#78A5F7" },
+        { name: "Tax Invoice", value: 0, color: "#FFC680" },
+        { name: "Payments", value: 0, color: "#F778D7" },
+      ];
 
   // Merchant Data - Pie Chart (fallback data)
   const fallbackMerchantData = [
-    { name: 'Individual', value: 60, color: '#6AC6FF' },
-    { name: 'Company', value: 40, color: '#FF86E1' },
+    { name: "Individual", value: 60, color: "#6AC6FF" },
+    { name: "Company", value: 40, color: "#FF86E1" },
   ];
 
   // Transform API merchant data to chart format
-  const merchantData = merchantChartData ? [
-    {
-      name: 'Individual',
-      value: merchantChartData.totals?.total_individual || 0,
-      color: '#6AC6FF'
-    },
-    {
-      name: 'Company',
-      value: merchantChartData.totals?.total_company || 0,
-      color: '#FF86E1'
-    },
-  ] : fallbackMerchantData;
+  const merchantData = merchantChartData
+    ? [
+        {
+          name: "Individual",
+          value: merchantChartData.totals?.total_individual || 0,
+          color: "#6AC6FF",
+        },
+        {
+          name: "Company",
+          value: merchantChartData.totals?.total_company || 0,
+          color: "#FF86E1",
+        },
+      ]
+    : fallbackMerchantData;
 
   // User Roles Data (fallback data)
   const fallbackUserRolesData = [
-    { role: 'Inventory', description: 'Manage raw materials s...', createdOn: '14/07/25', lastUpdated: '19/08/25' },
-    { role: 'Production', description: 'Overseas manufacturi...', createdOn: '14/07/25', lastUpdated: '19/08/25' },
-    { role: 'Accountant', description: 'Overseas manufacturi...', createdOn: '14/06/25', lastUpdated: '19/08/25' },
+    {
+      role: "Inventory",
+      description: "Manage raw materials s...",
+      createdOn: "14/07/25",
+      lastUpdated: "19/08/25",
+    },
+    {
+      role: "Production",
+      description: "Overseas manufacturi...",
+      createdOn: "14/07/25",
+      lastUpdated: "19/08/25",
+    },
+    {
+      role: "Accountant",
+      description: "Overseas manufacturi...",
+      createdOn: "14/06/25",
+      lastUpdated: "19/08/25",
+    },
   ];
 
   // Approval Data (fallback data)
   const fallbackApprovalData = [
-    { bom_name: 'Sample BOM', name: 'Sample Material', status: 'raw material approval pending', createdAt: '30/08/25', source: 'inventory' },
-    { bom: { bom_name: 'Test BOM' }, item: { name: 'Test Material' }, status: 'completed', createdAt: '29/08/25', source: 'production' },
+    {
+      bom_name: "Sample BOM",
+      name: "Sample Material",
+      status: "raw material approval pending",
+      createdAt: "30/08/25",
+      source: "inventory",
+    },
+    {
+      bom: { bom_name: "Test BOM" },
+      item: { name: "Test Material" },
+      status: "completed",
+      createdAt: "29/08/25",
+      source: "production",
+    },
   ];
 
   const kpiCards = [
     {
-      title: 'Sales Order',
-      value: isLoadingSalesDelivered ? '...' : (salesDeliveredData?.sales?.currentMonthSales?.toString() || '0'),
-      change: isLoadingSalesDelivered ? '...' : (Math.abs(salesDeliveredData?.sales?.differenceInSales || 0).toString()),
-      trend: salesDeliveredData?.sales?.differenceInSales >= 0 ? 'up' : 'down',
+      title: "Sales Order",
+      value: isLoadingSalesDelivered
+        ? "..."
+        : salesDeliveredData?.sales?.currentMonthSales?.toString() || "0",
+      change: isLoadingSalesDelivered
+        ? "..."
+        : Math.abs(
+            salesDeliveredData?.sales?.differenceInSales || 0
+          ).toString(),
+      trend: salesDeliveredData?.sales?.differenceInSales >= 0 ? "up" : "down",
       icon: List,
-      bgColor: '#FA4F4F',
-      iconColor: 'white',
-      route: '/sales'
+      bgColor: "#FA4F4F",
+      iconColor: "white",
+      route: "/sales",
     },
     {
-      title: 'Completed Orders',
-      value: isLoadingSalesDelivered ? '...' : (salesDeliveredData?.delivered?.currentMonthDelivered?.toString() || '0'),
-      change: isLoadingSalesDelivered ? '...' : (Math.abs(salesDeliveredData?.delivered?.differenceInDelivered || 0).toString()),
-      trend: salesDeliveredData?.delivered?.differenceInDelivered >= 0 ? 'up' : 'down',
+      title: "Completed Orders",
+      value: isLoadingSalesDelivered
+        ? "..."
+        : salesDeliveredData?.delivered?.currentMonthDelivered?.toString() ||
+          "0",
+      change: isLoadingSalesDelivered
+        ? "..."
+        : Math.abs(
+            salesDeliveredData?.delivered?.differenceInDelivered || 0
+          ).toString(),
+      trend:
+        salesDeliveredData?.delivered?.differenceInDelivered >= 0
+          ? "up"
+          : "down",
       icon: Check,
-      bgColor: '#7ED185',
-      iconColor: 'white',
-      route: '/dispatch'
+      bgColor: "#7ED185",
+      iconColor: "white",
+      route: "/dispatch",
     },
     {
-      title: ' BOM',
-      value: isLoadingStats ? '...' : (statsData?.bom?.thisMonth?.toString() || '0'),
-      change: isLoadingStats ? '...' : (Math.abs((statsData?.bom?.thisMonth || 0) - (statsData?.bom?.lastMonth || 0)).toString()),
-      trend: ((statsData?.bom?.thisMonth || 0) - (statsData?.bom?.lastMonth || 0)) >= 0 ? 'up' : 'down',
+      title: " BOM",
+      value: isLoadingStats
+        ? "..."
+        : statsData?.bom?.thisMonth?.toString() || "0",
+      change: isLoadingStats
+        ? "..."
+        : Math.abs(
+            (statsData?.bom?.thisMonth || 0) - (statsData?.bom?.lastMonth || 0)
+          ).toString(),
+      trend:
+        (statsData?.bom?.thisMonth || 0) - (statsData?.bom?.lastMonth || 0) >= 0
+          ? "up"
+          : "down",
       icon: List,
-      bgColor: '#EAA250',
-      iconColor: 'white',
-      route: '/production/bom'
+      bgColor: "#EAA250",
+      iconColor: "white",
+      route: "/production/bom",
     },
     {
-      title: 'Verified Employes',
-      value: isLoadingStats ? '...' : (statsData?.verified_employees?.thisMonth?.toString() || '0'),
-      change: isLoadingStats ? '...' : (Math.abs((statsData?.verified_employees?.thisMonth || 0) - (statsData?.verified_employees?.lastMonth || 0)).toString()),
-      trend: ((statsData?.verified_employees?.thisMonth || 0) - (statsData?.verified_employees?.lastMonth || 0)) >= 0 ? 'up' : 'down',
+      title: "Verified Employees",
+      value: isLoadingEmployees ? "..." : employees.length.toString() || "0",
+      change: isLoadingStats
+        ? "..."
+        : Math.abs(
+            (statsData?.verified_employees?.thisMonth || 0) -
+              (statsData?.verified_employees?.lastMonth || 0)
+          ).toString(),
+      trend:
+        (statsData?.verified_employees?.thisMonth || 0) -
+          (statsData?.verified_employees?.lastMonth || 0) >=
+        0
+          ? "up"
+          : "down",
       icon: Users,
-      bgColor: '#00D6EE',
-      iconColor: 'white',
-      route: '/employee'
-    }
+      bgColor: "#00D6EE",
+      iconColor: "white",
+      route: "/employee",
+    },
   ];
+
+  console.log("this is my employee============>>>>", employees)
 
   // Conditional rendering based on user details
   if (isLoadingUser) {
     return (
       <Box p={8} textAlign="center">
-        <Text fontSize="lg" color="gray.600">Loading dashboard...</Text>
+        <Text fontSize="lg" color="gray.600">
+          Loading dashboard...
+        </Text>
       </Box>
     );
   }
 
   if (userDetails?.isSuper) {
     // Render Analytics (admin) dashboard (falls through to render below)
-  } else if (userDetails?.role?.role?.toLowerCase() === 'inventory') {
+  } else if (userDetails?.role?.role?.toLowerCase() === "inventory") {
     // Render InventoryDashboard for inventory role
     return <InventoryDashboard />;
-  } else if (userDetails?.role?.role?.toLowerCase() === 'production') {
+  } else if (userDetails?.role?.role?.toLowerCase() === "production") {
     // Render ProductionDashboard for production role
     return <ProductionDashboard />;
-  } else if (userDetails?.role?.role?.toLowerCase() === 'designer') {
+  } else if (userDetails?.role?.role?.toLowerCase() === "designer") {
     // Render DesignerDashboard for designer role
     return <DesignerDashboard />;
   } else if (userDetails?.role?.role?.toLowerCase() === "accountant") {
@@ -1191,26 +1360,29 @@ const Analytics: React.FC = () => {
     >
       {/* Header */}
       <Flex
-        direction={{ base: 'column', md: 'row' }}
+        direction={{ base: "column", md: "row" }}
         justify="space-between"
-        align={{ base: 'start', md: 'center' }}
+        align={{ base: "start", md: "center" }}
         mb={6}
         gap={{ base: 4, md: 0 }}
       >
-        <VStack align={{ base: 'start', md: 'start' }} spacing={2}>
-          <Text fontSize={{ base: '2xl', md: '3xl' }} fontWeight="bold" color="gray.800">
-             Dashboard
+        <VStack align={{ base: "start", md: "start" }} spacing={2}>
+          <Text
+            fontSize={{ base: "2xl", md: "3xl" }}
+            fontWeight="bold"
+            color="gray.800"
+          >
+            Dashboard
           </Text>
-          <Text fontSize={{ base: 'sm', md: 'md' }} color="gray.600">
+          <Text fontSize={{ base: "sm", md: "md" }} color="gray.600">
             Monitor your business performance and insights
           </Text>
         </VStack>
-
       </Flex>
 
       {/* KPI Cards */}
       <Flex
-        direction={{ base: 'column', lg: 'row' }}
+        direction={{ base: "column", lg: "row" }}
         gap={{ base: 4, lg: 6 }}
         mb={6}
         flexWrap="wrap"
@@ -1221,38 +1393,50 @@ const Analytics: React.FC = () => {
             bg="white"
             p={{ base: 4, md: 6 }}
             borderRadius="lg"
-            flex={{ base: '1', lg: '1' }}
-            minW={{ base: '100%', lg: 'auto' }}
+            flex={{ base: "1", lg: "1" }}
+            minW={{ base: "100%", lg: "auto" }}
             boxShadow="sm"
             cursor="pointer"
             onClick={() => navigate(kpi.route)}
             _hover={{
-              transform: 'translateY(-2px)',
-              boxShadow: 'lg',
-              transition: 'all 0.2s'
+              transform: "translateY(-2px)",
+              boxShadow: "lg",
+              transition: "all 0.2s",
             }}
             transition="all 0.2s"
           >
             <Flex
-              direction={{ base: 'column', sm: 'row' }}
+              direction={{ base: "column", sm: "row" }}
               justify="space-between"
-              align={{ base: 'start', sm: 'center' }}
+              align={{ base: "start", sm: "center" }}
               gap={{ base: 3, sm: 0 }}
             >
               <Box flex="1">
-                <Text fontSize="sm" color="gray.600" mb={1}>{kpi.title}</Text>
-                <Text fontSize={{ base: '2xl', md: '3xl' }} fontWeight="bold" color="gray.800" mb={2}>{kpi.value}</Text>
+                <Text fontSize="sm" color="gray.600" mb={1}>
+                  {kpi.title}
+                </Text>
+                <Text
+                  fontSize={{ base: "2xl", md: "3xl" }}
+                  fontWeight="bold"
+                  color="gray.800"
+                  mb={2}
+                >
+                  {kpi.value}
+                </Text>
                 <Flex align="center" gap={1} flexWrap="wrap">
                   <Text
                     fontSize="sm"
-                    color={kpi.trend === 'up' ? 'green.500' : kpi.change === '0' ? 'gray.500' : 'red.500'}
+                    color={
+                      kpi.trend === "up"
+                        ? "green.500"
+                        : kpi.change === "0"
+                        ? "gray.500"
+                        : "red.500"
+                    }
                   >
-                    {kpi.change} {kpi.trend === 'up' ? '▲' : '▼'}
+                    {kpi.change} {kpi.trend === "up" ? "▲" : "▼"}
                   </Text>
-                  <Text
-                    fontSize="sm"
-                    color="gray.500"
-                  >
+                  <Text fontSize="sm" color="gray.500">
                     v/s last month
                   </Text>
                 </Flex>
@@ -1260,7 +1444,7 @@ const Analytics: React.FC = () => {
               <Box
                 bg={kpi.bgColor}
                 p={3}
-                borderRadius={kpi.icon === List ? 'md' : 'full'}
+                borderRadius={kpi.icon === List ? "md" : "full"}
                 display="flex"
                 alignItems="center"
                 justifyContent="center"
@@ -1273,11 +1457,9 @@ const Analytics: React.FC = () => {
         ))}
       </Flex>
 
-
-
       {/* Middle Row - Sales Overview and Inventory */}
       <Flex
-        direction={{ base: 'column', xl: 'row' }}
+        direction={{ base: "column", xl: "row" }}
         gap={{ base: 4, xl: 6 }}
         mb={6}
       >
@@ -1286,31 +1468,37 @@ const Analytics: React.FC = () => {
           bg="white"
           p={{ base: 4, md: 6 }}
           borderRadius="lg"
-          flex={{ base: '1', xl: '2.5' }}
+          flex={{ base: "1", xl: "2.5" }}
           boxShadow="sm"
         >
           <Flex
-            direction={{ base: 'column', sm: 'row' }}
+            direction={{ base: "column", sm: "row" }}
             justify="space-between"
-            align={{ base: 'start', sm: 'center' }}
+            align={{ base: "start", sm: "center" }}
             mb={4}
             gap={{ base: 3, sm: 0 }}
           >
-            <Text fontSize={{ base: 'md', md: 'lg' }} fontWeight="bold" color="gray.800">Sales Overview</Text>
+            <Text
+              fontSize={{ base: "md", md: "lg" }}
+              fontWeight="bold"
+              color="gray.800"
+            >
+              Sales Overview
+            </Text>
             <HStack spacing={2} flexWrap="wrap">
-              {['Weekly', 'Monthly', 'Yearly'].map((period) => (
+              {["Weekly", "Monthly", "Yearly"].map((period) => (
                 <Box
                   key={period}
                   px={3}
                   py={1}
                   borderRadius="md"
-                  bg={period === salesPeriod ? 'blue.500' : 'gray.100'}
-                  color={period === salesPeriod ? 'white' : 'gray.600'}
+                  bg={period === salesPeriod ? "blue.500" : "gray.100"}
+                  color={period === salesPeriod ? "white" : "gray.600"}
                   fontSize="sm"
                   cursor="pointer"
                   onClick={() => setSalesPeriod(period)}
                   _hover={{
-                    bg: period === salesPeriod ? 'blue.600' : 'gray.200'
+                    bg: period === salesPeriod ? "blue.600" : "gray.200",
                   }}
                   transition="all 0.2s"
                   flexShrink={0}
@@ -1318,7 +1506,7 @@ const Analytics: React.FC = () => {
                   {period}
                 </Box>
               ))}
-              {salesPeriod === 'Yearly' && (
+              {salesPeriod === "Yearly" && (
                 <Select
                   value={salesYear}
                   onChange={(e) => setSalesYear(Number(e.target.value))}
@@ -1329,33 +1517,52 @@ const Analytics: React.FC = () => {
                   borderColor="gray.200"
                   borderRadius="md"
                 >
-                  {Array.from({ length: 10 }, (_, i) => new Date().getFullYear() - i).map(year => (
-                    <option key={year} value={year}>{year}</option>
+                  {Array.from(
+                    { length: 10 },
+                    (_, i) => new Date().getFullYear() - i
+                  ).map((year) => (
+                    <option key={year} value={year}>
+                      {year}
+                    </option>
                   ))}
                 </Select>
               )}
             </HStack>
           </Flex>
-          <Box height={{ base: '250px', md: '300px' }}>
+          <Box height={{ base: "250px", md: "300px" }}>
             {isLoadingSales ? (
               <Flex justify="center" align="center" height="100%">
                 <Text color="gray.500">Loading sales data...</Text>
               </Flex>
             ) : (
               <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={salesData.length > 0 ? salesData : fallbackSalesData}>
+                <LineChart
+                  data={salesData.length > 0 ? salesData : fallbackSalesData}
+                >
                   <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
                   <XAxis dataKey="month" stroke="#6B7280" />
                   <YAxis stroke="#6B7280" />
                   <Tooltip
                     contentStyle={{
-                      backgroundColor: 'white',
-                      border: '1px solid #E5E7EB',
-                      borderRadius: '8px'
+                      backgroundColor: "white",
+                      border: "1px solid #E5E7EB",
+                      borderRadius: "8px",
                     }}
                   />
-                  <Line type="monotone" dataKey="value1" stroke="#3B82F6" strokeWidth={2} dot={false} />
-                  <Line type="monotone" dataKey="value2" stroke="#F59E0B" strokeWidth={2} dot={false} />
+                  <Line
+                    type="monotone"
+                    dataKey="value1"
+                    stroke="#3B82F6"
+                    strokeWidth={2}
+                    dot={false}
+                  />
+                  <Line
+                    type="monotone"
+                    dataKey="value2"
+                    stroke="#F59E0B"
+                    strokeWidth={2}
+                    dot={false}
+                  />
                 </LineChart>
               </ResponsiveContainer>
             )}
@@ -1364,11 +1571,15 @@ const Analytics: React.FC = () => {
           <HStack spacing={4} mt={4} justify="center" flexWrap="wrap">
             <Flex align="center" gap={2}>
               <Box w={3} h={3} borderRadius="full" bg="#3B82F6" />
-              <Text fontSize="sm" color="gray.600">Before  </Text>
+              <Text fontSize="sm" color="gray.600">
+                Before{" "}
+              </Text>
             </Flex>
             <Flex align="center" gap={2}>
               <Box w={3} h={3} borderRadius="full" bg="#F59E0B" />
-              <Text fontSize="sm" color="gray.600">Current </Text>
+              <Text fontSize="sm" color="gray.600">
+                Current{" "}
+              </Text>
             </Flex>
           </HStack>
         </Box>
@@ -1378,24 +1589,30 @@ const Analytics: React.FC = () => {
           bg="white"
           p={{ base: 4, md: 6 }}
           borderRadius="lg"
-          flex={{ base: '1', xl: '1' }}
+          flex={{ base: "1", xl: "1" }}
           boxShadow="sm"
         >
           <Flex
-            direction={{ base: 'column', sm: 'row' }}
+            direction={{ base: "column", sm: "row" }}
             justify="space-between"
-            align={{ base: 'start', sm: 'center' }}
+            align={{ base: "start", sm: "center" }}
             mb={4}
             gap={{ base: 3, sm: 0 }}
           >
-            <Text fontSize={{ base: 'md', md: 'lg' }} fontWeight="bold" color="gray.800">Inventory</Text>
+            <Text
+              fontSize={{ base: "md", md: "lg" }}
+              fontWeight="bold"
+              color="gray.800"
+            >
+              Inventory
+            </Text>
             <HStack spacing={1}>
               <Select
                 value={inventoryPeriod}
                 onChange={(e) => setInventoryPeriod(e.target.value)}
                 size="sm"
                 bg="white"
-                w={{ base: '28', md: '32' }}
+                w={{ base: "28", md: "32" }}
                 border="1px solid"
                 borderColor="gray.200"
                 borderRadius="md"
@@ -1406,7 +1623,7 @@ const Analytics: React.FC = () => {
               </Select>
             </HStack>
           </Flex>
-          <Box height={{ base: '200px', md: '200px' }}>
+          <Box height={{ base: "200px", md: "200px" }}>
             {isLoadingInventory ? (
               <Flex justify="center" align="center" height="100%">
                 <Text color="gray.500">Loading inventory data...</Text>
@@ -1428,9 +1645,9 @@ const Analytics: React.FC = () => {
                   </Pie>
                   <Tooltip
                     contentStyle={{
-                      backgroundColor: 'white',
-                      border: '1px solid #E5E7EB',
-                      borderRadius: '8px'
+                      backgroundColor: "white",
+                      border: "1px solid #E5E7EB",
+                      borderRadius: "8px",
                     }}
                   />
                 </PieChart>
@@ -1441,7 +1658,9 @@ const Analytics: React.FC = () => {
             {inventoryData.map((item, index) => (
               <Flex key={index} align="center" gap={2}>
                 <Box w={3} h={3} borderRadius="full" bg={item.color} />
-                <Text fontSize="sm" color="gray.600">{item.name}</Text>
+                <Text fontSize="sm" color="gray.600">
+                  {item.name}
+                </Text>
               </Flex>
             ))}
           </VStack>
@@ -1450,7 +1669,7 @@ const Analytics: React.FC = () => {
 
       {/* Bottom Row - Production, Dispatch, and Resources */}
       <Flex
-        direction={{ base: 'column', lg: 'row' }}
+        direction={{ base: "column", lg: "row" }}
         gap={{ base: 4, lg: 6 }}
         mb={6}
       >
@@ -1459,24 +1678,30 @@ const Analytics: React.FC = () => {
           bg="white"
           p={{ base: 4, md: 6 }}
           borderRadius="lg"
-          flex={{ base: '1', lg: '0.8' }}
+          flex={{ base: "1", lg: "0.8" }}
           boxShadow="sm"
         >
           <Flex
-            direction={{ base: 'column', sm: 'row' }}
+            direction={{ base: "column", sm: "row" }}
             justify="space-between"
-            align={{ base: 'start', sm: 'center' }}
+            align={{ base: "start", sm: "center" }}
             mb={4}
             gap={{ base: 3, sm: 0 }}
           >
-            <Text fontSize={{ base: 'md', md: 'lg' }} fontWeight="bold" color="gray.800">Production</Text>
+            <Text
+              fontSize={{ base: "md", md: "lg" }}
+              fontWeight="bold"
+              color="gray.800"
+            >
+              Production
+            </Text>
             <HStack spacing={1}>
               <Select
                 value={productionPeriod}
                 onChange={(e) => setProductionPeriod(e.target.value)}
                 size="sm"
                 bg="white"
-                w={{ base: '28', md: '32' }}
+                w={{ base: "28", md: "32" }}
                 border="1px solid"
                 borderColor="gray.200"
                 borderRadius="md"
@@ -1487,7 +1712,7 @@ const Analytics: React.FC = () => {
               </Select>
             </HStack>
           </Flex>
-          <Box height={{ base: '200px', md: '200px' }}>
+          <Box height={{ base: "200px", md: "200px" }}>
             {isLoadingProduction ? (
               <Flex justify="center" align="center" height="100%">
                 <Text color="gray.500">Loading production data...</Text>
@@ -1508,9 +1733,9 @@ const Analytics: React.FC = () => {
                   </Pie>
                   <Tooltip
                     contentStyle={{
-                      backgroundColor: 'white',
-                      border: '1px solid #E5E7EB',
-                      borderRadius: '8px'
+                      backgroundColor: "white",
+                      border: "1px solid #E5E7EB",
+                      borderRadius: "8px",
                     }}
                   />
                 </PieChart>
@@ -1518,16 +1743,26 @@ const Analytics: React.FC = () => {
             )}
           </Box>
           <Box textAlign="center" mt={2}>
-            <Text fontSize={{ base: 'md', md: 'lg' }} fontWeight="bold" color="gray.800">Completed</Text>
+            <Text
+              fontSize={{ base: "md", md: "lg" }}
+              fontWeight="bold"
+              color="gray.800"
+            >
+              Completed
+            </Text>
             <Text fontSize="sm" color="gray.600">
-              {isLoadingProduction ? 'Loading...' : `${productionChartData?.completed || 0} orders`}
+              {isLoadingProduction
+                ? "Loading..."
+                : `${productionChartData?.completed || 0} orders`}
             </Text>
           </Box>
           <VStack spacing={2} mt={4} align="start">
             {productionData.map((item, index) => (
               <Flex key={index} align="center" gap={2}>
                 <Box w={3} h={3} borderRadius="full" bg={item.color} />
-                <Text fontSize="sm" color="gray.600">{item.name}</Text>
+                <Text fontSize="sm" color="gray.600">
+                  {item.name}
+                </Text>
               </Flex>
             ))}
           </VStack>
@@ -1538,24 +1773,30 @@ const Analytics: React.FC = () => {
           bg="white"
           p={{ base: 4, md: 6 }}
           borderRadius="lg"
-          flex={{ base: '1', lg: '1' }}
+          flex={{ base: "1", lg: "1" }}
           boxShadow="sm"
         >
           <Flex
-            direction={{ base: 'column', sm: 'row' }}
+            direction={{ base: "column", sm: "row" }}
             justify="space-between"
-            align={{ base: 'start', sm: 'center' }}
+            align={{ base: "start", sm: "center" }}
             mb={4}
             gap={{ base: 3, sm: 0 }}
           >
-            <Text fontSize={{ base: 'md', md: 'lg' }} fontWeight="bold" color="gray.800">Dispatch</Text>
+            <Text
+              fontSize={{ base: "md", md: "lg" }}
+              fontWeight="bold"
+              color="gray.800"
+            >
+              Dispatch
+            </Text>
             <HStack spacing={1}>
               <Select
                 value={dispatchPeriod}
                 onChange={(e) => setDispatchPeriod(e.target.value)}
                 size="sm"
                 bg="white"
-                w={{ base: '28', md: '32' }}
+                w={{ base: "28", md: "32" }}
                 border="1px solid"
                 borderColor="gray.200"
                 borderRadius="md"
@@ -1566,37 +1807,52 @@ const Analytics: React.FC = () => {
               </Select>
             </HStack>
           </Flex>
-          <Box height={{ base: '200px', md: '200px' }}>
+          <Box height={{ base: "200px", md: "200px" }}>
             {isLoadingDispatch ? (
               <Flex justify="center" align="center" height="100%">
                 <Text color="gray.500">Loading dispatch data...</Text>
               </Flex>
             ) : (
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={apiDispatchData.length > 0 ? apiDispatchData : fallbackDispatchData}>
+                <BarChart
+                  data={
+                    apiDispatchData.length > 0
+                      ? apiDispatchData
+                      : fallbackDispatchData
+                  }
+                >
                   <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
                   <XAxis dataKey="day" stroke="#6B7280" />
                   <YAxis stroke="#6B7280" />
                   <Tooltip
                     contentStyle={{
-                      backgroundColor: 'white',
-                      border: '1px solid #E5E7EB',
-                      borderRadius: '8px'
+                      backgroundColor: "white",
+                      border: "1px solid #E5E7EB",
+                      borderRadius: "8px",
                     }}
                   />
-                  <Bar dataKey="dispatch" fill="#F778D7" radius={[4, 4, 0, 0]} />
+                  <Bar
+                    dataKey="dispatch"
+                    fill="#F778D7"
+                    radius={[4, 4, 0, 0]}
+                  />
                   <Bar dataKey="deliver" fill="#78A5F7" radius={[4, 4, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             )}
-          </Box>                     <HStack spacing={4} mt={4} justify="center" flexWrap="wrap">
+          </Box>{" "}
+          <HStack spacing={4} mt={4} justify="center" flexWrap="wrap">
             <Flex align="center" gap={2}>
               <Box w={3} h={3} borderRadius="full" bg="#F778D7" />
-              <Text fontSize="sm" color="gray.600">Dispatch</Text>
+              <Text fontSize="sm" color="gray.600">
+                Dispatch
+              </Text>
             </Flex>
             <Flex align="center" gap={2}>
               <Box w={3} h={3} borderRadius="full" bg="#78A5F7" />
-              <Text fontSize="sm" color="gray.600">Deliver</Text>
+              <Text fontSize="sm" color="gray.600">
+                Deliver
+              </Text>
             </Flex>
           </HStack>
         </Box>
@@ -1606,46 +1862,61 @@ const Analytics: React.FC = () => {
           bg="white"
           p={{ base: 4, md: 6 }}
           borderRadius="lg"
-          flex={{ base: '1', lg: '1.2' }}
+          flex={{ base: "1", lg: "1.2" }}
           boxShadow="sm"
         >
           <Flex
-            direction={{ base: 'column', sm: 'row' }}
+            direction={{ base: "column", sm: "row" }}
             justify="space-between"
-            align={{ base: 'start', sm: 'center' }}
+            align={{ base: "start", sm: "center" }}
             mb={4}
             gap={{ base: 3, sm: 0 }}
           >
-            <Text fontSize={{ base: 'md', md: 'lg' }} fontWeight="bold" color="gray.800">Resources</Text>
+            <Text
+              fontSize={{ base: "md", md: "lg" }}
+              fontWeight="bold"
+              color="gray.800"
+            >
+              Resources
+            </Text>
             <Text
               fontSize="sm"
               color="blue.500"
               cursor="pointer"
-              onClick={() => navigate('/resources')}
-              _hover={{ color: 'blue.600' }}
+              onClick={() => navigate("/resources")}
+              _hover={{ color: "blue.600" }}
               transition="color 0.2s"
             >
               View all
             </Text>
           </Flex>
           <Text fontSize="sm" color="gray.600" mb={4}>
-            {isLoadingResources ? 'Loading...' : `${apiResourcesData.length || 0} resources found`}
+            {isLoadingResources
+              ? "Loading..."
+              : `${apiResourcesData.length || 0} resources found`}
           </Text>
           <VStack spacing={3} align="stretch">
-                         {(apiResourcesData.length > 0 ? apiResourcesData : fallbackResourcesData).slice(0, 4).map((resource, index) => (
-                             <Flex 
-                 key={index} 
-                 justify="space-between" 
-                 align="center" 
-                 p={3} 
-                 bg="gray.50" 
-                 borderRadius="full"
-                 flexWrap="wrap"
-                 gap={2}
-               >
-                                                                  <Text fontSize="sm" color="gray.800" fontWeight="normal">{resource.name}</Text>
-                  <Badge 
-                    colorScheme={resource.type === 'Machine' ? 'red' : 'blue'} 
+            {(apiResourcesData.length > 0
+              ? apiResourcesData
+              : fallbackResourcesData
+            )
+              .slice(0, 4)
+              .map((resource, index) => (
+                <Flex
+                  key={index}
+                  justify="space-between"
+                  align="center"
+                  p={3}
+                  bg="gray.50"
+                  borderRadius="full"
+                  flexWrap="wrap"
+                  gap={2}
+                >
+                  <Text fontSize="sm" color="gray.800" fontWeight="normal">
+                    {resource.name}
+                  </Text>
+                  <Badge
+                    colorScheme={resource.type === "Machine" ? "red" : "blue"}
                     variant="subtle"
                     fontSize="xs"
                     borderRadius="80px"
@@ -1653,49 +1924,52 @@ const Analytics: React.FC = () => {
                   >
                     {resource.type}
                   </Badge>
-              </Flex>
-            ))}
+                </Flex>
+              ))}
           </VStack>
         </Box>
       </Flex>
 
       {/* Additional Sections - Side by Side */}
-      <Flex 
-        direction="row"
-        gap={{ base: 4, lg: 6 }} 
-        mb={6}
-        flexWrap="wrap"
-      >
+      <Flex direction="row" gap={{ base: 4, lg: 6 }} mb={6} flexWrap="wrap">
         {/* User Roles */}
-        <Box 
-          bg="white" 
-          p={{ base: 4, md: 6 }} 
-          borderRadius="lg" 
+        <Box
+          bg="white"
+          p={{ base: 4, md: 6 }}
+          borderRadius="lg"
           flex="1"
           minW="0"
           boxShadow="sm"
         >
           <Flex
-            direction={{ base: 'column', sm: 'row' }}
+            direction={{ base: "column", sm: "row" }}
             justify="space-between"
-            align={{ base: 'start', sm: 'center' }}
+            align={{ base: "start", sm: "center" }}
             mb={4}
             gap={{ base: 3, sm: 0 }}
           >
-            <Text fontSize={{ base: 'md', md: 'lg' }} fontWeight="bold" color="gray.800">User roles</Text>
+            <Text
+              fontSize={{ base: "md", md: "lg" }}
+              fontWeight="bold"
+              color="gray.800"
+            >
+              User roles
+            </Text>
             <Text
               fontSize="sm"
               color="blue.500"
               cursor="pointer"
-              onClick={() => navigate('/role')}
-              _hover={{ color: 'blue.600' }}
+              onClick={() => navigate("/role")}
+              _hover={{ color: "blue.600" }}
               transition="color 0.2s"
             >
               View all
             </Text>
           </Flex>
           <Text fontSize="sm" color="gray.600" mb={4}>
-            {isLoadingRoles ? 'Loading...' : `${apiRolesData.length || 0} Roles found`}
+            {isLoadingRoles
+              ? "Loading..."
+              : `${apiRolesData.length || 0} Roles found`}
           </Text>
           <Box overflowX="auto">
             <Table size="sm">
@@ -1709,10 +1983,17 @@ const Analytics: React.FC = () => {
                 </Tr>
               </Thead>
               <Tbody>
-                {(apiRolesData.length > 0 ? apiRolesData.slice(0, 3) : fallbackUserRolesData.slice(0, 3)).map((role, index) => {
+                {(apiRolesData.length > 0
+                  ? apiRolesData.slice(0, 3)
+                  : fallbackUserRolesData.slice(0, 3)
+                ).map((role, index) => {
                   // Format dates for API data
-                  const createdOn = role.createdAt ? new Date(role.createdAt).toLocaleDateString('en-GB') : role.createdOn || '';
-                  const lastUpdated = role.updatedAt ? new Date(role.updatedAt).toLocaleDateString('en-GB') : role.lastUpdated || '';
+                  const createdOn = role.createdAt
+                    ? new Date(role.createdAt).toLocaleDateString("en-GB")
+                    : role.createdOn || "";
+                  const lastUpdated = role.updatedAt
+                    ? new Date(role.updatedAt).toLocaleDateString("en-GB")
+                    : role.lastUpdated || "";
 
                   return (
                     <Tr key={index}>
@@ -1757,29 +2038,35 @@ const Analytics: React.FC = () => {
         </Box>
 
         {/* Accounts */}
-        <Box 
-          bg="white" 
-          p={{ base: 4, md: 6 }} 
-          borderRadius="lg" 
+        <Box
+          bg="white"
+          p={{ base: 4, md: 6 }}
+          borderRadius="lg"
           flex="1"
           minW="0"
           boxShadow="sm"
         >
           <Flex
-            direction={{ base: 'column', sm: 'row' }}
+            direction={{ base: "column", sm: "row" }}
             justify="space-between"
-            align={{ base: 'start', sm: 'center' }}
+            align={{ base: "start", sm: "center" }}
             mb={4}
             gap={{ base: 3, sm: 0 }}
           >
-            <Text fontSize={{ base: 'md', md: 'lg' }} fontWeight="bold" color="gray.800">Accounts</Text>
+            <Text
+              fontSize={{ base: "md", md: "lg" }}
+              fontWeight="bold"
+              color="gray.800"
+            >
+              Accounts
+            </Text>
             <HStack spacing={2}>
               <Select
                 value={accountsPeriod}
                 onChange={(e) => setAccountsPeriod(e.target.value)}
                 size="sm"
                 bg="white"
-                w={{ base: '28', md: '32' }}
+                w={{ base: "28", md: "32" }}
                 border="1px solid"
                 borderColor="gray.200"
                 borderRadius="md"
@@ -1788,7 +2075,7 @@ const Analytics: React.FC = () => {
                 <option value="Monthly">Monthly</option>
                 <option value="Yearly">Yearly</option>
               </Select>
-              {accountsPeriod === 'Yearly' && (
+              {accountsPeriod === "Yearly" && (
                 <Select
                   value={accountsYear}
                   onChange={(e) => setAccountsYear(Number(e.target.value))}
@@ -1799,68 +2086,83 @@ const Analytics: React.FC = () => {
                   borderColor="gray.200"
                   borderRadius="md"
                 >
-                  {Array.from({ length: 10 }, (_, i) => new Date().getFullYear() - i).map(year => (
-                    <option key={year} value={year}>{year}</option>
+                  {Array.from(
+                    { length: 10 },
+                    (_, i) => new Date().getFullYear() - i
+                  ).map((year) => (
+                    <option key={year} value={year}>
+                      {year}
+                    </option>
                   ))}
                 </Select>
               )}
             </HStack>
           </Flex>
           <Box textAlign="center" mb={4}>
-            <Text fontSize={{ base: 'md', md: 'lg' }} fontWeight="bold" color="gray.800">
-              {isLoadingFinance ? 'Loading...' : `${financeData?.invoices?.total_count || 0} Invoice${financeData?.invoices?.total_count !== 1 ? 's' : ''}`}
+            <Text
+              fontSize={{ base: "md", md: "lg" }}
+              fontWeight="bold"
+              color="gray.800"
+            >
+              {isLoadingFinance
+                ? "Loading..."
+                : `${financeData?.invoices?.total_count || 0} Invoice${
+                    financeData?.invoices?.total_count !== 1 ? "s" : ""
+                  }`}
             </Text>
           </Box>
-          <Box 
-            height={{ base: '180px', md: '180px' }}
+          <Box
+            height={{ base: "180px", md: "180px" }}
             width="100%"
             display="flex"
             justifyContent="center"
             alignItems="center"
             flexShrink={0}
           >
-             {isLoadingFinance ? (
-               <Flex justify="center" align="center" height="100%">
-                 <Text color="gray.500">Loading finance data...</Text>
-               </Flex>
-             ) : (
-               <Box width="300px" height="180px">
-                 <ResponsiveContainer width={300} height={180}>
-                   <PieChart width={300} height={180}>
-                     <Pie
-                       data={accountsData}
-                       cx="50%"
-                       cy="50%"
-                       innerRadius={45}
-                       outerRadius={65}
-                       startAngle={180}
-                       endAngle={0}
-                       dataKey="value"
-                     >
-                   {accountsData.map((entry, index) => (
-                     <Cell key={`cell-${index}`} fill={entry.color} />
-                   ))}
-                 </Pie>
-                 <Tooltip 
-                   contentStyle={{ 
-                     backgroundColor: 'white', 
-                     border: '1px solid #E5E7EB',
-                     borderRadius: '8px'
-                   }}
-                   formatter={(value, name) => {
-                     return [name, value];
-                   }}
-                 />
-                   </PieChart>
-                 </ResponsiveContainer>
-               </Box>
-             )}
+            {isLoadingFinance ? (
+              <Flex justify="center" align="center" height="100%">
+                <Text color="gray.500">Loading finance data...</Text>
+              </Flex>
+            ) : (
+              <Box width="300px" height="180px">
+                <ResponsiveContainer width={300} height={180}>
+                  <PieChart width={300} height={180}>
+                    <Pie
+                      data={accountsData}
+                      cx="50%"
+                      cy="50%"
+                      innerRadius={45}
+                      outerRadius={65}
+                      startAngle={180}
+                      endAngle={0}
+                      dataKey="value"
+                    >
+                      {accountsData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={entry.color} />
+                      ))}
+                    </Pie>
+                    <Tooltip
+                      contentStyle={{
+                        backgroundColor: "white",
+                        border: "1px solid #E5E7EB",
+                        borderRadius: "8px",
+                      }}
+                      formatter={(value, name) => {
+                        return [name, value];
+                      }}
+                    />
+                  </PieChart>
+                </ResponsiveContainer>
+              </Box>
+            )}
           </Box>
           <VStack spacing={2} mt={4} align="start">
             {accountsData.map((item, index) => (
               <Flex key={index} align="center" gap={2}>
                 <Box w={3} h={3} borderRadius="full" bg={item.color} />
-                <Text fontSize="sm" color="gray.600">{item.name}</Text>
+                <Text fontSize="sm" color="gray.600">
+                  {item.name}
+                </Text>
               </Flex>
             ))}
           </VStack>
@@ -1875,7 +2177,7 @@ const Analytics: React.FC = () => {
         flexWrap="wrap"
       >
         {/* Total BOM */}
-        {/* <Box 
+      {/* <Box 
           bg="white" 
           p={{ base: 4, md: 6 }} 
           borderRadius="lg" 
@@ -1891,7 +2193,7 @@ const Analytics: React.FC = () => {
               {isLoadingStats ? '...' : statsData?.bom?.total || 0}
             </Text>
             {/* Debug info */}
-            {/* {process.env.NODE_ENV === 'development' && (
+      {/* {process.env.NODE_ENV === 'development' && (
               <Text fontSize="xs" color="gray.400">
                 Debug: {JSON.stringify(statsData?.bom)}
               </Text>
@@ -1914,8 +2216,8 @@ const Analytics: React.FC = () => {
           </Box>
         </Box> */}
 
-        {/* Verified Employees */}
-        {/* <Box 
+      {/* Verified Employees */}
+      {/* <Box 
           bg="white" 
           p={{ base: 4, md: 6 }} 
           borderRadius="lg" 
@@ -1949,8 +2251,8 @@ const Analytics: React.FC = () => {
         </Box>
       </Flex> */}
 
-      <Flex 
-        direction={{ base: 'column', lg: 'row' }}
+      <Flex
+        direction={{ base: "column", lg: "row" }}
         gap={{ base: 4, lg: 6 }}
         mb={6}
       >
@@ -1959,24 +2261,30 @@ const Analytics: React.FC = () => {
           bg="white"
           p={{ base: 4, md: 6 }}
           borderRadius="lg"
-          flex={{ base: '1', lg: '1' }}
+          flex={{ base: "1", lg: "1" }}
           boxShadow="sm"
         >
           <Flex
-            direction={{ base: 'column', sm: 'row' }}
+            direction={{ base: "column", sm: "row" }}
             justify="space-between"
-            align={{ base: 'start', sm: 'center' }}
+            align={{ base: "start", sm: "center" }}
             mb={4}
             gap={{ base: 3, sm: 0 }}
           >
-            <Text fontSize={{ base: 'md', md: 'lg' }} fontWeight="bold" color="gray.800">Merchant</Text>
+            <Text
+              fontSize={{ base: "md", md: "lg" }}
+              fontWeight="bold"
+              color="gray.800"
+            >
+              Merchant
+            </Text>
             <HStack spacing={1}>
               <Select
                 value={merchantPeriod}
                 onChange={(e) => setMerchantPeriod(e.target.value)}
                 size="sm"
                 bg="white"
-                w={{ base: '28', md: '32' }}
+                w={{ base: "28", md: "32" }}
                 border="1px solid"
                 borderColor="gray.200"
                 borderRadius="md"
@@ -1987,61 +2295,81 @@ const Analytics: React.FC = () => {
               </Select>
             </HStack>
           </Flex>
-                                           <Box textAlign="center" mb={4}>
-              <Text fontSize={{ base: 'md', md: 'lg' }} fontWeight="bold" color="gray.800">
-                {isLoadingMerchant ? 'Loading...' : `${merchantChartData?.totals?.total_merchant || 0} Parties`}
+          <Box textAlign="center" mb={4}>
+            <Text
+              fontSize={{ base: "md", md: "lg" }}
+              fontWeight="bold"
+              color="gray.800"
+            >
+              {isLoadingMerchant
+                ? "Loading..."
+                : `${merchantChartData?.totals?.total_merchant || 0} Parties`}
+            </Text>
+          </Box>
+          {isLoadingMerchant ? (
+            <Flex justify="center" align="center" height="150px">
+              <Text color="gray.500">Loading merchant data...</Text>
+            </Flex>
+          ) : (
+            <ResponsiveContainer width="100%" height={150}>
+              <PieChart>
+                <Pie
+                  data={merchantData}
+                  cx="50%"
+                  cy="50%"
+                  outerRadius={60}
+                  dataKey="value"
+                >
+                  {merchantData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={entry.color} />
+                  ))}
+                </Pie>
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: "white",
+                    border: "1px solid #E5E7EB",
+                    borderRadius: "8px",
+                    boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
+                  }}
+                  formatter={(value, name) => {
+                    if (name === "Individual") {
+                      const individual = merchantChartData?.individual;
+                      return [
+                        "Individual",
+                        `${individual?.buyer || 0} Buyer, ${
+                          individual?.seller || 0
+                        } Seller`,
+                      ];
+                    }
+                    if (name === "Comp any") {
+                      const company = merchantChartData?.company;
+                      return [
+                        "Company",
+                        `${company?.buyer || 0} Buyer, ${
+                          company?.seller || 0
+                        } Seller`,
+                      ];
+                    }
+                    return [name, value];
+                  }}
+                />
+              </PieChart>
+            </ResponsiveContainer>
+          )}
+          <VStack spacing={2} mt={4} align="start">
+            <Flex align="center" gap={2}>
+              <Box w={3} h={3} borderRadius="full" bg="#6AC6FF" />
+              <Text fontSize="sm" color="gray.600">
+                Individual
               </Text>
-            </Box>
-                                               {isLoadingMerchant ? (
-                          <Flex justify="center" align="center" height="150px">
-                            <Text color="gray.500">Loading merchant data...</Text>
-                          </Flex>
-                        ) : (
-                          <ResponsiveContainer width="100%" height={150}>
-                            <PieChart>
-                              <Pie
-                                data={merchantData}
-                                cx="50%"
-                                cy="50%"
-                                outerRadius={60}
-                                dataKey="value"
-                              >
-                                {merchantData.map((entry, index) => (
-                                  <Cell key={`cell-${index}`} fill={entry.color} />
-                                ))}
-                              </Pie>
-                              <Tooltip 
-                                contentStyle={{ 
-                                  backgroundColor: 'white', 
-                                  border: '1px solid #E5E7EB',
-                                  borderRadius: '8px',
-                                  boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
-                                }}
-                                formatter={(value, name) => {
-                                  if (name === 'Individual') {
-                                    const individual = merchantChartData?.individual;
-                                    return ['Individual', `${individual?.buyer || 0} Buyer, ${individual?.seller || 0} Seller`];
-                                  }
-                                  if (name === 'Comp any') {
-                                    const company = merchantChartData?.company;
-                                    return ['Company', `${company?.buyer || 0} Buyer, ${company?.seller || 0} Seller`];
-                                  }
-                                  return [name, value];
-                                }}
-                              />
-                            </PieChart>
-                          </ResponsiveContainer>
-                        )}
-                     <VStack spacing={2} mt={4} align="start">
-             <Flex align="center" gap={2}>
-               <Box w={3} h={3} borderRadius="full" bg="#6AC6FF" />
-               <Text fontSize="sm" color="gray.600">Individual</Text>
-             </Flex>
-             <Flex align="center" gap={2}>
-               <Box w={3} h={3} borderRadius="full" bg="#FF86E1" />
-               <Text fontSize="sm" color="gray.600">Company</Text>
-             </Flex>
-           </VStack>
+            </Flex>
+            <Flex align="center" gap={2}>
+              <Box w={3} h={3} borderRadius="full" bg="#FF86E1" />
+              <Text fontSize="sm" color="gray.600">
+                Company
+              </Text>
+            </Flex>
+          </VStack>
         </Box>
 
         {/* Approval */}
@@ -2049,30 +2377,38 @@ const Analytics: React.FC = () => {
           bg="white"
           p={{ base: 4, md: 6 }}
           borderRadius="lg"
-          flex={{ base: '1', lg: '1' }}
+          flex={{ base: "1", lg: "1" }}
           boxShadow="sm"
         >
           <Flex
-            direction={{ base: 'column', sm: 'row' }}
+            direction={{ base: "column", sm: "row" }}
             justify="space-between"
-            align={{ base: 'start', sm: 'center' }}
+            align={{ base: "start", sm: "center" }}
             mb={4}
             gap={{ base: 3, sm: 0 }}
           >
-            <Text fontSize={{ base: 'md', md: 'lg' }} fontWeight="bold" color="gray.800">Approval</Text>
+            <Text
+              fontSize={{ base: "md", md: "lg" }}
+              fontWeight="bold"
+              color="gray.800"
+            >
+              Approval
+            </Text>
             <Text
               fontSize="sm"
               color="blue.500"
               cursor="pointer"
-              onClick={() => navigate('/inventory/approval')}
-              _hover={{ color: 'blue.600' }}
+              onClick={() => navigate("/inventory/approval")}
+              _hover={{ color: "blue.600" }}
               transition="color 0.2s"
             >
               View all
             </Text>
           </Flex>
           <Text fontSize="sm" color="gray.600" mb={4}>
-            {isLoadingApproval ? 'Loading...' : `${apiApprovalData.length || 0} Approval found`}
+            {isLoadingApproval
+              ? "Loading..."
+              : `${apiApprovalData.length || 0} Approval found`}
           </Text>
           <Box overflowX="auto">
             <Table size="sm">
@@ -2087,38 +2423,43 @@ const Analytics: React.FC = () => {
                 </Tr>
               </Thead>
               <Tbody>
-                {(apiApprovalData.length > 0 ? apiApprovalData : fallbackApprovalData).map((item, index) => {
+                {(apiApprovalData.length > 0
+                  ? apiApprovalData
+                  : fallbackApprovalData
+                ).map((item, index) => {
                   // Format dates for API data
-                  const createdOn = item.createdAt ? new Date(item.createdAt).toLocaleDateString('en-GB') : item.createdOn || '';
+                  const createdOn = item.createdAt
+                    ? new Date(item.createdAt).toLocaleDateString("en-GB")
+                    : item.createdOn || "";
 
                   // Determine role based on source
                   const getRole = (source: string) => {
-                    return source === 'inventory' ? 'Inventory' : 'Production';
+                    return source === "inventory" ? "Inventory" : "Production";
                   };
 
                   // Get BOM name and material name based on source
                   const getBomName = (item: any) => {
-                    if (item.source === 'inventory') {
-                      return item.bom_name || 'N/A';
+                    if (item.source === "inventory") {
+                      return item.bom_name || "N/A";
                     } else {
-                      return item.bom?.bom_name || 'N/A';
+                      return item.bom?.bom_name || "N/A";
                     }
                   };
 
                   const getMaterialName = (item: any) => {
-                    if (item.source === 'inventory') {
-                      return item.name || 'N/A';
+                    if (item.source === "inventory") {
+                      return item.name || "N/A";
                     } else {
-                      return item.item?.name || 'N/A';
+                      return item.item?.name || "N/A";
                     }
                   };
 
                   // Get status based on source
                   const getStatus = (item: any) => {
-                    if (item.source === 'inventory') {
-                      return item.bom_status || 'N/A';
+                    if (item.source === "inventory") {
+                      return item.bom_status || "N/A";
                     } else {
-                      return item.status || 'N/A';
+                      return item.status || "N/A";
                     }
                   };
 
@@ -2129,14 +2470,25 @@ const Analytics: React.FC = () => {
                       <Td fontSize="xs">{getMaterialName(item)}</Td>
                       <Td fontSize="xs">
                         <Badge
-                          colorScheme={getStatus(item) === 'raw material approval pending' ? 'orange' : getStatus(item) === 'completed' ? 'green' : 'blue'}
+                          colorScheme={
+                            getStatus(item) === "raw material approval pending"
+                              ? "orange"
+                              : getStatus(item) === "completed"
+                              ? "green"
+                              : "blue"
+                          }
                           variant="subtle"
                           fontSize="xs"
                         >
-                          {getStatus(item) === 'raw material approval pending' ? 'Pending' :
-                            getStatus(item) === 'completed' ? 'Completed' :
-                              getStatus(item) === 'production in progress' ? 'In Progress' :
-                                getStatus(item) === 'Inventory Allocated' ? 'Allocated' : getStatus(item)}
+                          {getStatus(item) === "raw material approval pending"
+                            ? "Pending"
+                            : getStatus(item) === "completed"
+                            ? "Completed"
+                            : getStatus(item) === "production in progress"
+                            ? "In Progress"
+                            : getStatus(item) === "Inventory Allocated"
+                            ? "Allocated"
+                            : getStatus(item)}
                         </Badge>
                       </Td>
                       <Td fontSize="xs">{createdOn}</Td>
@@ -2178,7 +2530,11 @@ const Analytics: React.FC = () => {
       </Flex>
 
       {/* Machine Status Modal */}
-      <Modal isOpen={isMachineStatusOpen} onClose={onMachineStatusClose} size="xl">
+      <Modal
+        isOpen={isMachineStatusOpen}
+        onClose={onMachineStatusClose}
+        size="xl"
+      >
         <ModalOverlay />
         <ModalContent>
           <ModalHeader>Machine Status</ModalHeader>
@@ -2191,11 +2547,11 @@ const Analytics: React.FC = () => {
             ) : machineStatusData.length > 0 ? (
               <VStack spacing={4} align="stretch">
                 {machineStatusData.map((machine, index) => (
-                  <Box 
+                  <Box
                     key={machine._id || index}
-                    p={4} 
-                    border="1px solid" 
-                    borderColor="gray.200" 
+                    p={4}
+                    border="1px solid"
+                    borderColor="gray.200"
                     borderRadius="lg"
                     bg="gray.50"
                   >
@@ -2203,8 +2559,12 @@ const Analytics: React.FC = () => {
                       <Text fontSize="lg" fontWeight="bold" color="gray.800">
                         {machine.machine}
                       </Text>
-                      <Badge 
-                        colorScheme={machine.status?.toLowerCase() === 'on' ? 'green' : 'red'} 
+                      <Badge
+                        colorScheme={
+                          machine.status?.toLowerCase() === "on"
+                            ? "green"
+                            : "red"
+                        }
                         variant="solid"
                         fontSize="sm"
                       >
@@ -2213,19 +2573,33 @@ const Analytics: React.FC = () => {
                     </Flex>
                     <VStack spacing={2} align="stretch">
                       <Flex justify="space-between">
-                        <Text fontSize="sm" color="gray.600">Value 1:</Text>
-                        <Text fontSize="sm" fontWeight="medium">{machine.value1}</Text>
+                        <Text fontSize="sm" color="gray.600">
+                          Value 1:
+                        </Text>
+                        <Text fontSize="sm" fontWeight="medium">
+                          {machine.value1}
+                        </Text>
                       </Flex>
                       <Flex justify="space-between">
-                        <Text fontSize="sm" color="gray.600">Value 2:</Text>
-                        <Text fontSize="sm" fontWeight="medium">{machine.value2}</Text>
+                        <Text fontSize="sm" color="gray.600">
+                          Value 2:
+                        </Text>
+                        <Text fontSize="sm" fontWeight="medium">
+                          {machine.value2}
+                        </Text>
                       </Flex>
                       <Flex justify="space-between">
-                        <Text fontSize="sm" color="gray.600">Timestamp:</Text>
-                        <Text fontSize="sm" fontWeight="medium">{machine.timestamp}</Text>
+                        <Text fontSize="sm" color="gray.600">
+                          Timestamp:
+                        </Text>
+                        <Text fontSize="sm" fontWeight="medium">
+                          {machine.timestamp}
+                        </Text>
                       </Flex>
                       <Flex justify="space-between">
-                        <Text fontSize="sm" color="gray.600">Last Updated:</Text>
+                        <Text fontSize="sm" color="gray.600">
+                          Last Updated:
+                        </Text>
                         <Text fontSize="sm" fontWeight="medium">
                           {new Date(machine.updatedAt).toLocaleString()}
                         </Text>
