@@ -333,6 +333,7 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({
                               onChange={(e) =>
                                 handleSelectOne(
                                   row.original._id,
+                                  
                                   e.target.checked
                                 )
                               }
