@@ -459,14 +459,12 @@ const [isLoadingEmployees, setIsLoadingEmployees] = useState(false);
     }
   };
 
-  // Fetch production chart data from API
+  // Fetch production chart data using production-process API
   const fetchProductionData = async () => {
     setIsLoadingProduction(true);
     try {
       const response = await fetch(
-        `${
-          process.env.REACT_APP_BACKEND_URL
-        }dashboard?filter=${productionPeriod.toLowerCase()}`,
+        `${process.env.REACT_APP_BACKEND_URL}production-process/all`,
         {
           method: "GET",
           headers: {
@@ -476,22 +474,46 @@ const [isLoadingEmployees, setIsLoadingEmployees] = useState(false);
         }
       );
 
-      if (response.ok) {
-        const data = await response.json();
-        if (data.success) {
-          setProductionChartData(data.production_chart);
-        } else {
-          toast({
-            title: "Error",
-            description: data.message || "Failed to fetch production data",
-            status: "error",
-            duration: 3000,
-            isClosable: true,
-          });
-        }
-      } else {
+      if (!response.ok) {
         throw new Error("Failed to fetch production data");
       }
+
+      const data = await response.json();
+      if (!data.success) {
+        throw new Error(data.message || "Failed to fetch production data");
+      }
+
+      const processes: any[] = data.production_processes || [];
+      const normalize = (s: any) => String(s || "").toLowerCase().trim();
+      const preStatuses = [
+        "raw material approval pending",
+        "inventory allocated",
+        "request for allow inventory",
+        "inventory in transit",
+      ];
+      const progressStatuses = [
+        "production started",
+        "production in progress",
+      ];
+      const completedStatuses = ["completed"];
+
+      let pre_production = 0;
+      let progress = 0;
+      let completed = 0;
+
+      for (const p of processes) {
+        const st = normalize(p.status);
+        if (preStatuses.includes(st)) pre_production++;
+        else if (progressStatuses.includes(st)) progress++;
+        else if (completedStatuses.includes(st)) completed++;
+      }
+
+      const deliveredCompleted = salesDeliveredData?.delivered?.currentMonthDelivered;
+      if (typeof deliveredCompleted === "number") {
+        completed = deliveredCompleted;
+      }
+
+      setProductionChartData({ completed, progress, pre_production });
     } catch (error) {
       toast({
         title: "Error",
@@ -563,6 +585,16 @@ const [isLoadingEmployees, setIsLoadingEmployees] = useState(false);
       fetchProductionData();
     }
   }, [productionPeriod, userDetails?.isSuper]);
+
+  useEffect(() => {
+    const delivered = salesDeliveredData?.delivered?.currentMonthDelivered;
+    if (productionChartData && typeof delivered === "number") {
+      setProductionChartData({
+        ...productionChartData,
+        completed: delivered,
+      });
+    }
+  }, [salesDeliveredData]);
 
   useEffect(() => {
     if (userDetails?.isSuper) {
