@@ -13,11 +13,15 @@ import {
   FormLabel,
   FormErrorMessage,
   Spinner,
+  InputRightElement,
+  InputGroup,
 } from "@chakra-ui/react";
 import { useEffect, useState, ChangeEvent } from "react";
 import { toast } from "react-toastify";
 import { useCookies } from "react-cookie";
 import Select from "react-select";
+import { ViewOffIcon } from "@chakra-ui/icons";
+import { Eye } from "lucide-react";
 
 interface AddEmployeeModalProps {
   isOpen: boolean;
@@ -49,6 +53,9 @@ const AddEmployeeModal: React.FC<AddEmployeeModalProps> = ({
   fetchEmployees,
 }) => {
   const [cookies] = useCookies();
+  
+  const [showPassword, setShowPassword] = useState(false);
+
   const [loading, setLoading] = useState<boolean>(false);
   const [roleOptions, setRoleOptions] = useState<
     { value: string; label: string }[] | []
@@ -106,9 +113,7 @@ const AddEmployeeModal: React.FC<AddEmployeeModalProps> = ({
     }
   }, [isOpen]);
 
-  const handleChange = (
-    e: ChangeEvent<HTMLInputElement>
-  ) => {
+  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
     setErrors({ ...errors, [e.target.name]: "" });
   };
@@ -177,7 +182,8 @@ const AddEmployeeModal: React.FC<AddEmployeeModalProps> = ({
       );
 
       const result = await response.json();
-      if (!result.success) throw new Error(result.message || "Failed to create user");
+      if (!result.success)
+        throw new Error(result.message || "Failed to create user");
 
       toast.success("Employee added successfully");
       fetchEmployees();
@@ -248,13 +254,28 @@ const AddEmployeeModal: React.FC<AddEmployeeModalProps> = ({
 
           <FormControl isInvalid={!!errors.password} isRequired>
             <FormLabel>Password</FormLabel>
-            <Input
-              name="password"
-              type="password"
-              value={form.password}
-              onChange={handleChange}
-              placeholder="Strong password"
-            />
+
+            <InputGroup>
+              <Input
+                name="password"
+                type={showPassword ? "text" : "password"}
+                value={form.password}
+                onChange={handleChange}
+                placeholder="Strong password"
+              />
+
+              <InputRightElement width="3rem">
+                <Button
+                  h="1.5rem"
+                  size="sm"
+                  variant="ghost"
+                  onClick={() => setShowPassword(!showPassword)}
+                >
+                  {showPassword ? <ViewOffIcon /> : <Eye />}
+                </Button>
+              </InputRightElement>
+            </InputGroup>
+
             <FormErrorMessage>{errors.password}</FormErrorMessage>
           </FormControl>
 
@@ -318,7 +339,6 @@ const AddEmployeeModal: React.FC<AddEmployeeModalProps> = ({
             onClick={submitHandler}
             isDisabled={loading}
           >
-            
             {loading ? <Spinner size="sm" /> : "Save"}
           </Button>
         </ModalFooter>
