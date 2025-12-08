@@ -34,7 +34,7 @@ interface FormState {
   email: string;
   phone: string;
   password: string;
-  role: any; // Will be {value: string, label: string} from react-select
+  role: any;
 }
 
 interface ErrorsState {
@@ -330,7 +330,7 @@ const AddEmployeeModal: React.FC<AddEmployeeModalProps> = ({
           <Button onClick={onClose} mr={3} variant="ghost">
             Cancel
           </Button>
-
+    
           <Button
             color="white"
             bg="#2563EB"
