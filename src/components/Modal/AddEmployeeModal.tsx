@@ -20,8 +20,7 @@ import { useEffect, useState, ChangeEvent } from "react";
 import { toast } from "react-toastify";
 import { useCookies } from "react-cookie";
 import Select from "react-select";
-import { ViewOffIcon } from "@chakra-ui/icons";
-import { Eye } from "lucide-react";
+import { IoEyeOffOutline, IoEyeOutline } from "react-icons/io5";
 
 interface AddEmployeeModalProps {
   isOpen: boolean;
@@ -271,7 +270,7 @@ const AddEmployeeModal: React.FC<AddEmployeeModalProps> = ({
                   variant="ghost"
                   onClick={() => setShowPassword(!showPassword)}
                 >
-                  {showPassword ? <ViewOffIcon /> : <Eye />}
+                 {showPassword ? <IoEyeOutline size={20} /> : <IoEyeOffOutline size={20} />}
                 </Button>
               </InputRightElement>
             </InputGroup>
