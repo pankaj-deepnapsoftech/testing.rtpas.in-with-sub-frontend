@@ -393,39 +393,59 @@ const [isLoadingEmployees, setIsLoadingEmployees] = useState(false);
     }
   }, [dispatchPeriod, userDetails?.isSuper]);
 
-  // Fetch inventory chart data from API
+  // Fetch inventory pie chart data from required APIs
   const fetchInventoryData = async () => {
     setIsLoadingInventory(true);
     try {
-      const response = await fetch(
-        `${
-          process.env.REACT_APP_BACKEND_URL
-        }dashboard?filter=${inventoryPeriod.toLowerCase()}`,
-        {
+      const [directRes, indirectRes, wipRes] = await Promise.all([
+        fetch(`${process.env.REACT_APP_BACKEND_URL}product/all?category=direct`, {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${cookies?.access_token}`,
           },
-        }
-      );
+        }),
+        fetch(`${process.env.REACT_APP_BACKEND_URL}product/all?category=indirect`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${cookies?.access_token}`,
+          },
+        }),
+        fetch(`${process.env.REACT_APP_BACKEND_URL}product/wip`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${cookies?.access_token}`,
+          },
+        }),
+      ]);
 
-      if (response.ok) {
-        const data = await response.json();
-        if (data.success) {
-          setInventoryChartData(data.inventory_chart);
-        } else {
-          toast({
-            title: "Error",
-            description: data.message || "Failed to fetch inventory data",
-            status: "error",
-            duration: 3000,
-            isClosable: true,
-          });
-        }
-      } else {
+      if (!directRes.ok || !indirectRes.ok || !wipRes.ok) {
         throw new Error("Failed to fetch inventory data");
       }
+
+      const [directData, indirectData, wipData] = await Promise.all([
+        directRes.json(),
+        indirectRes.json(),
+        wipRes.json(),
+      ]);
+
+      const directCount = Array.isArray(directData?.products)
+        ? directData.products.length
+        : 0;
+      const indirectCount = Array.isArray(indirectData?.products)
+        ? indirectData.products.length
+        : 0;
+      const wipCount = Array.isArray(wipData?.products)
+        ? wipData.products.length
+        : 0;
+
+      setInventoryChartData({
+        direct: directCount,
+        indirect: indirectCount,
+        wip: wipCount,
+      });
     } catch (error) {
       toast({
         title: "Error",
@@ -1062,34 +1082,28 @@ useEffect(() => {
 
   // Inventory Data (fallback data)
   const fallbackInventoryData = [
-    { name: "Raw materials", value: 30, color: "#6AC6FF" },
-    { name: "Work in progress", value: 25, color: "#78A5F7" },
-    { name: "Finished goods", value: 20, color: "#FF86E1" },
-    { name: "Indirect inventory", value: 25, color: "#FFC680" },
+    { name: "Direct", value: 30, color: "#6AC6FF" },
+    { name: "Indirect", value: 25, color: "#FFC680" },
+    { name: "Work in progress", value: 20, color: "#78A5F7" },
   ];
 
   // Transform API inventory data to chart format
   const inventoryData = inventoryChartData
     ? [
         {
-          name: "Raw materials",
-          value: inventoryChartData.raw_materials || 0,
+          name: "Direct",
+          value: inventoryChartData.direct || 0,
           color: "#6AC6FF",
         },
         {
-          name: "Work in progress",
-          value: inventoryChartData.work_in_progress || 0,
-          color: "#78A5F7",
-        },
-        {
-          name: "Finished goods",
-          value: inventoryChartData.finished_goods || 0,
-          color: "#FF86E1",
-        },
-        {
-          name: "Indirect inventory",
-          value: inventoryChartData.indirect_inventory || 0,
+          name: "Indirect",
+          value: inventoryChartData.indirect || 0,
           color: "#FFC680",
+        },
+        {
+          name: "Work in progress",
+          value: inventoryChartData.wip || 0,
+          color: "#78A5F7",
         },
       ]
     : fallbackInventoryData;
