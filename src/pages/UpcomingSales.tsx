@@ -52,12 +52,12 @@ const UpcomingSales: React.FC = () => {
       );
 
       if (!response.data.success) {
-        throw new Error(response.data.message || "Failed to fetch sales");
+        throw new Error(response?.data.message || "Failed to fetch sales");
       }
 
-      setSales(response.data.data || []);
-      setFilteredSales(response.data.data || []);
-      setTotalPages(response.data.pagination?.totalPages || 1);
+      setSales(response?.data?.data || []);
+      setFilteredSales(response?.data?.data || []);
+      setTotalPages(response?.data?.pagination?.totalPages || 1);
     } catch (error: any) {
       toast.error(
         error.response?.data?.message ||
@@ -77,24 +77,24 @@ const UpcomingSales: React.FC = () => {
 
   useEffect(() => {
     const searchText = searchKey?.toLowerCase() || "";
-    const results = sales.filter(
+    const results = sales?.filter(
       (sale: any) =>
-        sale.order_id?.toLowerCase()?.includes(searchText) ||
-        sale.party?.company_name?.toLowerCase()?.includes(searchText) ||
-        sale.party?.consignee_name?.toLowerCase()?.includes(searchText) ||
-        sale.product_id?.name?.toLowerCase()?.includes(searchText) ||
-        sale.product_qty?.toString()?.includes(searchText) ||
-        sale.price?.toString()?.includes(searchText) ||
-        sale.terms_of_delivery?.toLowerCase()?.includes(searchText) ||
-        sale.mode_of_payment?.toLowerCase()?.includes(searchText) ||
-        (sale.createdAt &&
-          new Date(sale.createdAt)
+        sale?.order_id?.toLowerCase()?.includes(searchText) ||
+        sale?.party?.company_name?.toLowerCase()?.includes(searchText) ||
+        sale?.party?.consignee_name[0]?.toLowerCase()?.includes(searchText) ||
+        sale?.product_id?.name?.toLowerCase()?.includes(searchText) ||
+        sale?.product_qty?.toString()?.includes(searchText) ||
+        sale?.price?.toString()?.includes(searchText) ||
+        sale?.terms_of_delivery?.toLowerCase()?.includes(searchText) ||
+        sale?.mode_of_payment?.toLowerCase()?.includes(searchText) ||
+        (sale?.createdAt &&
+          new Date(sale?.createdAt)
             ?.toISOString()
             ?.substring(0, 10)
             ?.split("-")
             ?.reverse()
             ?.join("")
-            ?.includes(searchText.replaceAll("/", "") || ""))
+            ?.includes(searchText?.replaceAll("/", "") || ""))
     );
     setFilteredSales(results);
   }, [searchKey, sales]);
