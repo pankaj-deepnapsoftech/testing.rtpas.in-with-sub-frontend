@@ -85,7 +85,7 @@ const App: React.FC = () => {
     if (user && isSubscriptionEnd(user?.user.subscription_end)) {
       navigate("/subscription-end")
     }
-  }, [navigate, user]);
+  }, [user]);
 
   if (isLoading) {
     return (
