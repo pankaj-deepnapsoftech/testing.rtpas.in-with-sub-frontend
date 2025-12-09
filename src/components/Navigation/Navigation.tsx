@@ -11,14 +11,16 @@ import logo from "../../assets/images/logo/logo.png";
 import { useCookies } from "react-cookie";
 import { toast } from "react-toastify";
 import RTPAS from "../../routes/routes";
-import SOPAS from "../../routes/SOPAS.routes"
-import KONTRONIX from "../../routes/KONTRONIX.routes"
+import SOPAS from "../../routes/SOPAS.routes";
+import KONTRONIX from "../../routes/KONTRONIX.routes";
 import { useGetLoggedInUserQuery } from "../../redux/api/api";
 
 const Navigation: React.FC = () => {
   const navigate = useNavigate();
   const [cookies, _, removeCookie] = useCookies();
-  const { allowedroutes, isSuper,id } = useSelector((state: any) => state.auth);
+  const { allowedroutes, isSuper, id } = useSelector(
+    (state: any) => state.auth
+  );
   const [checkMenu, setCheckMenu] = useState(false);
   const [showIcon, setShowIcon] = useState(false);
   const [openSubMenus, setOpenSubMenus] = useState<{ [key: string]: boolean }>(
@@ -32,10 +34,7 @@ const Navigation: React.FC = () => {
     return () => clearTimeout(timer);
   }, []);
 
-    const {
-    data: user,
-    isLoading
-  } = useGetLoggedInUserQuery(
+  const { data: user, isLoading } = useGetLoggedInUserQuery(
     cookies.access_token ? id : ""
   );
 
@@ -52,8 +51,7 @@ const Navigation: React.FC = () => {
     }));
   };
 
-
-   const handleRoutes = (path) => {
+  const handleRoutes = (path) => {
     switch (path) {
       case "RTPAS":
         return RTPAS;
@@ -63,13 +61,11 @@ const Navigation: React.FC = () => {
       case "KONTRONIX":
         return KONTRONIX;
       default:
-        return RTPAS.filter(item => user?.user?.role?.permissions?.some((ite)=> item.path.includes(ite) ));;
-
+        return RTPAS.filter((item) =>
+          user?.user?.role?.permissions?.some((ite) => item.path.includes(ite))
+        );
     }
-  }
-
-
-
+  };
 
   const logoutHandler = () => {
     try {
@@ -81,7 +77,7 @@ const Navigation: React.FC = () => {
     }
   };
 
-    if (isLoading) {
+  if (isLoading) {
     return (
       <></>
       // <div className="flex items-center justify-center min-h-[60vh]">
@@ -101,10 +97,10 @@ const Navigation: React.FC = () => {
   }
   return (
     <>
-
       <div
-        className={`absolute top-2 z-40 lg:hidden transition-all duration-300 ease-in-out ${checkMenu ? "left-[250px]" : "left-4"
-          }`}
+        className={`absolute top-2 z-40 lg:hidden transition-all duration-300 ease-in-out ${
+          checkMenu ? "left-[250px]" : "left-4"
+        }`}
       >
         <button
           onClick={() => setCheckMenu(!checkMenu)}
@@ -117,7 +113,6 @@ const Navigation: React.FC = () => {
           )}
         </button>
       </div>
-
 
       {checkMenu && (
         <div
@@ -134,11 +129,11 @@ const Navigation: React.FC = () => {
          fixed z-30 w-80 lg:w-[16.6rem] top-0 left-0 transition-transform duration-300 ease-in-out`}
       >
         {/* Logo */}
-        <div className="border-b border-gray-100 text-center">
+        <div className="border-b border-gray-100 text-center p-5">
           <img
-            src="/android-chrome-192x192.png"
+            src="/deepnap.png"
             alt="Logo"
-            className="w-[100px] sm:w-[120px] ml-5 h-auto "
+            className="w-[130px] sm:w-[150px] ml-5 h-auto "
           />
         </div>
 
@@ -156,9 +151,10 @@ const Navigation: React.FC = () => {
                   <div key={ind}>
                     <li
                       className={`flex items-center justify-between  px-4 py-3 rounded-lg cursor-pointer transition-all duration-200 group
-                        ${isAllowed
-                          ? "hover:bg-blue-50 hover:text-blue-700 text-gray-700"
-                          : "text-gray-400 cursor-not-allowed"
+                        ${
+                          isAllowed
+                            ? "hover:bg-blue-50 hover:text-blue-700 text-gray-700"
+                            : "text-gray-400 cursor-not-allowed"
                         }`}
                       onClick={() =>
                         isAllowed && toggleSubMenusHandler(route.path)
@@ -186,9 +182,10 @@ const Navigation: React.FC = () => {
                             key={index}
                             to={route.path + "/" + sublink.path}
                             className={({ isActive }) =>
-                              `block px-4 py-2 rounded-lg transition-all duration-200 ${isActive
-                                ? "bg-blue-100 text-blue-700 border-l-4 border-blue-500"
-                                : isAllowed
+                              `block px-4 py-2 rounded-lg transition-all duration-200 ${
+                                isActive
+                                  ? "bg-blue-100 text-blue-700 border-l-4 border-blue-500"
+                                  : isAllowed
                                   ? "text-gray-600 hover:bg-gray-50 hover:text-gray-800"
                                   : "text-gray-400 cursor-not-allowed"
                               }`
@@ -216,9 +213,10 @@ const Navigation: React.FC = () => {
                     key={ind}
                     to={route.path || ""}
                     className={({ isActive }) =>
-                      `block px-4 py-3 rounded-lg transition-all duration-200 ${isActive
-                        ? "bg-blue-100 text-blue-700 border-l-4 border-blue-500"
-                        : isAllowed
+                      `block px-4 py-3 rounded-lg transition-all duration-200 ${
+                        isActive
+                          ? "bg-blue-100 text-blue-700 border-l-4 border-blue-500"
+                          : isAllowed
                           ? "text-gray-700 hover:bg-blue-50 hover:text-blue-700"
                           : "text-gray-400 cursor-not-allowed"
                       }`
@@ -240,9 +238,10 @@ const Navigation: React.FC = () => {
                     key={ind}
                     to={route.path || ""}
                     className={({ isActive }) =>
-                      `block px-4 py-3 rounded-lg transition-all duration-200 ${isActive
-                        ? "bg-blue-100 text-blue-700 border-l-4 border-blue-500"
-                        : isAllowed
+                      `block px-4 py-3 rounded-lg transition-all duration-200 ${
+                        isActive
+                          ? "bg-blue-100 text-blue-700 border-l-4 border-blue-500"
+                          : isAllowed
                           ? "text-gray-700 hover:bg-blue-50 hover:text-blue-700"
                           : "text-gray-400 cursor-not-allowed"
                       }`
