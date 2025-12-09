@@ -10,11 +10,15 @@ import { RiMenu2Line } from "react-icons/ri";
 import logo from "../../assets/images/logo/logo.png";
 import { useCookies } from "react-cookie";
 import { toast } from "react-toastify";
+import RTPAS from "../../routes/routes";
+import SOPAS from "../../routes/SOPAS.routes"
+import KONTRONIX from "../../routes/KONTRONIX.routes"
+import { useGetLoggedInUserQuery } from "../../redux/api/api";
 
 const Navigation: React.FC = () => {
   const navigate = useNavigate();
-  const [cookie, _, removeCookie] = useCookies();
-  const { allowedroutes, isSuper } = useSelector((state: any) => state.auth);
+  const [cookies, _, removeCookie] = useCookies();
+  const { allowedroutes, isSuper,id } = useSelector((state: any) => state.auth);
   const [checkMenu, setCheckMenu] = useState(false);
   const [showIcon, setShowIcon] = useState(false);
   const [openSubMenus, setOpenSubMenus] = useState<{ [key: string]: boolean }>(
@@ -28,6 +32,13 @@ const Navigation: React.FC = () => {
     return () => clearTimeout(timer);
   }, []);
 
+    const {
+    data: user,
+    isLoading
+  } = useGetLoggedInUserQuery(
+    cookies.access_token ? id : ""
+  );
+
   const handleCloseMenu = () => {
     if (window.innerWidth < 800) {
       setCheckMenu(false);
@@ -40,6 +51,26 @@ const Navigation: React.FC = () => {
       [path]: !prev[path],
     }));
   };
+
+
+   const handleRoutes = (path) => {
+    switch (path) {
+      case "RTPAS":
+        return RTPAS;
+      case "SOPAS":
+      case "Free Trial":
+        return SOPAS;
+      case "KONTRONIX":
+        return KONTRONIX;
+      default:
+        return [];
+
+    }
+  }
+
+
+
+
   const logoutHandler = () => {
     try {
       removeCookie("access_token");
@@ -49,6 +80,25 @@ const Navigation: React.FC = () => {
       toast.error(error.message || "Something went wrong");
     }
   };
+
+    if (isLoading) {
+    return (
+      <></>
+      // <div className="flex items-center justify-center min-h-[60vh]">
+      //   <div className="flex flex-col items-center gap-3">
+      //     <motion.div
+      //       animate={{ rotate: 360 }}
+      //       transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
+      //       className="w-10 h-10 border-4 border-blue-500 border-t-transparent rounded-full"
+      //     ></motion.div>
+
+      //     <p className="text-gray-600 font-medium tracking-wide">
+      //       Loading, please wait...
+      //     </p>
+      //   </div>
+      // </div>
+    );
+  }
   return (
     <>
 
@@ -95,7 +145,7 @@ const Navigation: React.FC = () => {
         {/* Menu List */}
         <div className="px-4 py-6">
           <ul className="space-y-2 whitespace-nowrap">
-            {routes.map((route, ind) => {
+            {handleRoutes(user?.user?.plan).map((route, ind) => {
               const isAllowed =
                 route.name === "Dashboard" ||
                 isSuper ||

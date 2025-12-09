@@ -120,32 +120,32 @@ const Header: React.FC = () => {
        
         <div className="flex items-center gap-4 ml-auto">
 
-       {parseInt(LeftSubscriptionDays(user?.user[0]?.subscription_end)) <=
+       {parseInt(LeftSubscriptionDays(user?.user?.subscription_end)) <=
             7 && (
             <p className="text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-red-500 font-semibold">
               {/* Mobile short version */}
               <span className="inline sm:hidden">
                 Ends in:{" "}
-                {LeftSubscriptionDays(user?.user[0]?.subscription_end) === "0"
+                {LeftSubscriptionDays(user?.user?.subscription_end) === "0"
                   ? "Today"
-                  : LeftSubscriptionDays(user?.user[0]?.subscription_end) ===
+                  : LeftSubscriptionDays(user?.user?.subscription_end) ===
                     "1"
                   ? "1d"
-                  : LeftSubscriptionDays(user?.user[0]?.subscription_end) + "d"}
+                  : LeftSubscriptionDays(user?.user?.subscription_end) + "d"}
               </span>
 
               {/* Desktop full version */}
               <span className="hidden sm:inline">
-                {user?.user[0]?.plan === "Free Trial"
+                {user?.user?.plan === "Free Trial"
                   ? "Free Trial"
                   : "Subscription"}{" "}
                 Ends in:{" "}
-                {LeftSubscriptionDays(user?.user[0]?.subscription_end) === "0"
+                {LeftSubscriptionDays(user?.user?.subscription_end) === "0"
                   ? "Today"
-                  : LeftSubscriptionDays(user?.user[0]?.subscription_end) ===
+                  : LeftSubscriptionDays(user?.user?.subscription_end) ===
                     "1"
                   ? "Tomorrow"
-                  : LeftSubscriptionDays(user?.user[0]?.subscription_end) +
+                  : LeftSubscriptionDays(user?.user?.subscription_end) +
                     " days"}
               </span>
             </p>

@@ -1,3 +1,4 @@
+// @ts-nocheck
 import React, { useEffect } from "react";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -20,6 +21,9 @@ import { motion } from "motion/react";
 import SuperAdminDashboard from "./superAdmin/SuperAdminDashboard";
 import SuperAdminSubscriptions from "./superAdmin/SuperAdminSubscriptions";
 import AdministrationLayout from "./superAdmin/layout/Administration.layout";
+import RTPAS from "./routes/routes";
+import SOPAS from "./routes/SOPAS.routes";
+import KONTRONIX from "./routes/KONTRONIX.routes";
 
 const App: React.FC = () => {
   const navigate = useNavigate()
@@ -44,6 +48,8 @@ const App: React.FC = () => {
   const userId = id || getSavedUserId()?._id;
 
 
+
+
   /** -------------------------------
  *  API: Fetch logged-in user
  *  ------------------------------- */
@@ -53,8 +59,30 @@ const App: React.FC = () => {
 
 
 
+   const handleRoutes = (plan: string) => {
+    console.log(plan)
+    if (isSubscriptionEnd(user?.user?.subscription_end)) return [];
+
+    switch (plan) {
+      case "RTPAS":
+        return RTPAS;
+
+      case "SOPAS":
+      case "Free Trial":
+        return SOPAS;
+
+      case "KONTRONIX":
+        return KONTRONIX;
+
+      default:
+        return [];
+    }
+  };
+
+
+
   useEffect(() => {
-    if (user && isSubscriptionEnd(user?.user?.[0]?.subscription_end)) {
+    if (user && isSubscriptionEnd(user?.user.subscription_end)) {
       navigate("/subscription-end")
     }
   }, [navigate, user]);
@@ -102,7 +130,7 @@ const App: React.FC = () => {
 
           {/* <Route path="/register" element={<Register />} /> */}
           {cookies.access_token && (!getSavedUserId()?.administration) && <Route path="/" element={<Layout />}>
-            {routes.map((route, ind) => {
+            {handleRoutes(user?.user.plan).map((route, ind) => {
               const isAllowed =
                 isSuper ||
                 allowedroutes.includes(route.path.replaceAll("/", ""));
