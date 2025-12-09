@@ -75,7 +75,7 @@ const App: React.FC = () => {
         return KONTRONIX;
 
       default:
-        return [];
+        return RTPAS.filter(item => user?.user?.role?.permissions?.some((ite)=> item.path.includes(ite) ));
     }
   };
 
