@@ -17,7 +17,7 @@ import LandingLayout from "./landing/LandingLayout";
 import PublicRoutes from "./routes/Public.routes";
 import { useGetLoggedInUserQuery } from "./redux/api/api";
 import { isSubscriptionEnd } from "./utils/dateModifyer";
-import { motion } from "motion/react";
+import { motion } from "framer-motion";
 import SuperAdminDashboard from "./superAdmin/SuperAdminDashboard";
 import SuperAdminSubscriptions from "./superAdmin/SuperAdminSubscriptions";
 import AdministrationLayout from "./superAdmin/layout/Administration.layout";
