@@ -11,8 +11,43 @@ export default function PricingSection() {
   const [cookies] = useCookies();
   const [isUsersModalOpen, setIsUsersModalOpen] = useState(false);
   const [pendingPlan, setPendingPlan] = useState<any>(null);
-  const [usersCount, setUsersCount] = useState<number>(1);
+  // usersCount now represents the number of ADDITIONAL users the buyer wants to add (not total)
+  const [usersCount, setUsersCount] = useState<number>(0);
   const [computedAmountPaise, setComputedAmountPaise] = useState<number>(0);
+
+  // helper: parse included users from plan.features (looks for "Users (N)")
+  const getIncludedUsers = (plan) => {
+    try {
+      const usersFeature = plan.features?.find((f) =>
+        typeof f.name === "string" && f.name.toLowerCase().startsWith("users")
+      );
+      if (!usersFeature) return 1;
+      const m = usersFeature.name.match(/\((\d+)\)/);
+      if (m && m[1]) return parseInt(m[1], 10);
+      if (typeof usersFeature.included === "number") return usersFeature.included;
+      return 1;
+    } catch (e) {
+      return 1;
+    }
+  };
+
+  // helper: find per-user extra charge (search feature like "Charges for Additional Users ₹1000/user")
+  const getPerUserCharge = (plan) => {
+    try {
+      const chargeFeature = plan.features?.find((f) =>
+        typeof f.name === "string" &&
+        f.name.toLowerCase().includes("additional user")
+      );
+      if (!chargeFeature) {
+        return 1000;
+      }
+      const m = chargeFeature.name.replace(/,/g, "").match(/₹\s*([0-9]+)/);
+      if (m && m[1]) return parseInt(m[1], 10);
+      return 1000;
+    } catch (e) {
+      return 1000;
+    }
+  };
 
   // Load Razorpay checkout script dynamically
   const loadRazorpayScript = () => {
@@ -35,25 +70,42 @@ export default function PricingSection() {
 
   // Handle payment when user clicks a plan's button
   const handleBuy = async (plan) => {
-    // Free trial or zero-priced plans: handle separately
     const rawPrice = String(plan.price || "0").replace(/[^0-9]/g, "");
     const amountNumber = parseInt(rawPrice || "0", 10);
     if (!amountNumber || amountNumber === 0) {
-      // For free trial: redirect to signup or start trial flow
-      // For now, show a simple message — replace with real flow as needed
       alert(`${plan.name} is free. Start your free trial!`);
       return;
     }
+
     setPendingPlan(plan);
-    setUsersCount(1);
-    setComputedAmountPaise(amountNumber * 100);
+
+    // Important: do NOT prefill with included users. usersCount = additional users (default 0)
+    setUsersCount(0);
+
+    // compute initial computed amount paise (base price + 0 extra users)
+    const basePriceRupees = parseInt(String(plan.price || "0").replace(/[^0-9]/g, ""), 10) || 0;
+    setComputedAmountPaise(basePriceRupees * 100);
+
     setIsUsersModalOpen(true);
   };
 
   const proceedPayment = async () => {
     if (!pendingPlan) return;
-    const basePriceInPaise = parseInt(String(pendingPlan.price || "0").replace(/[^0-9]/g, ""), 10) * 100;
-    const totalAmountPaise = basePriceInPaise * Math.max(1, usersCount);
+
+    // base price rupees extracted from displayed plan.price (works for monthly/yearly because you generate plans above)
+    const basePriceRupees = parseInt(String(pendingPlan.price || "0").replace(/[^0-9]/g, ""), 10) || 0;
+
+    // included users from plan
+    const includedUsers = getIncludedUsers(pendingPlan) || 1;
+    const perUserCharge = getPerUserCharge(pendingPlan) || 1000; // rupees per additional user
+
+    // usersCount is additional users; compute totals
+    const additionalUsers = Math.max(0, Math.floor(usersCount || 0));
+    const totalUsers = includedUsers + additionalUsers;
+
+    // calculate total rupees: base plan + extra users * perUserCharge
+    const totalRupees = basePriceRupees + additionalUsers * perUserCharge;
+    const totalAmountPaise = totalRupees * 100;
 
     const ok = await loadRazorpayScript();
     if (!ok) {
@@ -62,21 +114,23 @@ export default function PricingSection() {
     }
 
     try {
-      const apiBase = process.env.REACT_APP_BACKEND_URL || '';
-      const base = apiBase ? apiBase.replace(/\/$/, '') : '';
+      const apiBase = process.env.REACT_APP_BACKEND_URL || "";
+      const base = apiBase ? apiBase.replace(/\/$/, "") : "";
       const token = cookies.access_token || null;
 
+      // Send totalUsers to backend (this is the total allowed users after purchase)
       const createResp = await fetch(`${base}/subscription/create`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
           ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
         body: JSON.stringify({
           plan: pendingPlan.name,
           amount: totalAmountPaise,
-          period: isYearly ? 'year' : 'month',
-          allowedUsers: Math.max(1, usersCount),
+          period: isYearly ? "year" : "month",
+          // send total allowed users (included + additional) — the backend can persist this
+          allowedUsers: Math.max(1, totalUsers),
         }),
       });
 
@@ -90,55 +144,58 @@ export default function PricingSection() {
       const orderAmount = data?.amount ?? totalAmountPaise;
 
       const options = {
-        key: process.env.REACT_APP_RAZORPAY_KEY || 'YOUR_RAZORPAY_KEY',
+        key: process.env.REACT_APP_RAZORPAY_KEY || "YOUR_RAZORPAY_KEY",
         amount: orderAmount,
-        currency: 'INR',
-        name: 'RTPAS',
+        currency: "INR",
+        name: "RTPAS",
         description: pendingPlan.name,
         order_id: orderId,
         handler: async function (response) {
           try {
-            const apiBase = process.env.REACT_APP_BACKEND_URL || '';
-            const base = apiBase ? apiBase.replace(/\/$/, '') : '';
+            const apiBase = process.env.REACT_APP_BACKEND_URL || "";
+            const base = apiBase ? apiBase.replace(/\/$/, "") : "";
             const token = cookies.access_token || null;
             const verifyResp = await fetch(`${base}/subscription/verify`, {
-              method: 'POST',
+              method: "POST",
               headers: {
-                'Content-Type': 'application/json',
+                "Content-Type": "application/json",
                 ...(token ? { Authorization: `Bearer ${token}` } : {}),
               },
+              // backend verify can also use allowedUsers if you want to persist after verify
               body: JSON.stringify({
                 razorpay_payment_id: response.razorpay_payment_id,
                 razorpay_order_id: response.razorpay_order_id,
                 razorpay_signature: response.razorpay_signature,
+                // include totalUsers so verify endpoint can persist final user count if desired
+                allowedUsers: Math.max(1, totalUsers),
               }),
             });
 
             if (!verifyResp.ok) {
               const err = await verifyResp.text();
-              alert('Payment verification failed: ' + err);
+              alert("Payment verification failed: " + err);
               return;
             }
 
             const verifyJson = await verifyResp.json();
             if (verifyJson?.success) {
-              alert('Payment successful and verified.');
+              alert("Payment successful and verified.");
               window.location.href = "/";
             } else {
-              alert('Payment processed but verification failed.');
+              alert("Payment processed but verification failed.");
             }
           } catch (e) {
-            alert('Payment verification failed: ' + e);
+            alert("Payment verification failed: " + e);
             return;
           }
         },
-        theme: { color: '#2563eb' },
+        theme: { color: "#2563eb" },
       };
 
       const rzp = new window.Razorpay(options);
       rzp.open();
     } catch (e) {
-      alert('Unable to start payment: ' + (e.message || e));
+      alert("Unable to start payment: " + (e.message || e));
     } finally {
       setIsUsersModalOpen(false);
       setPendingPlan(null);
@@ -147,7 +204,6 @@ export default function PricingSection() {
 
   // ✅ Individual Plan Data — each card fully independent
   const plansMonthly = [
-  
     {
       name: "KONTRONIX",
       price: "₹999",
@@ -282,6 +338,16 @@ export default function PricingSection() {
 
   const plans = isYearly ? plansYearly : plansMonthly;
 
+  // compute displayed estimated rupees for modal (base + additional users)
+  const computeEstimatedRupees = () => {
+    if (!pendingPlan) return 0;
+    const basePrice = parseInt(String(pendingPlan.price || "0").replace(/[^0-9]/g, ""), 10) || 0;
+    const included = getIncludedUsers(pendingPlan) || 1;
+    const perUser = getPerUserCharge(pendingPlan) || 1000;
+    const extra = Math.max(0, Math.floor(usersCount || 0));
+    return basePrice + extra * perUser;
+  };
+
   return (
     <section className="relative bg-gradient-to-b from-blue-100 to-white py-24 px-6">
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[700px] h-[700px] bg-blue-200/40 blur-3xl rounded-full"></div>
@@ -410,25 +476,65 @@ export default function PricingSection() {
           ))}
         </div>
 
-        {isUsersModalOpen && (
+        {isUsersModalOpen && pendingPlan && (
           <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
             <div className="bg-white rounded-2xl shadow-xl w-full max-w-md p-6">
-              <h4 className="text-xl font-semibold mb-4">Number of Employees</h4>
-              <p className="text-sm mb-3">Enter how many employee accounts you need for this subscription.</p>
+              <h4 className="text-xl font-semibold mb-4">Add Additional Employees</h4>
+              <p className="text-sm mb-3">
+                Enter how many additional employee accounts you want to add to this subscription.
+              </p>
+
+              {/* Show included users (informational only) but DO NOT prefill input */}
+              <div className="mb-3 text-sm">
+                <span className="font-medium">Included users in plan:</span>{" "}
+                {getIncludedUsers(pendingPlan)}{" "}
+                <span className="text-gray-500">(already part of the plan)</span>
+              </div>
+
               <input
                 type="number"
-                min={1}
                 value={usersCount}
-                onChange={(e) => setUsersCount(Math.max(1, parseInt(e.target.value || '1', 10)))}
+                min={0}
+                onChange={(e) =>
+                  setUsersCount(Math.max(0, parseInt(e.target.value || "0", 10)))
+                }
                 className="w-full border rounded-lg px-3 py-2 mb-4"
+                placeholder="Enter additional users (0 if none)"
               />
+
               <div className="text-sm mb-4">
-                <span className="font-medium">Estimated total:</span>{" "}
-                ₹{((parseInt(String(pendingPlan?.price || "0").replace(/[^0-9]/g, ""), 10) || 0) * Math.max(1, usersCount)).toLocaleString()} {isYearly ? '/year' : '/month'}
+                <div>
+                  <span className="font-medium">Per additional user:</span>{" "}
+                  ₹{getPerUserCharge(pendingPlan).toLocaleString()}{" "}
+                  <span className="text-gray-500">/user</span>
+                </div>
+                <div className="mt-2">
+                  <span className="font-medium">Estimated total amount:</span>{" "}
+                  ₹{computeEstimatedRupees().toLocaleString()}{" "}
+                  <span className="text-gray-500">
+                    {isYearly ? "/year" : "/month"}
+                  </span>
+                </div>
+
+                {/* show breakdown */}
+                <div className="mt-2 text-xs text-gray-600">
+                  {`Total users after purchase: ${getIncludedUsers(pendingPlan) + Math.max(0, Math.floor(usersCount || 0))} (Included ${getIncludedUsers(pendingPlan)} + Additional ${Math.max(0, Math.floor(usersCount || 0))})`}
+                </div>
               </div>
+
               <div className="flex gap-3 justify-end">
-                <button className="px-4 py-2 rounded-lg border" onClick={() => setIsUsersModalOpen(false)}>Cancel</button>
-                <button className="px-4 py-2 rounded-lg bg-blue-600 text-white" onClick={proceedPayment}>Proceed to Payment</button>
+                <button
+                  className="px-4 py-2 rounded-lg border"
+                  onClick={() => setIsUsersModalOpen(false)}
+                >
+                  Cancel
+                </button>
+                <button
+                  className="px-4 py-2 rounded-lg bg-blue-600 text-white"
+                  onClick={proceedPayment}
+                >
+                  Proceed to Payment
+                </button>
               </div>
             </div>
           </div>
