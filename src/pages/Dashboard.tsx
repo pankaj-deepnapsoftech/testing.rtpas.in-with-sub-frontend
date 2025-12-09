@@ -61,6 +61,7 @@ import DesignerDashboard from "./DesignerDashboard";
 import AccountantDashboard from "./AccountantDashboard";
 import SalesDashboard from "./SalesDashboard";
 import DispatchDashboard from "./DispatchDashboard";
+import { WarningTwoIcon } from "@chakra-ui/icons";
 
 const Analytics: React.FC = () => {
   const [selectedPeriod, setSelectedPeriod] = useState("monthly");
@@ -98,9 +99,8 @@ const Analytics: React.FC = () => {
   const toast = useToast();
   const navigate = useNavigate();
 
-const [employees, setEmployees] = useState<any[]>([]);
-const [isLoadingEmployees, setIsLoadingEmployees] = useState(false);
-
+  const [employees, setEmployees] = useState<any[]>([]);
+  const [isLoadingEmployees, setIsLoadingEmployees] = useState(false);
 
   const backendUrl =
     process.env.REACT_APP_BACKEND_URL || "http://localhost:8096/api/";
@@ -225,36 +225,35 @@ const [isLoadingEmployees, setIsLoadingEmployees] = useState(false);
     }
   };
 
- const fetchEmployees = async () => {
-   setIsLoadingEmployees(true);
-   try {
-     const response = await fetch(
-       `${process.env.REACT_APP_BACKEND_URL}auth/all`,
-       {
-         method: "GET",
-         headers: {
-           "Content-Type": "application/json",
-           Authorization: `Bearer ${cookies?.access_token}`,
-         },
-       }
-     );
+  const fetchEmployees = async () => {
+    setIsLoadingEmployees(true);
+    try {
+      const response = await fetch(
+        `${process.env.REACT_APP_BACKEND_URL}auth/all`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${cookies?.access_token}`,
+          },
+        }
+      );
 
-     const data = await response.json();
-     console.log("EMPLOYEE API RESPONSE:", data);
+      const data = await response.json();
+      console.log("EMPLOYEE API RESPONSE:", data);
 
-     if (data.success && Array.isArray(data.users)) {
-       setEmployees(data.users); // <-- CORRECT KEY
-     } else {
-       setEmployees([]);
-     }
-   } catch (error) {
-     console.error("Employee fetch error:", error);
-     setEmployees([]);
-   } finally {
-     setIsLoadingEmployees(false);
-   }
- };
-
+      if (data.success && Array.isArray(data.users)) {
+        setEmployees(data.users); // <-- CORRECT KEY
+      } else {
+        setEmployees([]);
+      }
+    } catch (error) {
+      console.error("Employee fetch error:", error);
+      setEmployees([]);
+    } finally {
+      setIsLoadingEmployees(false);
+    }
+  };
 
   // Fetch user details on mount
   useEffect(() => {
@@ -398,20 +397,26 @@ const [isLoadingEmployees, setIsLoadingEmployees] = useState(false);
     setIsLoadingInventory(true);
     try {
       const [directRes, indirectRes, wipRes] = await Promise.all([
-        fetch(`${process.env.REACT_APP_BACKEND_URL}product/all?category=direct`, {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${cookies?.access_token}`,
-          },
-        }),
-        fetch(`${process.env.REACT_APP_BACKEND_URL}product/all?category=indirect`, {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${cookies?.access_token}`,
-          },
-        }),
+        fetch(
+          `${process.env.REACT_APP_BACKEND_URL}product/all?category=direct`,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${cookies?.access_token}`,
+            },
+          }
+        ),
+        fetch(
+          `${process.env.REACT_APP_BACKEND_URL}product/all?category=indirect`,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${cookies?.access_token}`,
+            },
+          }
+        ),
         fetch(`${process.env.REACT_APP_BACKEND_URL}product/wip`, {
           method: "GET",
           headers: {
@@ -484,17 +489,17 @@ const [isLoadingEmployees, setIsLoadingEmployees] = useState(false);
       }
 
       const processes: any[] = data.production_processes || [];
-      const normalize = (s: any) => String(s || "").toLowerCase().trim();
+      const normalize = (s: any) =>
+        String(s || "")
+          .toLowerCase()
+          .trim();
       const preStatuses = [
         "raw material approval pending",
         "inventory allocated",
         "request for allow inventory",
         "inventory in transit",
       ];
-      const progressStatuses = [
-        "production started",
-        "production in progress",
-      ];
+      const progressStatuses = ["production started", "production in progress"];
       const completedStatuses = ["completed"];
 
       let pre_production = 0;
@@ -508,7 +513,8 @@ const [isLoadingEmployees, setIsLoadingEmployees] = useState(false);
         else if (completedStatuses.includes(st)) completed++;
       }
 
-      const deliveredCompleted = salesDeliveredData?.delivered?.currentMonthDelivered;
+      const deliveredCompleted =
+        salesDeliveredData?.delivered?.currentMonthDelivered;
       if (typeof deliveredCompleted === "number") {
         completed = deliveredCompleted;
       }
@@ -953,16 +959,11 @@ const [isLoadingEmployees, setIsLoadingEmployees] = useState(false);
     }
   }, [userDetails?.isSuper]);
 
- 
-
-useEffect(() => {
-  if (userDetails?.isSuper) {
-    fetchEmployees();
-  }
-}, [userDetails?.isSuper]);
-
-
-
+  useEffect(() => {
+    if (userDetails?.isSuper) {
+      fetchEmployees();
+    }
+  }, [userDetails?.isSuper]);
 
   const handleSaveEdit = async () => {
     try {
@@ -1352,7 +1353,7 @@ useEffect(() => {
     },
   ];
 
-  console.log("this is my employee============>>>>", employees)
+  console.log("this is my employee============>>>>", employees);
 
   // Conditional rendering based on user details
   if (isLoadingUser) {
@@ -1385,17 +1386,33 @@ useEffect(() => {
   } else if (userDetails?.role?.role?.toLowerCase() === "dispatcher") {
     return <DispatchDashboard />;
   } else {
-    // Default or other roles - for now, render a message; extend as needed
     return (
-      <Box p={8} textAlign="center">
-        <Text fontSize="lg" color="gray.600">
-          No dashboard available for your role. Contact admin.
+      <Box
+        position="absolute"
+        top="50%"
+        left="60%"
+        transform="translate(-50%, -50%)"
+        p={10}
+        maxW="md"
+        textAlign="center"
+        bg="white"
+        borderRadius="xl"
+        shadow="md"
+      >
+        <WarningTwoIcon boxSize={14} color="yellow.400" mb={4} />
+
+        <Text fontSize="2xl" fontWeight="bold" color="gray.800" mb={3}>
+          Access Restricted
+        </Text>
+
+        <Text fontSize="md" color="gray.600">
+          It looks like no dashboard is assigned to your role. Reach out to the
+          admin team for access.
         </Text>
       </Box>
     );
   }
 
-  // Render admin dashboard content (Analytics)
   return (
     <Box
       p={{ base: 4, md: 6, lg: 8 }}
