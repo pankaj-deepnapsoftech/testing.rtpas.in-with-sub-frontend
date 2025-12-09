@@ -151,8 +151,8 @@ const Header: React.FC = () => {
             </p>
           )}
 
-          {CheckSubscriptionIsEnd(user?.user[0]?.subscription_end) &&
-          user?.user[0]?.subscription_count >= 2 ? (
+          {CheckSubscriptionIsEnd(user?.user?.subscription_end) &&
+          user?.user?.subscription_count >= 2 ? (
             <button
               className="text-white bg-blue-500 hover:bg-blue-600 rounded-md px-2 py-1 text-sm"
               onClick={() => navigate("/pricing-modal?action=renew")}
@@ -160,7 +160,7 @@ const Header: React.FC = () => {
               Renew
             </button>
           ) : (
-            user?.user[0]?.subscription_count <= 1 && user?.user[0]?.isSuper && (
+            user?.user?.subscription_count <= 1 && user?.user?.isSuper  && (
               <button
                 className="text-white bg-green-500 hover:bg-green-600 rounded-md px-2 py-1 text-sm"
                 onClick={() => navigate("/pricing-modal")}
