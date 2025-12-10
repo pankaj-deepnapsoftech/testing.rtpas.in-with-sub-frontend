@@ -47,7 +47,7 @@ const UpdateUserRole: React.FC<UpdateUserRoleProps> = ({
 
     const permissionOptions = [
     { value: "inventory", label: "Inventory" },
-    { value: "direct", label: "Direct" },
+    // { value: "direct", label: "Direct" },
     { value: "store", label: "Store" },
     { value: "approval", label: "Approval" },
     { value: "production", label: "Production" },
