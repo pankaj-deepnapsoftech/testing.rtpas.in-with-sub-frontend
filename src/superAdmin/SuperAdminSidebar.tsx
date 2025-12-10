@@ -44,7 +44,7 @@ const SuperAdminSidebar = ({ isOpen, onClose }) => {
 
   return (
     <>
-      {/* 🔥 Mobile Overlay */}
+      {/* Mobile Overlay */}
       {isOpen && (
         <div
           onClick={onClose}
@@ -52,7 +52,7 @@ const SuperAdminSidebar = ({ isOpen, onClose }) => {
         ></div>
       )}
 
-      {/* 🔥 Sidebar */}
+      {/* Sidebar */}
       <div
         className={`
           fixed lg:fixed top-0 left-0 z-50
