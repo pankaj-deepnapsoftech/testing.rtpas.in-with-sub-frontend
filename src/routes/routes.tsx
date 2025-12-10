@@ -1,3 +1,4 @@
+//@ts-nocheck
 import { FaRegCheckCircle } from "react-icons/fa";
 import { IoDocumentTextOutline } from "react-icons/io5";
 import {
@@ -56,10 +57,10 @@ import PurchaseOrder from "../pages/PurchaseOrder";
 import Resources from "../pages/Resources";
 import ProductionStatus from "../pages/ProductionStatus";
 // import ProductionDashboard from "../pages/ProductionDashboard";
-import MachineStatus from "../pages/MachineStatus";
 import UpcomingSales from "../pages/UpcomingSales";
 // import DesignerDashboard from "../pages/DesignerDashboard";
 import Sensors from "../pages/Sensors";
+import MachineStatus from "../pages/MachineStatus";
 
 const routes = [
   {

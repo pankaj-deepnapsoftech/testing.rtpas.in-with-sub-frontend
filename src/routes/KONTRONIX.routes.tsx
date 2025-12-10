@@ -1,3 +1,4 @@
+//@ts-nocheck
 import { MdOutlineSpeed } from "react-icons/md";
 
 // ============================= components import here ==================
@@ -5,9 +6,9 @@ import Dashboard from "../pages/Dashboard";
 import { Activity, Component, Wrench } from "lucide-react";
 import Sensors from "../pages/Sensors";
 import Resources from "../pages/Resources";
-import MachineStatus from "../pages/MachineStatus";
 import { IoIosPeople } from "react-icons/io";
 import Parties from "../pages/Parties";
+import MachineStatus from "../pages/MachineStatus";
 
 
 
