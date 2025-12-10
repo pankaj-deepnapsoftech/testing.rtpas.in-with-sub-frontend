@@ -1370,7 +1370,7 @@ const getShortageKey = (shortage?: InventoryShortage | null) =>
           <div className="flex flex-col sm:flex-row gap-3">
             {activeTab === "purchase-orders" && (
               <button
-                className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-2 rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105 flex items-center justify-center gap-2"
+                className="bg-blue-600 hover:bg-blue-700 text-white font-medium whitespace-nowrap px-1 py-2 rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105 flex items-center justify-center gap-2"
                 onClick={openAddPurchaseOrderDrawerHandler}
               >
                 <svg
