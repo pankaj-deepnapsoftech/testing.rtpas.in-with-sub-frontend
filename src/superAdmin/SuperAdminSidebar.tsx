@@ -106,7 +106,7 @@ const SuperAdminSidebar = ({ isOpen, onClose }) => {
           </nav>
         </div>
 
-        {/* 🚀 Logout Button FIXED at Bottom */}
+        {/* Logout Button FIXED at Bottom */}
         <button
           onClick={logoutHandler}
           className="

@@ -10,7 +10,7 @@ import { useSelector } from "react-redux";
 import { useCookies } from "react-cookie";
 import Pagination from "./Pagination";
 import { colors } from "../theme/colors";
-import * as XLSX from 'xlsx';
+import * as XLSX from "xlsx";
 import { toast } from "react-toastify";
 import SampleCSV from "../assets/csv/parties-sample.csv";
 
@@ -134,26 +134,31 @@ const Parties = () => {
       }
 
       const excelData = allPartiesData.map((party, index) => ({
-        'Sr. No.': index + 1,
-        'Customer ID': party.cust_id || 'N/A',
-        'Date Added': party.createdAt ? new Date(party.createdAt).toLocaleDateString() : 'N/A',
-        'Consignee Name': party?.consignee_name?.[0] || "N/A",
-        'Company Name': party.company_name || 'N/A',
-        'Contact Person Name': party.type?.toLowerCase?.() === 'company'
-          ? party.contact_person_name || 'N/A'
-          : '-',
-        'Email': Array.isArray(party.email_id) && party.email_id.length > 0
-          ? party.email_id.join(', ')
-          : party.email_id || 'N/A',
-        'Phone Number': Array.isArray(party.contact_number) && party.contact_number.length > 0
-          ? party.contact_number.join(', ')
-          : party.contact_number || 'N/A',
-        'Type': party.type || 'N/A',
-        'Merchant Type': party.parties_type || 'N/A',
-        'Shipped To': party.shipped_to || 'N/A',
-        'Bill To': party.bill_to || 'N/A',
-        'Shipped GSTIN': party.shipped_gst_to || 'N/A',
-        'Bill GSTIN': party.bill_gst_to || 'N/A'
+        "Sr. No.": index + 1,
+        "Customer ID": party.cust_id || "N/A",
+        "Date Added": party.createdAt
+          ? new Date(party.createdAt).toLocaleDateString()
+          : "N/A",
+        "Consignee Name": party?.consignee_name?.[0] || "N/A",
+        "Company Name": party.company_name || "N/A",
+        "Contact Person Name":
+          party.type?.toLowerCase?.() === "company"
+            ? party.contact_person_name || "N/A"
+            : "-",
+        Email:
+          Array.isArray(party.email_id) && party.email_id.length > 0
+            ? party.email_id.join(", ")
+            : party.email_id || "N/A",
+        "Phone Number":
+          Array.isArray(party.contact_number) && party.contact_number.length > 0
+            ? party.contact_number.join(", ")
+            : party.contact_number || "N/A",
+        Type: party.type || "N/A",
+        "Merchant Type": party.parties_type || "N/A",
+        "Shipped To": party.shipped_to || "N/A",
+        "Bill To": party.bill_to || "N/A",
+        "Shipped GSTIN": party.shipped_gst_to || "N/A",
+        "Bill GSTIN": party.bill_gst_to || "N/A",
       }));
 
       const wb = XLSX.utils.book_new();
@@ -173,13 +178,13 @@ const Parties = () => {
         { wch: 30 },
         { wch: 30 },
         { wch: 30 },
-        { wch: 30 }
+        { wch: 30 },
       ];
-      ws['!cols'] = colWidths;
+      ws["!cols"] = colWidths;
 
       XLSX.utils.book_append_sheet(wb, ws, "Parties Data");
 
-      const currentDate = new Date().toISOString().split('T')[0];
+      const currentDate = new Date().toISOString().split("T")[0];
       const filename = `Parties_Data_${currentDate}.xlsx`;
 
       XLSX.writeFile(wb, filename);
@@ -200,20 +205,23 @@ const Parties = () => {
       <div className="p-2 lg:p-3">
         {/* Header Section */}
         <div
-          className="rounded-xl shadow-sm border border-gray-100 p-6 mb-6"
+          className="rounded-xl shadow-sm border border-gray-100 p-6 mb-6 w-full"
           style={{
             backgroundColor: colors.background.card,
             borderColor: colors.border.light,
           }}
         >
-          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3">
-            {/* Title and Icon */}
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+            {/* Title */}
             <div className="flex items-center gap-3">
               <div className="bg-gradient-to-r from-blue-500 to-blue-600 p-2 rounded-lg shadow">
                 <FiUsers className="text-white" size={22} />
               </div>
               <div>
-                <h1 className="text-2xl font-semibold" style={{ color: colors.text.primary }}>
+                <h1
+                  className="text-2xl font-semibold"
+                  style={{ color: colors.text.primary }}
+                >
                   Merchant Management
                 </h1>
                 <p className="text-sm" style={{ color: colors.text.secondary }}>
@@ -222,77 +230,77 @@ const Parties = () => {
               </div>
             </div>
 
-            {/* Buttons */}
-            <div className="flex flex-wrap sm:flex-nowrap gap-2 text-sm">
+            <div className="flex flex-wrap gap-2 text-sm w-full lg:w-auto">
               {/* Add Merchant */}
               <button
                 onClick={() => {
                   setshowData(!showData);
                   setEditTable(null);
                 }}
-                className="flex items-center gap-1 px-3 py-2 text-white font-medium rounded-md transition-all duration-150 hover:shadow focus:outline-none focus:ring-2"
-                style={{
-                  backgroundColor: colors.primary[600],
-                }}
-                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = colors.primary[700])}
-                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = colors.primary[600])}
+                className="flex items-center gap-1 px-3 py-2 text-white font-medium rounded-md transition-all duration-150 hover:shadow w-full sm:w-auto justify-center"
+                style={{ backgroundColor: colors.primary[600] }}
+                onMouseEnter={(e) =>
+                  (e.currentTarget.style.backgroundColor = colors.primary[700])
+                }
+                onMouseLeave={(e) =>
+                  (e.currentTarget.style.backgroundColor = colors.primary[600])
+                }
               >
                 <FiPlus size={16} />
                 Add Merchant
               </button>
 
+              {/* Bulk Upload */}
               <button
                 onClick={() => setShowBulkUploadMenu(true)}
-                className="flex items-center gap-2 px-6 py-3 text-white text-sm font-medium rounded-lg transition-all duration-200 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-offset-2"
-                style={{
-                  backgroundColor: colors.warning[600],
-                  focusRingColor: colors.warning[500],
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = colors.warning[700];
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = colors.warning[600];
-                }}
+                className="flex items-center gap-2 px-3 py-2 text-white font-medium rounded-md transition-all duration-150 hover:shadow w-full sm:w-auto justify-center"
+                style={{ backgroundColor: colors.warning[600] }}
+                onMouseEnter={(e) =>
+                  (e.currentTarget.style.backgroundColor = colors.warning[700])
+                }
+                onMouseLeave={(e) =>
+                  (e.currentTarget.style.backgroundColor = colors.warning[600])
+                }
               >
                 <AiFillFileExcel size={20} />
                 Bulk Upload
               </button>
 
-              {/* Excel Export Button */}
+              {/* Export Excel */}
               <button
                 onClick={exportToExcel}
                 disabled={isExporting}
-                className="flex items-center gap-1 px-3 py-2 text-white font-medium rounded-md transition-all duration-150 hover:shadow focus:outline-none focus:ring-2 disabled:opacity-50 disabled:cursor-not-allowed"
-                style={{
-                  backgroundColor: colors.success[600],
-                }}
+                className="flex items-center gap-1 px-3 py-2 text-white font-medium rounded-md transition-all duration-150 hover:shadow disabled:opacity-50 disabled:cursor-not-allowed w-full sm:w-auto justify-center"
+                style={{ backgroundColor: colors.success[600] }}
                 onMouseEnter={(e) => {
-                  if (!isExporting) e.currentTarget.style.backgroundColor = colors.success[700];
+                  if (!isExporting)
+                    e.currentTarget.style.backgroundColor = colors.success[700];
                 }}
                 onMouseLeave={(e) => {
-                  if (!isExporting) e.currentTarget.style.backgroundColor = colors.success[600];
+                  if (!isExporting)
+                    e.currentTarget.style.backgroundColor = colors.success[600];
                 }}
               >
                 <FiDownload size={16} />
-                {isExporting ? 'Exporting...' : 'Export Excel'}
+                {isExporting ? "Exporting..." : "Export Excel"}
               </button>
-              {/* Bulk Upload */}
-    
-
-       
 
               {/* Refresh */}
               <button
                 onClick={fetchPartiesData}
-                className="flex items-center gap-1 px-3 py-2 rounded-md border transition-all duration-150 hover:shadow-sm focus:outline-none focus:ring-2"
+                className="flex items-center gap-1 px-3 py-2 rounded-md border transition-all duration-150 hover:shadow-sm w-full sm:w-auto justify-center"
                 style={{
                   borderColor: colors.border.medium,
                   color: colors.text.primary,
                   backgroundColor: colors.background.card,
                 }}
-                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = colors.gray[50])}
-                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = colors.background.card)}
+                onMouseEnter={(e) =>
+                  (e.currentTarget.style.backgroundColor = colors.gray[50])
+                }
+                onMouseLeave={(e) =>
+                  (e.currentTarget.style.backgroundColor =
+                    colors.background.card)
+                }
               >
                 <MdOutlineRefresh size={16} />
                 Refresh
@@ -300,11 +308,10 @@ const Parties = () => {
             </div>
           </div>
 
-
-          {/* Search and Filters Row */}
-          <div className="mt-6 flex flex-col lg:flex-row gap-4 items-end">
-            {/* Search Input */}
-            <div className="flex-1 max-w-md">
+          {/* Search & Filters */}
+          <div className="mt-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            {/* Search */}
+            <div className="col-span-1 md:col-span-2 lg:col-span-1">
               <label
                 className="block text-sm font-medium mb-2"
                 style={{ color: colors.text.primary }}
@@ -341,7 +348,7 @@ const Parties = () => {
             </div>
 
             {/* Type Filter */}
-            <div className="w-full lg:w-48">
+            <div>
               <label
                 className="block text-sm font-medium mb-2"
                 style={{ color: colors.text.primary }}
@@ -349,21 +356,13 @@ const Parties = () => {
                 Type
               </label>
               <select
-                className="w-full px-4 py-3 text-sm border rounded-lg transition-colors focus:outline-none focus:ring-2"
+                className="w-full px-4 py-3 text-sm border rounded-lg transition-colors"
                 value={selectedType}
                 onChange={(e) => setSelectedType(e.target.value)}
                 style={{
                   backgroundColor: colors.input.background,
                   borderColor: colors.input.border,
                   color: colors.text.primary,
-                }}
-                onFocus={(e) => {
-                  e.target.style.borderColor = colors.input.borderFocus;
-                  e.target.style.boxShadow = `0 0 0 3px ${colors.primary[100]}`;
-                }}
-                onBlur={(e) => {
-                  e.target.style.borderColor = colors.input.border;
-                  e.target.style.boxShadow = "none";
                 }}
               >
                 <option value="">Select Type</option>
@@ -373,7 +372,7 @@ const Parties = () => {
             </div>
 
             {/* Role Filter */}
-            <div className="w-full lg:w-48">
+            <div>
               <label
                 className="block text-sm font-medium mb-2"
                 style={{ color: colors.text.primary }}
@@ -381,7 +380,7 @@ const Parties = () => {
                 Merchant Type
               </label>
               <select
-                className="w-full px-4 py-3 text-sm border rounded-lg transition-colors focus:outline-none focus:ring-2"
+                className="w-full px-4 py-3 text-sm border rounded-lg transition-colors"
                 value={selectedRole}
                 onChange={(e) => setSelectedRole(e.target.value)}
                 style={{

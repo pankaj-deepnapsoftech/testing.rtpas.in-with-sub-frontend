@@ -272,7 +272,7 @@ const MachineStatus: React.FC = () => {
               </Stat>
             </CardBody>
           </Card>
-          
+
           <Card flex="1" minW="200px" bgGradient="linear(to-br, purple.50, white)" borderColor="purple.100" variant="outline" rounded="lg" boxShadow="sm" _hover={{ transform: 'translateY(-4px)', boxShadow: 'lg' }} transition="all 0.2s ease-in-out">
             <CardBody>
               <Stat>
@@ -320,7 +320,7 @@ const MachineStatus: React.FC = () => {
               </Stat>
             </CardBody>
           </Card>
-          
+
           <Card flex="1" minW="200px" bgGradient="linear(to-br, green.50, white)" borderColor="green.100" variant="outline" rounded="lg" boxShadow="sm" _hover={{ transform: 'translateY(-4px)', boxShadow: 'lg' }} transition="all 0.2s ease-in-out">
             <CardBody>
               <Stat>
