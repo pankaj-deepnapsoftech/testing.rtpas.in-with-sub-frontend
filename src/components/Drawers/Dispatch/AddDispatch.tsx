@@ -37,7 +37,12 @@ const AddDispatch: React.FC<AddDispatchProps> = ({
   const fetchSalesOrders = async () => {
     try {
       setIsLoadingSalesOrders(true);
-      const response = await axiosHandler.get("/sale/get-all-order-pending")
+      const response = await axiosHandler.get("/sale/get-all-order-pending",{
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${cookies?.access_token}`,
+            },
+          });
       setSalesOrders(response.data.data);
     } catch (error) {
       console.error("Error fetching sales orders:", error);
