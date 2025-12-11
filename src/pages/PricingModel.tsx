@@ -205,10 +205,10 @@ export default function PricingSection() {
   // ✅ Individual Plan Data — each card fully independent
   const plansMonthly = [
     {
-      name: "KONTRONIX",
+      name: "KONTROLIX",
       price: "₹999",
       period: "/month",
-      button: "Choose KONTRONIX",
+      button: "Choose KONTROLIX",
       highlight: false,
       features: [
         { name: "Dashboard Access", included: true },
