@@ -5,7 +5,7 @@ import { FaHandsHelping, FaRegCheckCircle } from "react-icons/fa";
 import IndirectProducts from "../pages/IndirectProducts";
 import { GiProgression } from "react-icons/gi";
 import WIPProducts from "../pages/WIPProducts";
-import { Box, HandCoins, ScanBarcode, Store } from "lucide-react";
+import { Box, Calendar, HandCoins, ScanBarcode, Store, Wrench } from "lucide-react";
 import Stores from "../pages/Stores";
 import InventoryApprovals from "../pages/InventoryApprovals";
 import { SiScrapy } from "react-icons/si";
@@ -34,6 +34,8 @@ import Employees from "../pages/Emloyees";
 import UserRole from "../pages/UserRoles";
 import { IoIosPeople } from "react-icons/io";
 import Parties from "../pages/Parties";
+import Resources from "../pages/Resources";
+import UpcomingSales from "../pages/UpcomingSales";
 
 export const routes = [
     {
@@ -55,6 +57,13 @@ export const routes = [
         icon: <TbLockAccess />,
         path: "role",
         element: <UserRole />,
+        isSublink: false,
+    },
+    {
+        name: "Resources",
+        icon: <Wrench />,
+        path: "resources",
+        element: <Resources />,
         isSublink: false,
     },
     {
@@ -128,6 +137,7 @@ export const routes = [
         icon: <Box />,
         path: "procurement",
         sublink: [
+           
             {
                 name: "Purchase Order",
                 icon: <ScanBarcode />,
@@ -143,6 +153,12 @@ export const routes = [
         path: "production",
         icon: <MdOutlineProductionQuantityLimits />,
         sublink: [
+             {
+                name: "Coming Production",
+                icon: <Calendar />,
+                path: "upcoming-sales",
+                element: <UpcomingSales />,
+            },
             {
                 name: "BOM",
                 icon: <RiBillLine />,
