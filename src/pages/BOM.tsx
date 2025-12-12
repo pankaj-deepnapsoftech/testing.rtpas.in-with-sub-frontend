@@ -87,8 +87,12 @@ const BOM: React.FC = () => {
       if (!data.success) {
         throw new Error(data.message);
       }
-      setBoms(data?.boms);
-      setFilteredBoms(data.boms);
+      // Filter to show only approved BOMs
+      const approvedBoms = (data?.boms || []).filter(
+        (bom: any) => bom.approved === true
+      );
+      setBoms(approvedBoms);
+      setFilteredBoms(approvedBoms);
     } catch (error: any) {
       toast.error(error?.message || "Something went wrong");
     } finally {

@@ -591,6 +591,7 @@ const InventoryDashboard: React.FC = () => {
                           <FileText size={48} className="mx-auto mb-4" />
                           <p className="text-lg font-medium">No WIP items found</p>
                           <p className="text-sm mt-1">No work in progress items available</p>
+                          <p></p>
                         </div>
                       </td>
                     </tr>
