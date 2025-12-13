@@ -20,6 +20,7 @@ import { isSubscriptionEnd } from "./utils/dateModifyer";
 import { motion } from "framer-motion";
 import SuperAdminDashboard from "./superAdmin/SuperAdminDashboard";
 import SuperAdminSubscriptions from "./superAdmin/SuperAdminSubscriptions";
+import SuperAdminQueries from "./superAdmin/SuperAdminQueries";
 import AdministrationLayout from "./superAdmin/layout/Administration.layout";
 import RTPAS from "./routes/routes";
 import SOPAS from "./routes/SOPAS.routes";
@@ -118,6 +119,7 @@ const App: React.FC = () => {
           {cookies.access_token && (getSavedUserId()?.administration) && <Route element={<AdministrationLayout />} >
             <Route path="/" element={<SuperAdminDashboard />} />
             <Route path="/admin-subscription" element={<SuperAdminSubscriptions />} />
+            <Route path="/admin-queries" element={<SuperAdminQueries />} />
           </Route>}
 
           {!cookies.access_token && (
