@@ -13,10 +13,10 @@ import Contact from './Contact'
 export default function Landing() {
   return (
     <>
-    <Home/>
-    <About/>
-    <Pricing/>
-    <Services/>
+      <Home />
+      <About />
+      <Services />
+      <Pricing />
     </>
   )
 }

@@ -5,12 +5,12 @@ import { useCookies } from "react-cookie";
 // Shipment Type
 export interface Shipment {
     _id: string;
-    party: { _id: string, consignee_name?: [string], company_name?: string };      // Company Name
-    product_id: { _id: string, name: string, current_stock: number };   // Product Name
+    party?: { _id: string, consignee_name?: string[], company_name?: string, cust_id?: string };      // Company Name
+    product_id?: { _id: string, name: string, current_stock: number };   // Product Name
     product_qty: number;
     order_id: string;
     salestatus: String;
-    price: number,
+    price: number,  
     pending_qty?: number
 
 };
@@ -75,6 +75,8 @@ const PartyStrip: React.FC<{ setDispatchData: (data: Shipment) => void, setShowA
         }
     }, [filtering, page])
 
+ console.log(">>",shipmentsData)
+
     return (
         <main className="px-6 py-8 bg-slate-50">
             <div className="mx-auto max-w-7xl">
@@ -112,8 +114,8 @@ const PartyStrip: React.FC<{ setDispatchData: (data: Shipment) => void, setShowA
                             {/* Card Header */}
                             <div className="flex items-start justify-between px-5 pt-5">
                                 <div>
-                                    <h3 className="text-lg font-semibold text-slate-800">{shipment.party.consignee_name?.[0] || shipment.party.company_name}</h3>
-                                    <p className="text-sm text-slate-500">Product: {shipment.product_id?.name}</p>
+                                    <h3 className="text-lg font-semibold text-slate-800">{shipment?.party?.consignee_name?.[0] || shipment?.party?.company_name || shipment?.party?.cust_id || "Unknown"}</h3>
+                                    <p className="text-sm text-slate-500">Product: {shipment?.product_id?.name || "N/A"}</p>
                                     <p className="text-xs text-slate-400">ID: {shipment.order_id}</p>
                                 </div>
 

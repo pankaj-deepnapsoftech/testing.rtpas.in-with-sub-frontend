@@ -108,7 +108,7 @@ const Footer = () => {
               onClick={() => navigate("/")}
             >
               <img
-                src="/DeepnapLogo.png"
+                src="/itsybizz.png"
                 alt="Itsybizz Logo"
                 className="h-20 w-auto mb-4"
               />

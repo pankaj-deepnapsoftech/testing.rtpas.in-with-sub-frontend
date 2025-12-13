@@ -131,9 +131,9 @@ const Navigation: React.FC = () => {
         {/* Logo */}
         <div className="border-b border-gray-100 text-center p-5">
           <img
-            src="/deepnap.png"
+            src="/itsybizz.png"
             alt="Logo"
-            className="w-[130px] sm:w-[150px] ml-5 h-auto "
+            className="w-[120px] sm:w-[150px] ml-0 h-[120px] "
           />
         </div>
 
