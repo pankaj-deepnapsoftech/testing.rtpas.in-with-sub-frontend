@@ -3,16 +3,24 @@ import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { Check, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import ContactUsModal from "./ContactUsModal";
 
 export default function PricingSection() {
-  const [isYearly, setIsYearly] = useState(false);
+  const [billingCycle, setBillingCycle] = useState<
+    "quarterly" | "half_yearly" | "yearly"
+  >("quarterly");
   const navigate = useNavigate();
-
-
+  const [isContactModalOpen, setIsContactModalOpen] = useState(false);
+  const [selectedPlanForContact, setSelectedPlanForContact] = useState("");
 
   // Handle payment when user clicks a plan's button
-  const handleBuy = async () => {
-    navigate('/login');
+  const handleBuy = async (planName) => {
+    if (["KONTROLIX", "RTPAS", "Enterprise"].includes(planName)) {
+      setSelectedPlanForContact(planName);
+      setIsContactModalOpen(true);
+    } else {
+      navigate("/login");
+    }
   };
 
   const plansMonthly = [
@@ -58,9 +66,8 @@ export default function PricingSection() {
     // },
     {
       name: "KONTROLIX",
-      price: "₹999",
-      period: "/month",
-      button: "Choose KONTROLIX",
+      price: "Custom",
+      button: "Contact Sales",
       highlight: false,
       features: [
         { name: "Dashboard Access", included: true },
@@ -98,10 +105,10 @@ export default function PricingSection() {
     },
     {
       name: "SOPAS",
-      price: "₹1999",
-      period: "/month",
+      price: "₹50000",
+      // period: "/month",
       button: "Start Free Trial",
-      highlight: true,
+      highlight: false,
       features: [
         { name: "7-day Free Trial", included: true },
         { name: "Dashboard Access", included: true },
@@ -141,9 +148,8 @@ export default function PricingSection() {
     },
     {
       name: "RTPAS",
-      price: "₹4999",
-      period: "/month",
-      button: "Choose RTPAS",
+      price: "Custom",
+      button: "Contact Sales",
       highlight: false,
       features: [
         { name: "Dashboard Access", included: true },
@@ -179,18 +185,86 @@ export default function PricingSection() {
         { name: "Support Type", included: "Priority" },
       ],
     },
+    {
+      name: "Enterprise",
+      price: "Custom",
+      // period: "",
+      button: "Contact Sales",
+      highlight: false,
+      features: [
+        { name: "Dashboard Access", included: true },
+        { name: "Sensors Integration", included: true },
+        { name: "Resource Status Monitoring", included: true },
+        { name: "Machine ON/OFF Control (Remote)", included: true },
+        { name: "View Production Data from Anywhere", included: true },
+        { name: "Machine Logs & Error Reports", included: true },
+        { name: "Real-Time Production Monitoring", included: true },
+        { name: "Production Monitoring", included: true },
+        { name: "Employee Management", included: true },
+        { name: "User Roles & Permissions", included: true },
+        { name: "Resource Management", included: true },
+        { name: "Work In Progress Tracking", included: true },
+        { name: "Store & Inventory Management", included: true },
+        { name: "Inventory Approvals", included: true },
+        { name: "Scrap Management", included: true },
+        { name: "Sales Order Management", included: true },
+        { name: "Procurement", included: true },
+        { name: "Production Module", included: true },
+        { name: "Bill of Materials (BOM)", included: true },
+        { name: "Pre-Production Management", included: true },
+        { name: "Dispatch & Delivery Tracking", included: true },
+        { name: "Accounts & Finance", included: true },
+        { name: "Proforma Invoice", included: true },
+        { name: "Tax Invoice", included: true },
+        { name: "Payments Module", included: true },
+        { name: "Admin Approvals", included: true },
+        { name: "User Profile & Settings", included: true },
+        { name: "Users (Unlimited)", included: true },
+        { name: "Custom Integrations (Attendance, HR, CRM)", included: true },
+        { name: "Cloud Access (Web + Mobile)", included: true },
+        { name: "Support Type", included: "Dedicated" },
+      ],
+    },
   ];
 
-  const plansYearly = plansMonthly.map((p) => ({
-    ...p,
-    price:
-      p.name === "Free Trial"
-        ? "₹0"
-        : `₹${parseInt(p.price.replace(/[₹,]/g, "")) * 10}`,
-    period: p.name === "Free Trial" ? "for 7 days" : "/year",
-  }));
+  const getPrice = (plan: any) => {
+    if (
+      plan.name === "Enterprise" ||
+      plan.name === "KONTROLIX" ||
+      plan.name === "RTPAS"
+    )
+      return "Custom";
+    if (plan.name === "SOPAS") {
+      if (billingCycle === "quarterly") return "₹50,000 + GST";
+      if (billingCycle === "half_yearly") return "₹80,000 + GST";
+      if (billingCycle === "yearly") return "₹1,10,000 + GST";
+    }
+    return plan.price;
+  };
 
-  const plans = isYearly ? plansYearly : plansMonthly;
+  const getPeriod = (plan: any) => {
+    if (
+      plan.name === "Enterprise" ||
+      plan.name === "KONTROLIX" ||
+      plan.name === "RTPAS"
+    )
+      return "";
+    if (plan.name === "SOPAS") {
+      if (billingCycle === "quarterly") return "/quarter";
+      if (billingCycle === "half_yearly") return "/half-year";
+      if (billingCycle === "yearly") return "/year";
+    }
+    if (billingCycle === "quarterly") return "/quarter";
+    if (billingCycle === "half_yearly") return "/half-year";
+    if (billingCycle === "yearly") return "/year";
+    return "";
+  };
+
+  const plans = plansMonthly.map((p) => ({
+    ...p,
+    price: getPrice(p),
+    period: getPeriod(p),
+  }));
 
   return (
     <section className="relative bg-gradient-to-b from-blue-100 to-white py-24 px-6">
@@ -210,34 +284,27 @@ export default function PricingSection() {
           Choose the plan that fits your automation workflow.
         </p>
 
-        {/* Toggle Monthly / Yearly */}
+        {/* Toggle Billing Cycle */}
         <div className="flex justify-center mb-16">
-          <div className="inline-flex bg-white/60 backdrop-blur-xl border border-blue-200 shadow-lg rounded-2xl p-1">
-            <button
-              onClick={() => setIsYearly(false)}
-              className={`px-6 py-3 rounded-xl font-semibold transition-all ${
-                !isYearly
-                  ? "bg-blue-600 text-white shadow-lg scale-105"
-                  : "text-blue-700 hover:bg-blue-100"
-              }`}
-            >
-              Monthly
-            </button>
-            <button
-              onClick={() => setIsYearly(true)}
-              className={`px-6 py-3 rounded-xl font-semibold transition-all ${
-                isYearly
-                  ? "bg-blue-600 text-white shadow-lg scale-105"
-                  : "text-blue-700 hover:bg-blue-100"
-              }`}
-            >
-              Yearly
-            </button>
+          <div className="inline-flex bg-white/60 backdrop-blur-xl border border-blue-200 shadow-lg rounded-2xl p-1 flex-wrap justify-center gap-1">
+            {(["quarterly", "half_yearly", "yearly"] as const).map((cycle) => (
+              <button
+                key={cycle}
+                onClick={() => setBillingCycle(cycle)}
+                className={`px-4 py-2 rounded-xl font-semibold transition-all capitalize ${
+                  billingCycle === cycle
+                    ? "bg-blue-600 text-white shadow-lg scale-105"
+                    : "text-blue-700 hover:bg-blue-100"
+                }`}
+              >
+                {cycle.replace("_", " ")}
+              </button>
+            ))}
           </div>
         </div>
 
         {/* Pricing Cards */}
-        <div className="grid gap-8 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-8 grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-4">
           {plans.map((plan, index) => (
             <motion.div
               key={index}
@@ -245,7 +312,7 @@ export default function PricingSection() {
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: index * 0.1 }}
               viewport={{ once: true }}
-              className={`relative rounded-3xl p-8 flex flex-col border backdrop-blur-2xl transition-all duration-300 ${
+              className={`relative rounded-3xl p-6 flex flex-col border backdrop-blur-2xl transition-all duration-300 ${
                 plan.highlight
                   ? "border-blue-600 bg-white/80 shadow-2xl scale-105"
                   : "border-blue-200 bg-white/70 shadow-xl hover:scale-[1.03]"
@@ -262,10 +329,10 @@ export default function PricingSection() {
               </h3>
 
               <div className="flex justify-center items-baseline mt-4 mb-6">
-                <span className="text-5xl font-extrabold text-blue-900">
+                <span className="text-3xl font-extrabold text-blue-900">
                   {plan.price}
                 </span>
-                <span className="text-blue-600 ml-2">{plan.period}</span>
+                {/* <span className="text-blue-600 ml-2">{plan.period}</span> */}
               </div>
 
               <ul className="space-y-3 mb-8">
@@ -299,7 +366,7 @@ export default function PricingSection() {
               </ul>
 
               <button
-                onClick={handleBuy}
+                onClick={() => handleBuy(plan.name)}
                 className={`mt-auto w-full py-3 rounded-xl font-semibold shadow-md transition-all ${
                   plan.highlight
                     ? "bg-blue-600 text-white hover:bg-blue-700"
@@ -312,6 +379,11 @@ export default function PricingSection() {
           ))}
         </div>
       </div>
+      <ContactUsModal
+        isOpen={isContactModalOpen}
+        onClose={() => setIsContactModalOpen(false)}
+        planName={selectedPlanForContact}
+      />
     </section>
   );
 }

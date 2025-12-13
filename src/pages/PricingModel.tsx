@@ -4,12 +4,17 @@ import { motion } from "framer-motion";
 import { Check, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useCookies } from "react-cookie";
+import ContactUsModal from "../landing/ContactUsModal";
 
 export default function PricingSection() {
-  const [isYearly, setIsYearly] = useState(false);
+  const [billingCycle, setBillingCycle] = useState<
+    "quarterly" | "half_yearly" | "yearly"
+  >("quarterly");
   const navigate = useNavigate();
   const [cookies] = useCookies();
   const [isUsersModalOpen, setIsUsersModalOpen] = useState(false);
+  const [isContactModalOpen, setIsContactModalOpen] = useState(false);
+  const [selectedPlanForContact, setSelectedPlanForContact] = useState("");
   const [pendingPlan, setPendingPlan] = useState<any>(null);
   // usersCount now represents the number of ADDITIONAL users the buyer wants to add (not total)
   const [usersCount, setUsersCount] = useState<number>(0);
@@ -18,13 +23,15 @@ export default function PricingSection() {
   // helper: parse included users from plan.features (looks for "Users (N)")
   const getIncludedUsers = (plan) => {
     try {
-      const usersFeature = plan.features?.find((f) =>
-        typeof f.name === "string" && f.name.toLowerCase().startsWith("users")
+      const usersFeature = plan.features?.find(
+        (f) =>
+          typeof f.name === "string" && f.name.toLowerCase().startsWith("users")
       );
       if (!usersFeature) return 1;
       const m = usersFeature.name.match(/\((\d+)\)/);
       if (m && m[1]) return parseInt(m[1], 10);
-      if (typeof usersFeature.included === "number") return usersFeature.included;
+      if (typeof usersFeature.included === "number")
+        return usersFeature.included;
       return 1;
     } catch (e) {
       return 1;
@@ -34,9 +41,10 @@ export default function PricingSection() {
   // helper: find per-user extra charge (search feature like "Charges for Additional Users ₹1000/user")
   const getPerUserCharge = (plan) => {
     try {
-      const chargeFeature = plan.features?.find((f) =>
-        typeof f.name === "string" &&
-        f.name.toLowerCase().includes("additional user")
+      const chargeFeature = plan.features?.find(
+        (f) =>
+          typeof f.name === "string" &&
+          f.name.toLowerCase().includes("additional user")
       );
       if (!chargeFeature) {
         return 1000;
@@ -70,6 +78,17 @@ export default function PricingSection() {
 
   // Handle payment when user clicks a plan's button
   const handleBuy = async (plan) => {
+    if (["KONTROLIX", "RTPAS", "Enterprise"].includes(plan.name)) {
+      setSelectedPlanForContact(plan.name);
+      setIsContactModalOpen(true);
+      return;
+    }
+    if (plan.price === "Check Quarterly") {
+      alert(
+        "Please select a Quarterly, Half-Yearly, or Yearly plan for SOPAS."
+      );
+      return;
+    }
     const rawPrice = String(plan.price || "0").replace(/[^0-9]/g, "");
     const amountNumber = parseInt(rawPrice || "0", 10);
     if (!amountNumber || amountNumber === 0) {
@@ -83,7 +102,8 @@ export default function PricingSection() {
     setUsersCount(0);
 
     // compute initial computed amount paise (base price + 0 extra users)
-    const basePriceRupees = parseInt(String(plan.price || "0").replace(/[^0-9]/g, ""), 10) || 0;
+    const basePriceRupees =
+      parseInt(String(plan.price || "0").replace(/[^0-9]/g, ""), 10) || 0;
     setComputedAmountPaise(basePriceRupees * 100);
 
     setIsUsersModalOpen(true);
@@ -93,7 +113,9 @@ export default function PricingSection() {
     if (!pendingPlan) return;
 
     // base price rupees extracted from displayed plan.price (works for monthly/yearly because you generate plans above)
-    const basePriceRupees = parseInt(String(pendingPlan.price || "0").replace(/[^0-9]/g, ""), 10) || 0;
+    const basePriceRupees =
+      parseInt(String(pendingPlan.price || "0").replace(/[^0-9]/g, ""), 10) ||
+      0;
 
     // included users from plan
     const includedUsers = getIncludedUsers(pendingPlan) || 1;
@@ -104,7 +126,10 @@ export default function PricingSection() {
     const totalUsers = includedUsers + additionalUsers;
 
     // calculate total rupees: base plan + extra users * perUserCharge
-    const totalRupees = basePriceRupees + additionalUsers * perUserCharge;
+    let totalRupees = basePriceRupees + additionalUsers * perUserCharge;
+    if (pendingPlan.price && pendingPlan.price.includes("+ GST")) {
+      totalRupees = Math.round(totalRupees * 1.18);
+    }
     const totalAmountPaise = totalRupees * 100;
 
     const ok = await loadRazorpayScript();
@@ -128,7 +153,14 @@ export default function PricingSection() {
         body: JSON.stringify({
           plan: pendingPlan.name,
           amount: totalAmountPaise,
-          period: isYearly ? "year" : "month",
+          period:
+            billingCycle === "quarterly"
+              ? "quarter"
+              : billingCycle === "half_yearly"
+              ? "half_year"
+              : billingCycle === "yearly"
+              ? "year"
+              : "month",
           // send total allowed users (included + additional) — the backend can persist this
           allowedUsers: Math.max(1, totalUsers),
         }),
@@ -206,9 +238,8 @@ export default function PricingSection() {
   const plansMonthly = [
     {
       name: "KONTROLIX",
-      price: "₹999",
-      period: "/month",
-      button: "Choose KONTROLIX",
+      price: "Custom",
+      button: "Contact Sales",
       highlight: false,
       features: [
         { name: "Dashboard Access", included: true },
@@ -247,7 +278,6 @@ export default function PricingSection() {
     {
       name: "SOPAS",
       price: "₹1999",
-      period: "/month",
       button: "Choose SOPAS",
       highlight: true,
       features: [
@@ -287,9 +317,8 @@ export default function PricingSection() {
     },
     {
       name: "RTPAS",
-      price: "₹4999",
-      period: "/month",
-      button: "Choose RTPAS",
+      price: "Custom",
+      button: "Contact Sales",
       highlight: false,
       features: [
         { name: "Dashboard Access", included: true },
@@ -325,27 +354,100 @@ export default function PricingSection() {
         { name: "Support Type", included: "Priority" },
       ],
     },
+    {
+      name: "Enterprise",
+      price: "Custom",
+      button: "Contact Sales",
+      highlight: false,
+      features: [
+        { name: "Dashboard Access", included: true },
+        { name: "Sensors Integration", included: true },
+        { name: "Resource Status Monitoring", included: true },
+        { name: "Machine ON/OFF Control (Remote)", included: true },
+        { name: "View Production Data from Anywhere", included: true },
+        { name: "Machine Logs & Error Reports", included: true },
+        { name: "Real-Time Production Monitoring", included: true },
+        { name: "Production Monitoring", included: true },
+        { name: "Employee Management", included: true },
+        { name: "User Roles & Permissions", included: true },
+        { name: "Resource Management", included: true },
+        { name: "Work In Progress Tracking", included: true },
+        { name: "Store & Inventory Management", included: true },
+        { name: "Inventory Approvals", included: true },
+        { name: "Scrap Management", included: true },
+        { name: "Sales Order Management", included: true },
+        { name: "Procurement", included: true },
+        { name: "Production Module", included: true },
+        { name: "Bill of Materials (BOM)", included: true },
+        { name: "Pre-Production Management", included: true },
+        { name: "Dispatch & Delivery Tracking", included: true },
+        { name: "Accounts & Finance", included: true },
+        { name: "Proforma Invoice", included: true },
+        { name: "Tax Invoice", included: true },
+        { name: "Payments Module", included: true },
+        { name: "Admin Approvals", included: true },
+        { name: "User Profile & Settings", included: true },
+        { name: "Users (Unlimited)", included: true },
+        { name: "Custom Integrations (Attendance, HR, CRM)", included: true },
+        { name: "Cloud Access (Web + Mobile)", included: true },
+        { name: "Support Type", included: "Dedicated" },
+      ],
+    },
   ];
 
-  const plansYearly = plansMonthly.map((p) => ({
-    ...p,
-    price:
-      p.name === "Free Trial"
-        ? "₹0"
-        : `₹${parseInt(p.price.replace(/[₹,]/g, "")) * 10}`,
-    period: p.name === "Free Trial" ? "for 14 days" : "/year",
-  }));
+  const getPrice = (plan: any) => {
+    if (
+      plan.name === "Enterprise" ||
+      plan.name === "KONTROLIX" ||
+      plan.name === "RTPAS"
+    )
+      return "Custom";
+    if (plan.name === "SOPAS") {
+      if (billingCycle === "quarterly") return "₹50,000 + GST";
+      if (billingCycle === "half_yearly") return "₹80,000 + GST";
+      if (billingCycle === "yearly") return "₹1,10,000 + GST";
+    }
+    return plan.price;
+  };
 
-  const plans = isYearly ? plansYearly : plansMonthly;
+  const getPeriod = (plan: any) => {
+    if (
+      plan.name === "Enterprise" ||
+      plan.name === "KONTROLIX" ||
+      plan.name === "RTPAS"
+    )
+      return "";
+    if (plan.name === "SOPAS") {
+      if (billingCycle === "quarterly") return "/quarter";
+      if (billingCycle === "half_yearly") return "/half-year";
+      if (billingCycle === "yearly") return "/year";
+    }
+    if (billingCycle === "quarterly") return "/quarter";
+    if (billingCycle === "half_yearly") return "/half-year";
+    if (billingCycle === "yearly") return "/year";
+    return "";
+  };
+
+  const plans = plansMonthly.map((p) => ({
+    ...p,
+    price: getPrice(p),
+    period: getPeriod(p),
+  }));
 
   // compute displayed estimated rupees for modal (base + additional users)
   const computeEstimatedRupees = () => {
     if (!pendingPlan) return 0;
-    const basePrice = parseInt(String(pendingPlan.price || "0").replace(/[^0-9]/g, ""), 10) || 0;
+    const basePrice =
+      parseInt(String(pendingPlan.price || "0").replace(/[^0-9]/g, ""), 10) ||
+      0;
     const included = getIncludedUsers(pendingPlan) || 1;
     const perUser = getPerUserCharge(pendingPlan) || 1000;
     const extra = Math.max(0, Math.floor(usersCount || 0));
-    return basePrice + extra * perUser;
+    let total = basePrice + extra * perUser;
+    if (pendingPlan.price && pendingPlan.price.includes("+ GST")) {
+      total = Math.round(total * 1.18);
+    }
+    return total;
   };
 
   return (
@@ -374,34 +476,29 @@ export default function PricingSection() {
           Choose the plan that fits your automation workflow.
         </p>
 
-        {/* Toggle Monthly / Yearly */}
+        {/* Toggle Billing Cycle */}
         <div className="flex justify-center mb-16">
-          <div className="inline-flex bg-white/60 backdrop-blur-xl border border-blue-200 shadow-lg rounded-2xl p-1">
-            <button
-              onClick={() => setIsYearly(false)}
-              className={`px-6 py-3 rounded-xl font-semibold transition-all ${
-                !isYearly
-                  ? "bg-blue-600 text-white shadow-lg scale-105"
-                  : "text-blue-700 hover:bg-blue-100"
-              }`}
-            >
-              Monthly
-            </button>
-            <button
-              onClick={() => setIsYearly(true)}
-              className={`px-6 py-3 rounded-xl font-semibold transition-all ${
-                isYearly
-                  ? "bg-blue-600 text-white shadow-lg scale-105"
-                  : "text-blue-700 hover:bg-blue-100"
-              }`}
-            >
-              Yearly
-            </button>
+          <div className="inline-flex bg-white/60 backdrop-blur-xl border border-blue-200 shadow-lg rounded-2xl p-1 flex-wrap justify-center gap-1">
+            {(["monthly", "quarterly", "half_yearly", "yearly"] as const).map(
+              (cycle) => (
+                <button
+                  key={cycle}
+                  onClick={() => setBillingCycle(cycle)}
+                  className={`px-4 py-2 rounded-xl font-semibold transition-all capitalize ${
+                    billingCycle === cycle
+                      ? "bg-blue-600 text-white shadow-lg scale-105"
+                      : "text-blue-700 hover:bg-blue-100"
+                  }`}
+                >
+                  {cycle.replace("_", " ")}
+                </button>
+              )
+            )}
           </div>
         </div>
 
         {/* Pricing Cards */}
-        <div className="grid gap-8 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-8 grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-4">
           {plans.map((plan, index) => (
             <motion.div
               key={index}
@@ -479,16 +576,21 @@ export default function PricingSection() {
         {isUsersModalOpen && pendingPlan && (
           <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
             <div className="bg-white rounded-2xl shadow-xl w-full max-w-md p-6">
-              <h4 className="text-xl font-semibold mb-4">Add Additional Employees</h4>
+              <h4 className="text-xl font-semibold mb-4">
+                Add Additional Employees
+              </h4>
               <p className="text-sm mb-3">
-                Enter how many additional employee accounts you want to add to this subscription.
+                Enter how many additional employee accounts you want to add to
+                this subscription.
               </p>
 
               {/* Show included users (informational only) but DO NOT prefill input */}
               <div className="mb-3 text-sm">
                 <span className="font-medium">Included users in plan:</span>{" "}
                 {getIncludedUsers(pendingPlan)}{" "}
-                <span className="text-gray-500">(already part of the plan)</span>
+                <span className="text-gray-500">
+                  (already part of the plan)
+                </span>
               </div>
 
               <input
@@ -496,7 +598,9 @@ export default function PricingSection() {
                 value={usersCount}
                 min={0}
                 onChange={(e) =>
-                  setUsersCount(Math.max(0, parseInt(e.target.value || "0", 10)))
+                  setUsersCount(
+                    Math.max(0, parseInt(e.target.value || "0", 10))
+                  )
                 }
                 className="w-full border rounded-lg px-3 py-2 mb-4"
                 placeholder="Enter additional users (0 if none)"
@@ -504,21 +608,26 @@ export default function PricingSection() {
 
               <div className="text-sm mb-4">
                 <div>
-                  <span className="font-medium">Per additional user:</span>{" "}
-                  ₹{getPerUserCharge(pendingPlan).toLocaleString()}{" "}
+                  <span className="font-medium">Per additional user:</span> ₹
+                  {getPerUserCharge(pendingPlan).toLocaleString()}{" "}
                   <span className="text-gray-500">/user</span>
                 </div>
                 <div className="mt-2">
-                  <span className="font-medium">Estimated total amount:</span>{" "}
-                  ₹{computeEstimatedRupees().toLocaleString()}{" "}
+                  <span className="font-medium">Estimated total amount:</span> ₹
+                  {computeEstimatedRupees().toLocaleString()}{" "}
                   <span className="text-gray-500">
-                    {isYearly ? "/year" : "/month"}
+                    /{billingCycle.replace("_", "-")}
                   </span>
                 </div>
 
                 {/* show breakdown */}
                 <div className="mt-2 text-xs text-gray-600">
-                  {`Total users after purchase: ${getIncludedUsers(pendingPlan) + Math.max(0, Math.floor(usersCount || 0))} (Included ${getIncludedUsers(pendingPlan)} + Additional ${Math.max(0, Math.floor(usersCount || 0))})`}
+                  {`Total users after purchase: ${
+                    getIncludedUsers(pendingPlan) +
+                    Math.max(0, Math.floor(usersCount || 0))
+                  } (Included ${getIncludedUsers(
+                    pendingPlan
+                  )} + Additional ${Math.max(0, Math.floor(usersCount || 0))})`}
                 </div>
               </div>
 
@@ -540,6 +649,11 @@ export default function PricingSection() {
           </div>
         )}
       </div>
+      <ContactUsModal
+        isOpen={isContactModalOpen}
+        onClose={() => setIsContactModalOpen(false)}
+        planName={selectedPlanForContact}
+      />
     </section>
   );
 }
