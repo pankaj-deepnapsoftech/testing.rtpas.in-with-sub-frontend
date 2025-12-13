@@ -253,6 +253,18 @@ const BOMRawMaterialTable: React.FC<BOMRawMaterialTableProps> = ({
       text: "#409503",
     },
   };
+  const reservedByItemId = useMemo(() => {
+    const map = new Map<string, number>();
+    (products || []).forEach((p: any) => {
+      const key = String(p.item || "");
+      if (!key) return;
+      if (p.isInventoryApprovalClicked && !p.isOutForInventoryClicked) {
+        const prev = map.get(key) || 0;
+        map.set(key, prev + (Number(p.quantity) || 0));
+      }
+    });
+    return map;
+  }, [products]);
   // console.log(products)
   const {
     getTableProps,
@@ -565,7 +577,9 @@ const BOMRawMaterialTable: React.FC<BOMRawMaterialTableProps> = ({
                             // Check if current stock is sufficient
                             const currentStock = original.current_stock || 0;
                             const requiredQuantity = original.quantity || 0;
-                            const isStockSufficient = currentStock >= requiredQuantity;
+                            const reserved = reservedByItemId.get(String(original.item || "")) || 0;
+                            const availableForApproval = Math.max(0, currentStock - reserved);
+                            const isStockSufficient = availableForApproval >= requiredQuantity;
                             
                             const isAlreadyAccepted = 
                               !!original.isInventoryApprovalClicked;
@@ -583,7 +597,7 @@ const BOMRawMaterialTable: React.FC<BOMRawMaterialTableProps> = ({
                               acceptButtonLabel = "Accepted";
                               buttonBgColor = colors.gray[400];
                             } else if (!isStockSufficient) {
-                              acceptButtonLabel = `Insufficient Stock (${currentStock}/${requiredQuantity})`;
+                              acceptButtonLabel = `Insufficient Stock (${availableForApproval}/${requiredQuantity})`;
                               buttonBgColor = colors.error[500];
                             }
 
@@ -608,7 +622,7 @@ const BOMRawMaterialTable: React.FC<BOMRawMaterialTableProps> = ({
                                 onClick={() => {
                                   if (!isStockSufficient) {
                                     toast.error(
-                                      `Insufficient stock! Current stock: ${currentStock}, Required: ${requiredQuantity}`
+                                      `Insufficient stock! Available: ${availableForApproval}, Required: ${requiredQuantity}`
                                     );
                                     return;
                                   }

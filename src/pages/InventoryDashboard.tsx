@@ -675,14 +675,18 @@ const InventoryDashboard: React.FC = () => {
                           ₹{item.price}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="flex space-x-2">
-                            <button className="text-blue-600 hover:text-blue-800 text-xs font-medium">
-                              Approve
-                            </button>
-                            <button className="text-red-600 hover:text-red-800 text-xs font-medium">
-                              Reject
-                            </button>
-                          </div>
+                          {item.bom_status === 'raw material approval pending' ? (
+                            <div className="flex space-x-2">
+                              <button className="text-blue-600 hover:text-blue-800 text-xs font-medium">
+                                Approve
+                              </button>
+                              <button className="text-red-600 hover:text-red-800 text-xs font-medium">
+                                Reject
+                              </button>
+                            </div>
+                          ) : (
+                            <span className="text-gray-500 text-xs font-medium">No action</span>
+                          )}
                         </td>
                       </tr>
                     ))

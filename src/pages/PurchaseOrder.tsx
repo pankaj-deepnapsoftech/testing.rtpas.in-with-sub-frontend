@@ -882,7 +882,7 @@ const getShortageKey = (shortage?: InventoryShortage | null) =>
         }
       });
 
-      // Fallback: ensure grouped rows with direct inputs are still processed
+      // Fallback: process grouped rows only when user gave direct input
       groupedShortages.forEach((groupedItem) => {
         const groupedKey = getShortageKey(groupedItem);
         if (!groupedKey || groupedStockUpdates.has(groupedKey)) {
@@ -898,8 +898,6 @@ const getShortageKey = (shortage?: InventoryShortage | null) =>
         const totalStock =
           directInput !== undefined && directInput !== null && directInput > 0
             ? directInput
-            : groupedItem.updated_stock && groupedItem.updated_stock > 0
-            ? groupedItem.updated_stock
             : 0;
 
         if (!totalStock || totalStock <= 0) {
@@ -922,8 +920,8 @@ const getShortageKey = (shortage?: InventoryShortage | null) =>
       });
 
       // Update grouped items: Add exact total stock directly to product
-      const groupedStockUpdateCalls = Array.from(groupedStockUpdates.values()).map(
-        ({ totalStock, itemId }) => {
+      const groupedStockUpdateCalls = Array.from(groupedStockUpdates.entries()).map(
+        ([groupedKey, { totalStock, itemId }]) => {
           // First get current stock, then add the exact amount
           return axios.get(
             `${process.env.REACT_APP_BACKEND_URL}product/${itemId}`,
@@ -934,12 +932,16 @@ const getShortageKey = (shortage?: InventoryShortage | null) =>
             if (productResponse.data.success) {
               const currentStock = productResponse.data.product.current_stock || 0;
               const newStock = currentStock + totalStock; // Add exact user input
-              
+              const groupedItem = groupedShortages.find((gi) => getShortageKey(gi) === groupedKey);
+              const idsForGroup = (groupedItem?.underlying_shortage_ids || []).filter((id: string) =>
+                localShortageEdits.has(id)
+              );
               return axios.put(
                 `${process.env.REACT_APP_BACKEND_URL}product/update-stock-and-shortages`,
                 {
                   productId: itemId,
-                  newStock: newStock, // Exact total stock
+                  newStock: newStock,
+                  targetShortageIds: idsForGroup,
                 },
                 {
                   headers: { Authorization: `Bearer ${cookies?.access_token}` },
