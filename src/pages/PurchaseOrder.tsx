@@ -1175,11 +1175,8 @@ const getShortageKey = (shortage?: InventoryShortage | null) =>
   // Filter out fully resolved items (shortage_quantity = 0 and remaining_shortage = 0)
   const activeShortages = useMemo(() => {
     return inventoryShortages.filter((item) => {
-      const remainingShortage = item.remaining_shortage !== undefined 
-        ? item.remaining_shortage 
-        : (item.updated_stock && item.updated_stock > 0 
-            ? Math.max(0, item.shortage_quantity - item.updated_stock)
-            : item.shortage_quantity);
+      const usedUpdatedStock = item.updated_stock || 0;
+      const remainingShortage = Math.max(0, (item.shortage_quantity || 0) - usedUpdatedStock);
       return item.shortage_quantity > 0 || remainingShortage > 0;
     });
   }, [inventoryShortages]);
@@ -1619,11 +1616,8 @@ const getShortageKey = (shortage?: InventoryShortage | null) =>
                                 item.updated_price !== null
                                   ? item.updated_price - item.current_price
                                   : 0;
-                              const remainingShortage = item.remaining_shortage !== undefined 
-                                ? item.remaining_shortage 
-                                : (item.updated_stock && item.updated_stock > 0 
-                                    ? Math.max(0, item.shortage_quantity - item.updated_stock)
-                                    : item.shortage_quantity);
+                              const usedUpdatedStock = item.updated_stock || 0;
+                              const remainingShortage = Math.max(0, (item.shortage_quantity || 0) - usedUpdatedStock);
                               return total + change * remainingShortage;
                             }, 0) > 0
                               ? "text-red-600"
@@ -1638,11 +1632,8 @@ const getShortageKey = (shortage?: InventoryShortage | null) =>
                                 item.updated_price !== null
                                   ? item.updated_price - item.current_price
                                   : 0;
-                              const remainingShortage = item.remaining_shortage !== undefined 
-                                ? item.remaining_shortage 
-                                : (item.updated_stock && item.updated_stock > 0 
-                                    ? Math.max(0, item.shortage_quantity - item.updated_stock)
-                                    : item.shortage_quantity);
+                              const usedUpdatedStock = item.updated_stock || 0;
+                              const remainingShortage = Math.max(0, (item.shortage_quantity || 0) - usedUpdatedStock);
                               return total + change * remainingShortage;
                             }, 0)
                             .toFixed(2)}
@@ -1801,39 +1792,14 @@ const getShortageKey = (shortage?: InventoryShortage | null) =>
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap text-sm">
                               {(() => {
-                                // Calculate remaining shortage correctly
                                 let remaining: number;
-                                
-                                if (item.is_grouped) {
-                                  // For grouped items, calculate from user input
-                                  const directInput = groupedItemInputs.get(getShortageKey(item));
-                                  if (directInput !== undefined && directInput !== null && directInput > 0) {
-                                    // User has entered stock, calculate remaining
-                                    remaining = Math.max(0, item.shortage_quantity - directInput);
-                                  } else if (item.remaining_shortage !== undefined) {
-                                    // Use stored remaining shortage
-                                    remaining = item.remaining_shortage;
-                                  } else {
-                                    // No update yet, show full shortage
-                                    remaining = item.shortage_quantity;
-                                  }
-                                } else {
-                                  // For non-grouped items
-                                  if (item.updated_stock && item.updated_stock > 0) {
-                                    // User has entered stock - calculate remaining using original shortage
-                                    // Use original_shortage_quantity if available (before any updates)
-                                    // Otherwise use shortage_quantity (might be updated by backend)
-                                    const originalShortage = item.original_shortage_quantity || item.shortage_quantity;
-                                    remaining = Math.max(0, originalShortage - (item.updated_stock || 0));
-                                  } else {
-                                    // No stock entered yet, show current shortage
-                                    // Backend's shortage_quantity is already the remaining if stock was added
-                                    remaining = item.shortage_quantity;
-                                  }
-                                }
-                                
-                                const hasStockUpdate = item.updated_stock && item.updated_stock > 0;
-                                
+                                const directInput = item.is_grouped ? groupedItemInputs.get(getShortageKey(item)) : undefined;
+                                const usedUpdatedStock =
+                                  directInput !== undefined && directInput !== null && directInput > 0
+                                    ? directInput
+                                    : (item.updated_stock || 0);
+                                remaining = Math.max(0, (item.shortage_quantity || 0) - usedUpdatedStock);
+                                const hasStockUpdate = usedUpdatedStock > 0;
                                 return (
                                   <span
                                     className={`font-semibold ${
