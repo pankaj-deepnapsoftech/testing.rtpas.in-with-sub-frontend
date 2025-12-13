@@ -29,7 +29,7 @@ const AddUserRole: React.FC<AddUserRoleProps> = ({
     { value: "inventory", label: "Inventory" },
     // { value: "direct", label: "Direct" },
     { value: "store", label: "Store" },
-    { value: "approval", label: "Approval" },
+    { value: "approval", label: "Control Panel" },
     { value: "production", label: "Production" },
     { value: "sales", label: "Sales" },
     { value: "sensors", label: "Sensors" },

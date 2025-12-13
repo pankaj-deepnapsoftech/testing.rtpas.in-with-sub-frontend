@@ -49,7 +49,7 @@ export default function Navbar() {
               className="cursor-pointer flex-shrink-0"
               onClick={() => navigate("/")}
             >
-              <img src="/DeepnapLogo.png" alt="Itsybizz Logo" className="h-20 w-auto" />
+              <img src="/itsybizz.png" alt="Itsybizz Logo" className="h-20 w-auto" />
               {/* <p
                 className="text-xl font-extrabold bg-gradient-to-r from-gray-900 to-gray-500 
                 bg-clip-text text-transparent tracking-wide drop-shadow-[0_0_10px_rgba(59,130,246,0.4)]
@@ -83,6 +83,17 @@ export default function Navbar() {
                 className="ml-4 bg-gradient-to-r from-blue-600 to-sky-500 text-white font-semibold rounded-full px-6 py-2.5 shadow-lg hover:shadow-xl transition"
               >
                 Get Started
+              </motion.button>
+                <motion.button
+                whileHover={{
+                  scale: 1.05,
+                  boxShadow: "0 10px 25px rgba(59, 130, 246, 0.4)",
+                }}
+                onClick={() => navigate("/login")}
+                whileTap={{ scale: 0.95 }}
+                className="ml-4 bg-gradient-to-r from-blue-600 to-sky-500 text-white font-semibold rounded-full px-6 py-2.5 shadow-lg hover:shadow-xl transition"
+              >
+                Login User
               </motion.button>
             </div>
           </div>

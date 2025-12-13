@@ -43,7 +43,7 @@ const AddDispatch: React.FC<AddDispatchProps> = ({
               Authorization: `Bearer ${cookies?.access_token}`,
             },
           });
-      setSalesOrders(response.data.data);
+      setSalesOrders(response?.data?.data || response?.data || []);
     } catch (error) {
       console.error("Error fetching sales orders:", error);
       toast.error("Failed to fetch sales orders");
@@ -315,9 +315,7 @@ const AddDispatch: React.FC<AddDispatchProps> = ({
                   </option>
                   {salesOrders.map((order) => (
                     <option key={order._id} value={order._id}>
-                      {order.order_id} -{" "}
-                      {order?.party?.consignee_name?.[0] ||
-                        order?.party?.company_name}
+                      {(order?.order_id || order?.order || "Unknown Order")} - {(order?.party?.consignee_name?.[0] || order?.party?.company_name || order?.product_id?.name || "No name")}
                     </option>
                   ))}
                 </select>

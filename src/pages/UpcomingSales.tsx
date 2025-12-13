@@ -174,7 +174,7 @@ const UpcomingSales: React.FC = () => {
                 className="text-2xl lg:text-3xl font-bold"
                 style={{ color: colors.text.primary }}
               >
-                Coming Production
+                Production Queue
               </h1>
               <p
                 className="text-sm mt-1"
@@ -410,7 +410,7 @@ const UpcomingSales: React.FC = () => {
                           }}
                         >
 
-                          Production Queue
+                         Completed
 
                         </Button>
                       </td>

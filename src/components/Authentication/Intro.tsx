@@ -16,7 +16,7 @@ const Intro: React.FC = () => {
           <Link to="/" className="inline-block">
             <img
               className="w-60 h-auto filter brightness-0 invert drop-shadow-lg hover:scale-105 transition-transform duration-300"
-              src="/DeepnapLogo.png"
+              src="/itsybizz.png"
               alt="Company Logo"
             />
           </Link>
