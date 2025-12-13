@@ -531,12 +531,15 @@ const BOMTable: React.FC<BOMTableProps> = ({
                     >
                       Total Cost
                     </th>
-                    <th
-                      className="px-4 py-3 text-left text-sm font-semibold whitespace-nowrap"
-                      style={{ color: colors.table.headerText }}
-                    >
-                      Update Finished Good Qty
-                    </th>
+                    {page?.original?.is_production_started === false ? null : (
+                      <th
+                        className="px-4 py-3 text-left text-sm font-semibold whitespace-nowrap"
+                        style={{ color: colors.table.headerText }}
+                      >
+                        Update Finished Good Qty
+                      </th>
+                    )}
+
                     <th
                       className="px-4 py-3 text-left text-sm font-semibold whitespace-nowrap"
                       style={{ color: colors.table.headerText }}
@@ -618,75 +621,78 @@ const BOMTable: React.FC<BOMTableProps> = ({
                             ? `₹${row.original.total_cost}`
                             : "₹*****"}
                         </td>
-                        <td className="px-4 py-3 whitespace-nowrap">
-                          <div className="flex items-center gap-2">
-                            <input
-                              type="number"
-                              min="1"
-                              placeholder={
-                                row.original.finished_good?.quantity?.toString() ||
-                                "Qty"
-                              }
-                              value={editingQuantity[row.original._id] ?? ""}
-                              onChange={(e) =>
-                                handleQuantityChange(
-                                  row.original._id,
-                                  Number(e.target.value)
-                                )
-                              }
-                              className="w-20 px-2 py-1.5 text-sm border rounded-lg focus:outline-none focus:ring-2 transition-all"
-                              style={{
-                                backgroundColor: colors.input.background,
-                                borderColor: colors.input.border,
-                                color: colors.text.primary,
-                              }}
-                              onFocus={(e) => {
-                                e.currentTarget.style.borderColor =
-                                  colors.primary[500];
-                                e.currentTarget.style.boxShadow = `0 0 0 2px ${colors.primary[100]}`;
-                              }}
-                              onBlur={(e) => {
-                                e.currentTarget.style.borderColor =
-                                  colors.input.border;
-                                e.currentTarget.style.boxShadow = "none";
-                              }}
-                            />
-                            <button
-                              onClick={() =>
-                                handleUpdateFinishedGoodQty(row.original._id)
-                              }
-                              disabled={
-                                updatingBomId === row.original._id ||
-                                !editingQuantity[row.original._id]
-                              }
-                              className="px-3 py-1.5 text-xs font-medium rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-                              style={{
-                                backgroundColor: colors.primary[500],
-                                color: colors.text.inverse,
-                              }}
-                              onMouseEnter={(e) => {
-                                if (!e.currentTarget.disabled) {
-                                  e.currentTarget.style.backgroundColor =
-                                    colors.primary[600];
+                        {console.log(">>>>>",row)}
+                        {row?.original?.is_production_started === false ? null : (
+                          <td className="px-4 py-3 whitespace-nowrap">
+                            <div className="flex items-center gap-2">
+                              <input
+                                type="number"
+                                min="1"
+                                placeholder={
+                                  row.original.finished_good?.quantity?.toString() ||
+                                  "Qty"
                                 }
-                              }}
-                              onMouseLeave={(e) => {
-                                if (!e.currentTarget.disabled) {
-                                  e.currentTarget.style.backgroundColor =
+                                value={editingQuantity[row.original._id] ?? ""}
+                                onChange={(e) =>
+                                  handleQuantityChange(
+                                    row.original._id,
+                                    Number(e.target.value)
+                                  )
+                                }
+                                className="w-20 px-2 py-1.5 text-sm border rounded-lg focus:outline-none focus:ring-2 transition-all"
+                                style={{
+                                  backgroundColor: colors.input.background,
+                                  borderColor: colors.input.border,
+                                  color: colors.text.primary,
+                                }}
+                                onFocus={(e) => {
+                                  e.currentTarget.style.borderColor =
                                     colors.primary[500];
+                                  e.currentTarget.style.boxShadow = `0 0 0 2px ${colors.primary[100]}`;
+                                }}
+                                onBlur={(e) => {
+                                  e.currentTarget.style.borderColor =
+                                    colors.input.border;
+                                  e.currentTarget.style.boxShadow = "none";
+                                }}
+                              />
+                              <button
+                                onClick={() =>
+                                  handleUpdateFinishedGoodQty(row.original._id)
                                 }
-                              }}
-                            >
-                              {updatingBomId === row.original._id ? (
-                                <div className="flex items-center gap-1">
-                                  <div className="animate-spin rounded-full h-3 w-3 border-2 border-b-transparent border-white"></div>
-                                </div>
-                              ) : (
-                                <SquarePen size={20} />
-                              )}
-                            </button>
-                          </div>
-                        </td>
+                                disabled={
+                                  updatingBomId === row.original._id ||
+                                  !editingQuantity[row.original._id]
+                                }
+                                className="px-3 py-1.5 text-xs font-medium rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                                style={{
+                                  backgroundColor: colors.primary[500],
+                                  color: colors.text.inverse,
+                                }}
+                                onMouseEnter={(e) => {
+                                  if (!e.currentTarget.disabled) {
+                                    e.currentTarget.style.backgroundColor =
+                                      colors.primary[600];
+                                  }
+                                }}
+                                onMouseLeave={(e) => {
+                                  if (!e.currentTarget.disabled) {
+                                    e.currentTarget.style.backgroundColor =
+                                      colors.primary[500];
+                                  }
+                                }}
+                              >
+                                {updatingBomId === row.original._id ? (
+                                  <div className="flex items-center gap-1">
+                                    <div className="animate-spin rounded-full h-3 w-3 border-2 border-b-transparent border-white"></div>
+                                  </div>
+                                ) : (
+                                  <SquarePen size={20} />
+                                )}
+                              </button>
+                            </div>
+                          </td>
+                         )}
                         <td
                           className="px-4 py-3 text-sm whitespace-nowrap"
                           style={{ color: colors.text.secondary }}
@@ -732,29 +738,31 @@ const BOMTable: React.FC<BOMTableProps> = ({
                                 <MdOutlineVisibility size={16} />
                               </button>
                             )}
-                            {openUpdateBomDrawerHandler && (
-                              <button
-                                onClick={() =>
-                                  openUpdateBomDrawerHandler(row.original._id)
-                                }
-                                className="p-2 rounded-lg transition-all duration-200 hover:shadow-md"
-                                style={{
-                                  color: colors.primary[600],
-                                  backgroundColor: colors.primary[50],
-                                }}
-                                onMouseEnter={(e) => {
-                                  e.currentTarget.style.backgroundColor =
-                                    colors.primary[100];
-                                }}
-                                onMouseLeave={(e) => {
-                                  e.currentTarget.style.backgroundColor =
-                                    colors.primary[50];
-                                }}
-                                title="Edit BOM"
-                              >
-                                <MdEdit size={16} />
-                              </button>
-                            )}
+                            {!row.original.is_production_started &&
+                              openUpdateBomDrawerHandler && (
+                                <button
+                                  onClick={() =>
+                                    openUpdateBomDrawerHandler(row.original._id)
+                                  }
+                                  className="p-2 rounded-lg transition-all duration-200 hover:shadow-md"
+                                  style={{
+                                    color: colors.primary[600],
+                                    backgroundColor: colors.primary[50],
+                                  }}
+                                  onMouseEnter={(e) => {
+                                    e.currentTarget.style.backgroundColor =
+                                      colors.primary[100];
+                                  }}
+                                  onMouseLeave={(e) => {
+                                    e.currentTarget.style.backgroundColor =
+                                      colors.primary[50];
+                                  }}
+                                  title="Edit BOM"
+                                >
+                                  <MdEdit size={16} />
+                                </button>
+                              )}
+
                             {deleteBomHandler && cookies?.role === "admin" && (
                               <button
                                 onClick={() => {
