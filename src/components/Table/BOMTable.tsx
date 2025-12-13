@@ -237,6 +237,7 @@ const BOMTable: React.FC<BOMTableProps> = ({
 
       const updateBody = {
         _id: bomId,
+        approved: false,
         raw_materials: updatedRawMaterials,
         scrap_materials: updatedScrapMaterials,
         processes: bom.processes || [],
@@ -621,8 +622,9 @@ const BOMTable: React.FC<BOMTableProps> = ({
                             ? `₹${row.original.total_cost}`
                             : "₹*****"}
                         </td>
-                        {console.log(">>>>>",row)}
-                        {row?.original?.is_production_started === false ? null : (
+                        {console.log(">>>>>", row)}
+                        {row?.original?.is_production_started ===
+                        false ? null : (
                           <td className="px-4 py-3 whitespace-nowrap">
                             <div className="flex items-center gap-2">
                               <input
@@ -692,7 +694,7 @@ const BOMTable: React.FC<BOMTableProps> = ({
                               </button>
                             </div>
                           </td>
-                         )}
+                        )}
                         <td
                           className="px-4 py-3 text-sm whitespace-nowrap"
                           style={{ color: colors.text.secondary }}
