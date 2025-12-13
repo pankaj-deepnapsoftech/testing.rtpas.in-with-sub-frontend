@@ -2,6 +2,7 @@
 import React from "react";
 import { IoDiamondOutline } from "react-icons/io5";
 import { MdDashboard } from "react-icons/md";
+import { IoChatbubblesOutline } from "react-icons/io5";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useCookies } from "react-cookie";
 import { toast } from "react-toastify";
@@ -9,7 +10,7 @@ import { toast } from "react-toastify";
 const SuperAdminSidebar = ({ isOpen, onClose }) => {
   const navigate = useNavigate();
   const location = useLocation();
-  const [, , removeCookie] = useCookies(["access_token", "isAdministration"]);
+  const [cookies, , removeCookie] = useCookies(["access_token", "isAdministration"]);
 
   const menuItems = [
     {
@@ -23,6 +24,12 @@ const SuperAdminSidebar = ({ isOpen, onClose }) => {
       name: "Admin Subscriptions",
       icon: <IoDiamondOutline />,
       path: "/admin-subscription",
+    },
+    {
+      id: "queries",
+      name: "Queries",
+      icon: <IoChatbubblesOutline />,
+      path: "/admin-queries",
     },
   ];
 
@@ -41,6 +48,8 @@ const SuperAdminSidebar = ({ isOpen, onClose }) => {
          toast.error(error.message || "Something went wrong");
        }
      };
+
+  // Removed plan queries summary; use dedicated Queries page instead
 
   return (
     <>
@@ -104,6 +113,8 @@ const SuperAdminSidebar = ({ isOpen, onClose }) => {
               </button>
             ))}
           </nav>
+
+          
         </div>
 
         {/* Logout Button FIXED at Bottom */}

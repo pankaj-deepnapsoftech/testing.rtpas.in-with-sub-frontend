@@ -31,19 +31,43 @@ const ContactUsModal: React.FC<ContactUsModalProps> = ({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Handle form submission logic here (e.g., API call)
-    console.log("Form submitted:", formData, "Plan:", planName);
-    // You might want to add an API call here to send the email/data
-    alert("Thank you for your interest! We will get back to you shortly.");
-    onClose();
-    setFormData({
-      name: "",
-      businessName: "",
-      email: "",
-      phoneNumber: "",
-      city: "",
-      message: "",
-    });
+    const submit = async () => {
+      try {
+        const backendUrl =
+          (process.env.REACT_APP_BACKEND_URL as string) ||
+          "http://localhost:8096/api/";
+        const res = await fetch(`${backendUrl}contact`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            ...formData,
+            plan: planName || "Custom",
+            source: "landing",
+          }),
+        });
+        const data = await res.json();
+        if (!res.ok || !data?.success) {
+          throw new Error(data?.message || "Failed to submit request");
+        }
+        alert(
+          "Thank you for your interest! We will get back to you shortly."
+        );
+        onClose();
+        setFormData({
+          name: "",
+          businessName: "",
+          email: "",
+          phoneNumber: "",
+          city: "",
+          message: "",
+        });
+      } catch (err: any) {
+        alert(err?.message || "Something went wrong. Please try again.");
+      }
+    };
+    submit();
   };
 
   if (!isOpen) return null;
