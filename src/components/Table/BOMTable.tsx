@@ -30,7 +30,8 @@ import EmptyData from "../../ui/emptyData";
 import { colors } from "../../theme/colors";
 import { useCookies } from "react-cookie";
 import BOMPDF from "../PDF/BOMPDF";
-import axios from 'axios'
+import axios from "axios";
+import { SquarePen } from "lucide-react";
 
 interface BOMTableProps {
   boms: Array<{
@@ -67,13 +68,15 @@ const BOMTable: React.FC<BOMTableProps> = ({
   const [deleteId, setdeleteId] = useState("");
   const [cookies] = useCookies();
 
-  // Bulk selection state
   const [selectedBoms, setSelectedBoms] = useState([]);
 
-  // PDF generation state
   const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
 
-  // Function to fetch complete BOM data for PDF
+  const [editingQuantity, setEditingQuantity] = useState<{
+    [key: string]: number;
+  }>({});
+  const [updatingBomId, setUpdatingBomId] = useState<string | null>(null);
+
   const fetchBomForPDF = async (bomId: string) => {
     try {
       setIsGeneratingPDF(true);
@@ -98,39 +101,39 @@ const BOMTable: React.FC<BOMTableProps> = ({
   };
 
   const [userData, setUserData] = useState<PurchaseOrder | null>(null);
-    
-       // NEW: Function to fetch purchase order data from API
-      const fetchUserData = async () => {
-        try {
-          const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}auth/user`, {
-            headers: { Authorization: `Bearer ${cookies?.access_token}` },
-          });
-    
-          if (response.data.success) {
-            setUserData(response.data.user); // Assuming API returns data in `data` field
-          } else {
-            console.error("Failed to fetch user data:", response.data.message);
-            toast.error("Failed to fetch user data");
-          }
-        } catch (error: any) {
-          console.error("Error fetching user data:", error);
-          toast.error(error.message || "Failed to fetch user data");
-        }
-      };
-    
-      // NEW: useEffect to fetch user data on component mount
-      useEffect(() => {
-        fetchUserData();
-      }, []); // Empty dependency array ensures it runs only on mount
-  
 
-  // Handle PDF download with complete BOM data
+  const fetchUserData = async () => {
+    try {
+      const response = await axios.get(
+        `${process.env.REACT_APP_BACKEND_URL}auth/user`,
+        {
+          headers: { Authorization: `Bearer ${cookies?.access_token}` },
+        }
+      );
+
+      if (response.data.success) {
+        setUserData(response.data.user);
+      } else {
+        console.error("Failed to fetch user data:", response.data.message);
+        toast.error("Failed to fetch user data");
+      }
+    } catch (error: any) {
+      console.error("Error fetching user data:", error);
+      toast.error(error.message || "Failed to fetch user data");
+    }
+  };
+
+  useEffect(() => {
+    fetchUserData();
+  }, []);
+
   const handlePDFDownload = async (bomId: string, bomName: string) => {
     const fullBomData = await fetchBomForPDF(bomId);
     if (fullBomData) {
-      // Create a temporary PDF download link
       const { pdf } = await import("@react-pdf/renderer");
-      const blob = await pdf(<BOMPDF bom={fullBomData} userData ={userData} />).toBlob();
+      const blob = await pdf(
+        <BOMPDF bom={fullBomData} userData={userData} />
+      ).toBlob();
       const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
@@ -142,12 +145,164 @@ const BOMTable: React.FC<BOMTableProps> = ({
     }
   };
 
+  const handleQuantityChange = (bomId: string, value: number) => {
+    setEditingQuantity((prev) => ({ ...prev, [bomId]: value }));
+  };
+
+  const handleUpdateFinishedGoodQty = async (bomId: string) => {
+    const newQuantity = editingQuantity[bomId];
+    if (newQuantity === undefined || newQuantity <= 0) {
+      toast.error("Please enter a valid quantity");
+      return;
+    }
+
+    try {
+      setUpdatingBomId(bomId);
+
+      const response = await fetch(
+        process.env.REACT_APP_BACKEND_URL + `bom/${bomId}`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${cookies?.access_token}`,
+          },
+        }
+      );
+      const data = await response.json();
+      if (!data.success) throw new Error(data.message);
+
+      const bom = data.bom;
+      const originalQuantity = bom.finished_good?.quantity || 1;
+
+      const percentChange =
+        ((newQuantity - originalQuantity) / originalQuantity) * 100;
+      const multiplier = 1 + percentChange / 100;
+
+      const updatedRawMaterials = bom.raw_materials?.map((material: any) => ({
+        item: material?.item?._id,
+        description: material?.description,
+        quantity:
+          Math.round(Number(material?.quantity || 0) * multiplier * 100) / 100,
+        uom: material?.uom,
+        unit_cost: material?.unit_cost,
+        category: material?.category,
+        assembly_phase: material?.assembly_phase,
+        supplier: material?.supplier?._id,
+        supporting_doc: material?.supporting_doc,
+        comments: material?.comments,
+        total_part_cost:
+          Math.round(
+            Number(material?.quantity || 0) *
+              multiplier *
+              Number(material?.unit_cost || 0) *
+              100
+          ) / 100,
+        _id: material?._id,
+      }));
+
+      const updatedScrapMaterials = bom.scrap_materials?.map(
+        (material: any) => ({
+          item: material?.item?._id,
+          description: material?.description,
+          quantity:
+            Math.round(Number(material?.quantity || 0) * multiplier * 100) /
+            100,
+          uom: material?.uom,
+          unit_cost: material?.unit_cost,
+          total_part_cost:
+            Math.round(
+              Number(material?.quantity || 0) *
+                multiplier *
+                Number(material?.unit_cost || 0) *
+                100
+            ) / 100,
+          _id: material?._id,
+        })
+      );
+
+      const rawMaterialsCost =
+        updatedRawMaterials?.reduce(
+          (acc: number, m: any) => acc + (Number(m.total_part_cost) || 0),
+          0
+        ) || 0;
+
+      const otherCharges = bom.other_charges || {};
+      const totalOtherCharges =
+        (Number(otherCharges.labour_charges) || 0) +
+        (Number(otherCharges.machinery_charges) || 0) +
+        (Number(otherCharges.electricity_charges) || 0) +
+        (Number(otherCharges.other_charges) || 0);
+
+      const newTotalCost = rawMaterialsCost + totalOtherCharges;
+
+      const updateBody = {
+        _id: bomId,
+        raw_materials: updatedRawMaterials,
+        scrap_materials: updatedScrapMaterials,
+        processes: bom.processes || [],
+        finished_good: {
+          item: bom.finished_good?.item?._id,
+          description: bom.finished_good?.description,
+          quantity: newQuantity,
+          uom: bom.finished_good?.item?.uom,
+          category: bom.finished_good?.item?.category,
+          supporting_doc: bom.finished_good?.supporting_doc,
+          comments: bom.finished_good?.comments,
+          cost: (bom.finished_good?.item?.price || 0) * newQuantity,
+        },
+        bom_name: bom.bom_name,
+        parts_count: bom.parts_count,
+        total_cost: newTotalCost,
+        other_charges: bom.other_charges,
+        remarks: bom.remarks,
+        manpower: bom.manpower,
+        resources: bom.resources?.map((r: any) => ({
+          resource_id: r.resource_id?._id || r.resource_id,
+          type: r.type,
+          specification: r.specification,
+          comment: r.comment || "",
+          customId: r.customId,
+        })),
+      };
+
+      const updateResponse = await fetch(
+        process.env.REACT_APP_BACKEND_URL + `bom/${bomId}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${cookies?.access_token}`,
+          },
+          body: JSON.stringify(updateBody),
+        }
+      );
+
+      const updateResult = await updateResponse.json();
+      if (!updateResult.success) throw new Error(updateResult.message);
+
+      toast.success("Finished good quantity updated successfully!");
+
+      setEditingQuantity((prev) => {
+        const newState = { ...prev };
+        delete newState[bomId];
+        return newState;
+      });
+
+      if (refreshBoms) refreshBoms();
+    } catch (error: any) {
+      toast.error(error?.message || "Failed to update quantity");
+    } finally {
+      setUpdatingBomId(null);
+    }
+  };
+
   const columns = useMemo(
     () => [
       { Header: "BOM ID", accessor: "_id" },
       { Header: "BOM Name", accessor: "bom_name" },
       { Header: "Parts Count", accessor: "parts_count" },
       { Header: "Total Cost", accessor: "total_cost" },
+      { Header: "Update Finished Good Qty", accessor: "sdf" },
       { Header: "Created On", accessor: "createdAt" },
       { Header: "Last Updated", accessor: "updatedAt" },
     ],
@@ -184,7 +339,6 @@ const BOMTable: React.FC<BOMTableProps> = ({
     usePagination
   );
 
-  // Bulk selection functions
   const handleSelectAll = (checked) => {
     if (checked) {
       setSelectedBoms(page.map((row) => row.original._id));
@@ -200,8 +354,6 @@ const BOMTable: React.FC<BOMTableProps> = ({
       setSelectedBoms((prev) => prev.filter((id) => id !== bomId));
     }
   };
-
-
 
   const isAllSelected = page.length > 0 && selectedBoms.length === page.length;
   const isIndeterminate =
@@ -355,7 +507,6 @@ const BOMTable: React.FC<BOMTableProps> = ({
                   <tr
                     style={{ borderBottom: `1px solid ${colors.table.border}` }}
                   >
-                    
                     <th
                       className="px-4 py-3 text-left text-sm font-semibold whitespace-nowrap"
                       style={{ color: colors.table.headerText }}
@@ -379,6 +530,12 @@ const BOMTable: React.FC<BOMTableProps> = ({
                       style={{ color: colors.table.headerText }}
                     >
                       Total Cost
+                    </th>
+                    <th
+                      className="px-4 py-3 text-left text-sm font-semibold whitespace-nowrap"
+                      style={{ color: colors.table.headerText }}
+                    >
+                      Update Finished Good Qty
                     </th>
                     <th
                       className="px-4 py-3 text-left text-sm font-semibold whitespace-nowrap"
@@ -425,7 +582,6 @@ const BOMTable: React.FC<BOMTableProps> = ({
                               : colors.table.stripe;
                         }}
                       >
-                     
                         <td
                           className="px-4 py-3 text-sm whitespace-nowrap font-mono"
                           style={{ color: colors.text.secondary }}
@@ -461,6 +617,75 @@ const BOMTable: React.FC<BOMTableProps> = ({
                           {cookies?.role === "admin"
                             ? `₹${row.original.total_cost}`
                             : "₹*****"}
+                        </td>
+                        <td className="px-4 py-3 whitespace-nowrap">
+                          <div className="flex items-center gap-2">
+                            <input
+                              type="number"
+                              min="1"
+                              placeholder={
+                                row.original.finished_good?.quantity?.toString() ||
+                                "Qty"
+                              }
+                              value={editingQuantity[row.original._id] ?? ""}
+                              onChange={(e) =>
+                                handleQuantityChange(
+                                  row.original._id,
+                                  Number(e.target.value)
+                                )
+                              }
+                              className="w-20 px-2 py-1.5 text-sm border rounded-lg focus:outline-none focus:ring-2 transition-all"
+                              style={{
+                                backgroundColor: colors.input.background,
+                                borderColor: colors.input.border,
+                                color: colors.text.primary,
+                              }}
+                              onFocus={(e) => {
+                                e.currentTarget.style.borderColor =
+                                  colors.primary[500];
+                                e.currentTarget.style.boxShadow = `0 0 0 2px ${colors.primary[100]}`;
+                              }}
+                              onBlur={(e) => {
+                                e.currentTarget.style.borderColor =
+                                  colors.input.border;
+                                e.currentTarget.style.boxShadow = "none";
+                              }}
+                            />
+                            <button
+                              onClick={() =>
+                                handleUpdateFinishedGoodQty(row.original._id)
+                              }
+                              disabled={
+                                updatingBomId === row.original._id ||
+                                !editingQuantity[row.original._id]
+                              }
+                              className="px-3 py-1.5 text-xs font-medium rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                              style={{
+                                backgroundColor: colors.primary[500],
+                                color: colors.text.inverse,
+                              }}
+                              onMouseEnter={(e) => {
+                                if (!e.currentTarget.disabled) {
+                                  e.currentTarget.style.backgroundColor =
+                                    colors.primary[600];
+                                }
+                              }}
+                              onMouseLeave={(e) => {
+                                if (!e.currentTarget.disabled) {
+                                  e.currentTarget.style.backgroundColor =
+                                    colors.primary[500];
+                                }
+                              }}
+                            >
+                              {updatingBomId === row.original._id ? (
+                                <div className="flex items-center gap-1">
+                                  <div className="animate-spin rounded-full h-3 w-3 border-2 border-b-transparent border-white"></div>
+                                </div>
+                              ) : (
+                                <SquarePen size={20} />
+                              )}
+                            </button>
+                          </div>
                         </td>
                         <td
                           className="px-4 py-3 text-sm whitespace-nowrap"
@@ -806,8 +1031,6 @@ const BOMTable: React.FC<BOMTableProps> = ({
           </div>
         </div>
       )}
-
-      
     </div>
   );
 };

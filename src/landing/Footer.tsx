@@ -75,7 +75,7 @@ const Footer = () => {
   return (
     <footer
       id="footer"
-      className="relative z-50 bg-gradient-to-br from-white via-blue-50 to-blue-100 text-blue-900 border-t border-blue-200 pt-16"
+      className="relative bg-gradient-to-br from-white via-blue-50 to-blue-100 text-blue-900 border-t border-blue-200 pt-16"
     >
       {/* Floating Glow Lights */}
       <motion.div
