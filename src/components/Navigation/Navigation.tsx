@@ -129,11 +129,11 @@ const Navigation: React.FC = () => {
          fixed z-30 w-80 lg:w-[16.6rem] top-0 left-0 transition-transform duration-300 ease-in-out`}
       >
         {/* Logo */}
-        <div className="border-b border-gray-100 text-center p-5">
+        <div className="border-b border-gray-100 text-center flex justify-center items-center">
           <img
             src="/itsybizz.png"
             alt="Logo"
-            className="w-[120px] sm:w-[150px] ml-0 h-[120px] "
+            className="w-[120px] sm:w-[150px] h-[120px] "
           />
         </div>
 
