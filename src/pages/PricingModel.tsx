@@ -403,7 +403,7 @@ export default function PricingSection() {
     )
       return "Custom";
     if (plan.name === "SOPAS") {
-      if (billingCycle === "quarterly") return "₹50,000 + GST";
+      if (billingCycle === "quarterly") return "₹1 + GST";
       if (billingCycle === "half_yearly") return "₹80,000 + GST";
       if (billingCycle === "yearly") return "₹1,10,000 + GST";
     }

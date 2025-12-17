@@ -254,7 +254,7 @@ const UpcomingSales: React.FC = () => {
                   className="px-4 py-3 text-left font-semibold"
                   style={{ color: colors.table.headerText }}
                 >
-                Quantity
+             Terms
                 </th> */}
                   {/*
                 <th
@@ -343,12 +343,12 @@ const UpcomingSales: React.FC = () => {
                       <td className="px-4 py-3" style={{ color: colors.text.primary }}>
                         {sale.product_id?.name || "-"}
                       </td>
-                      {/* <td className="px-4 py-3" style={{ color: colors.text.primary }}>
-                      {sale.product_qty} {sale.uom || ""}
-                    </td> */}
                       <td className="px-4 py-3" style={{ color: colors.text.primary }}>
+                      {sale.product_qty} {sale.uom || ""}
+                    </td>
+                      {/* <td className="px-4 py-3" style={{ color: colors.text.primary }}>
                         {sale.terms_of_delivery || sale.product_qty || "-"}
-                      </td>
+                      </td> */}
                       {/*
                     <td className="px-4 py-3" style={{ color: colors.text.primary }}>
                       ₹{sale.price?.toFixed(2) || "0.00"}
