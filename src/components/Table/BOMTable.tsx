@@ -76,6 +76,7 @@ const BOMTable: React.FC<BOMTableProps> = ({
     [key: string]: number;
   }>({});
   const [updatingBomId, setUpdatingBomId] = useState<string | null>(null);
+  const [scrapCatalog, setScrapCatalog] = useState<any[]>([]);
 
   const fetchBomForPDF = async (bomId: string) => {
     try {
@@ -123,8 +124,29 @@ const BOMTable: React.FC<BOMTableProps> = ({
     }
   };
 
+  const fetchScrapCatalog = async () => {
+    try {
+      const response = await fetch(
+        process.env.REACT_APP_BACKEND_URL + `scrap/get?limit=${500}&page=${1}`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${cookies?.access_token}`,
+          },
+        }
+      );
+      const data = await response.json();
+      if (data.success && Array.isArray(data.data)) {
+        setScrapCatalog(data.data);
+      }
+    } catch (error) {
+      console.error("Error fetching scrap catalog:", error);
+    }
+  };
+
   useEffect(() => {
     fetchUserData();
+    fetchScrapCatalog();
   }, []);
 
   const handlePDFDownload = async (bomId: string, bomName: string) => {
@@ -174,48 +196,79 @@ const BOMTable: React.FC<BOMTableProps> = ({
       const bom = data.bom;
       const originalQuantity = bom.finished_good?.quantity || 1;
 
-      const percentChange =
-        ((newQuantity - originalQuantity) / originalQuantity) * 100;
-      const multiplier = 1 + percentChange / 100;
+      // Simple ratio-based multiplier (matching UpdateBom logic)
+      const multiplier = newQuantity / originalQuantity;
 
-      const updatedRawMaterials = bom.raw_materials?.map((material: any) => ({
-        item: material?.item?._id,
-        description: material?.description,
-        quantity:
-          Math.round(Number(material?.quantity || 0) * multiplier * 100) / 100,
-        uom: material?.uom,
-        unit_cost: material?.unit_cost,
-        category: material?.category,
-        assembly_phase: material?.assembly_phase,
-        supplier: material?.supplier?._id,
-        supporting_doc: material?.supporting_doc,
-        comments: material?.comments,
-        total_part_cost:
-          Math.round(
-            Number(material?.quantity || 0) *
-              multiplier *
-              Number(material?.unit_cost || 0) *
-              100
-          ) / 100,
-        _id: material?._id,
-      }));
+      const updatedRawMaterials = bom.raw_materials?.map((material: any) => {
+        const newMaterialQuantity = Math.ceil(
+          Number(material?.quantity || 0) * multiplier
+        );
+        return {
+          item: material?.item?._id,
+          description: material?.description,
+          quantity: newMaterialQuantity,
+          uom: material?.uom,
+          unit_cost: material?.unit_cost,
+          category: material?.category,
+          assembly_phase: material?.assembly_phase,
+          supplier: material?.supplier?._id,
+          supporting_doc: material?.supporting_doc,
+          comments: material?.comments,
+          total_part_cost: Math.ceil(
+            newMaterialQuantity * Number(material?.unit_cost || 0)
+          ),
+          _id: material?._id,
+        };
+      });
 
       const updateScrapQuantities = async (scrapMaterialsToUpdate: any[]) => {
         try {
+          console.log("Scrap materials to update:", scrapMaterialsToUpdate);
+          console.log("Scrap catalog:", scrapCatalog);
+
           const updatePromises = scrapMaterialsToUpdate.map(
             async (scrapMaterial) => {
               const scrapId = scrapMaterial.item || scrapMaterial.scrap_id;
               const quantityToAdd = Number(scrapMaterial.quantity) || 0;
 
-              const currentScrap = scrapCatalog.find(
-                (s: any) => s._id === scrapId
+              console.log(
+                "Processing scrap ID:",
+                scrapId,
+                "Quantity to add:",
+                quantityToAdd
               );
-              if (!currentScrap) return;
 
-              const currentQty = Number(currentScrap.qty) || 0;
+              if (!scrapId) {
+                console.log("No scrap ID found, skipping");
+                return;
+              }
+
+              let currentQty = 0;
+              try {
+                const scrapResponse = await fetch(
+                  `${process.env.REACT_APP_BACKEND_URL}scrap/get/${scrapId}`,
+                  {
+                    method: "GET",
+                    headers: {
+                      Authorization: `Bearer ${cookies?.access_token}`,
+                    },
+                  }
+                );
+                const scrapData = await scrapResponse.json();
+                if (scrapData.success && scrapData.data) {
+                  currentQty = Number(scrapData.data.qty) || 0;
+                }
+              } catch (err) {
+                const currentScrap = scrapCatalog.find(
+                  (s: any) => s._id === scrapId
+                );
+                currentQty = Number(currentScrap?.qty) || 0;
+              }
+
               const newQty = currentQty + quantityToAdd;
+              console.log("Current qty??????:", currentQty, "New qty:", newQty);
 
-              await fetch(
+              const response = await fetch(
                 `${process.env.REACT_APP_BACKEND_URL}scrap/update/${scrapId}`,
                 {
                   method: "PUT",
@@ -226,6 +279,8 @@ const BOMTable: React.FC<BOMTableProps> = ({
                   body: JSON.stringify({ qty: newQty }),
                 }
               );
+              const result = await response.json();
+              console.log("Scrap update response:", result);
             }
           );
 
@@ -235,24 +290,28 @@ const BOMTable: React.FC<BOMTableProps> = ({
         }
       };
 
-
-      
       const updatedScrapMaterials = bom.scrap_materials?.map(
-        (material: any) => ({
-          item: material?.item?._id || material?.item,
-          scrap_id: material?.scrap_id,
-          scrap_name: material?.scrap_name,
-          quantity: Number(material.quantity) || 0,
-        })
+        (material: any) => {
+          const newScrapQuantity = Math.ceil(
+            Number(material.quantity || 0) * multiplier
+          );
+          return {
+            item: material?.item?._id || material?.item,
+            scrap_id: material?.scrap_id,
+            scrap_name: material?.scrap_name,
+            quantity: newScrapQuantity,
+            unit_cost: material?.unit_cost,
+            total_part_cost: Math.ceil(
+              Number(material?.unit_cost || 0) * newScrapQuantity
+            ),
+          };
+        }
       );
 
       if (updatedScrapMaterials?.length > 0) {
         await updateScrapQuantities(updatedScrapMaterials);
       }
 
-
-      
-      console.log(">>>>>>", await updateScrapQuantities(updatedScrapMaterials));
       const rawMaterialsCost =
         updatedRawMaterials?.reduce(
           (acc: number, m: any) => acc + (Number(m.total_part_cost) || 0),

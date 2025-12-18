@@ -67,6 +67,9 @@ const UpdateBom: React.FC<UpdateBomProps> = ({
   const [isLoadingProducts, setIsLoadingProducts] = useState<boolean>(false);
   const [updateBom] = useUpdateBOMMutation();
 
+  const [initialScrapMaterials, setInitialScrapMaterials] = useState<any[]>([]);
+
+
 
 
 
@@ -281,7 +284,7 @@ const UpdateBom: React.FC<UpdateBomProps> = ({
       });
       setDescription(data.bom.finished_good.description);
       setQuantity(data.bom.finished_good.quantity);
-      setValue(data.bom.finished_good.quantity)
+      setValue(data.bom.finished_good.quantity);
       setCost(data.bom.finished_good.cost);
       setUnitCost(data.bom.finished_good?.item?.price || 0);
       setUom(data.bom.finished_good?.item?.uom || "");
@@ -289,26 +292,27 @@ const UpdateBom: React.FC<UpdateBomProps> = ({
       setComments(data.bom.finished_good.comments);
       setRemarks(data?.bom?.remarks);
       setProcesses(data.bom.processes || [""]);
+
       setSelectedResources(
         data.bom.resources?.length
           ? data.bom.resources.map((r: any) => ({
-            name: r.resource_id
-              ? { value: r.resource_id._id, label: r.resource_id.name }
-              : null,
-            type: r.type ? { value: r.type, label: r.type } : null,
-            specification: r.specification || "",
-            comment: r.comment || "",
-            customId: r.resource_id?.customId || "", // <-- add this
-          }))
+              name: r.resource_id
+                ? { value: r.resource_id._id, label: r.resource_id.name }
+                : null,
+              type: r.type ? { value: r.type, label: r.type } : null,
+              specification: r.specification || "",
+              comment: r.comment || "",
+              customId: r.resource_id?.customId || "", // <-- add this
+            }))
           : [
-            {
-              name: null,
-              type: null,
-              specification: "",
-              comment: "",
-              customId: "",
-            },
-          ]
+              {
+                name: null,
+                type: null,
+                specification: "",
+                comment: "",
+                customId: "",
+              },
+            ]
       );
 
       setManpowerCount(data.bom.manpower?.[0]?.number || empData?.length || 0);
@@ -321,7 +325,7 @@ const UpdateBom: React.FC<UpdateBomProps> = ({
         inputs.push({
           _id: material?._id,
           item_name: itemObj
-            ? { value: itemObj._id, label: itemObj.name, price:itemObj.price }
+            ? { value: itemObj._id, label: itemObj.name, price: itemObj.price }
             : null,
           description: material?.description || "",
           quantity: material?.quantity || "",
@@ -342,37 +346,40 @@ const UpdateBom: React.FC<UpdateBomProps> = ({
         });
       });
       setRawMaterials(inputs);
-      setInitialRawMaterials(inputs)
+      setInitialRawMaterials(inputs);
 
-      const scrap: any = [];
+      const scrap: any[] = [];
+
       data.bom?.scrap_materials?.forEach((material: any) => {
         const itemObj = material?.item || null;
         const scFromCatalog = scrapCatalog.find(
           (s: any) =>
             s._id === (itemObj?._id || material?.item || material?.scrap_id)
         );
+
         const itemSelect = itemObj
           ? { value: itemObj._id, label: itemObj.name }
           : material?.scrap_id && material?.scrap_name
-            ? { value: material.scrap_id, label: material.scrap_name }
-            : scFromCatalog
-              ? { value: scFromCatalog._id, label: scFromCatalog.Scrap_name }
-              : null;
+          ? { value: material.scrap_id, label: material.scrap_name }
+          : scFromCatalog
+          ? { value: scFromCatalog._id, label: scFromCatalog.Scrap_name }
+          : null;
 
         scrap.push({
           _id: material?._id,
-          item:
-            itemObj?._id || material?.item || material?.scrap_id || undefined,
+          item: itemObj?._id || material?.item || material?.scrap_id,
           item_name: itemSelect,
           description: material?.description || "",
-          quantity: material?.quantity || "",
+          quantity: Number(material?.quantity) || 0,
           uom: material?.uom || itemObj?.uom || scFromCatalog?.uom || "",
           unit_cost:
-            material?.unit_cost || itemObj?.price || scFromCatalog?.price || "",
-          total_part_cost: material?.total_part_cost || "",
+            material?.unit_cost || itemObj?.price || scFromCatalog?.price || 0,
+          total_part_cost: material?.total_part_cost || 0,
         });
       });
+
       setScrapMaterials(scrap);
+      setInitialScrapMaterials(scrap); // ⭐ important
 
       // Store original scrap materials for comparison during update
       setOriginalScrapMaterials(
@@ -813,27 +820,39 @@ const UpdateBom: React.FC<UpdateBomProps> = ({
 
 
   const calculateAllmaterials = (qty: number) => {
+    if (!value || value === 0) return;
 
-  
-    const percentChange = ((qty - value) / value) * 100;
+    const multiplier = qty / value;
 
-    
-    const multiplier = 1 + (percentChange / 100);
-
-    const newMaterials = initialRawMaterials?.map((item) => {
-      const newQuantity = Math.ceil(item?.quantity * multiplier);
+    // ✅ RAW MATERIALS UPDATE
+    const newRawMaterials = initialRawMaterials.map((item: any) => {
+      const newQuantity = Math.ceil(Number(item.quantity) * multiplier);
 
       return {
         ...item,
         quantity: newQuantity,
-        total_part_cost: Math.ceil(item?.item_name?.price * newQuantity)
+        total_part_cost: Math.ceil(
+          Number(item?.item_name?.price || item.unit_cost) * newQuantity
+        ),
       };
     });
 
-    setRawMaterials(newMaterials);
-    
+    setRawMaterials(newRawMaterials);
 
+    // ✅ SCRAP MATERIALS UPDATE
+    const newScrapMaterials = initialScrapMaterials.map((item: any) => {
+      const newQuantity = Math.ceil(Number(item.quantity) * multiplier);
+
+      return {
+        ...item,
+        quantity: newQuantity,
+        total_part_cost: Math.ceil(Number(item.unit_cost) * newQuantity),
+      };
+    });
+
+    setScrapMaterials(newScrapMaterials);
   };
+
 
 
 
