@@ -255,9 +255,11 @@ const BOMTable: React.FC<BOMTableProps> = ({
                   }
                 );
                 const scrapData = await scrapResponse.json();
-                if (scrapData.success && scrapData.data) {
-                  currentQty = Number(scrapData.data.qty) || 0;
+                if (scrapData?.data) {
+                  currentQty = Number(scrapData?.data?.qty) || 0;
                 }
+                 console.log("scrapData", scrapData);
+                console.log("currQty:", currentQty);
               } catch (err) {
                 const currentScrap = scrapCatalog.find(
                   (s: any) => s._id === scrapId
@@ -266,7 +268,7 @@ const BOMTable: React.FC<BOMTableProps> = ({
               }
 
               const newQty = currentQty + quantityToAdd;
-              console.log("Current qty??????:", currentQty, "New qty:", newQty);
+              console.log("Current qty??????:", currentQty,  "New qty:", newQty);
 
               const response = await fetch(
                 `${process.env.REACT_APP_BACKEND_URL}scrap/update/${scrapId}`,
