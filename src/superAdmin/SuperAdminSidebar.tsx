@@ -43,7 +43,7 @@ const SuperAdminSidebar = ({ isOpen, onClose }) => {
          removeCookie("access_token");
          removeCookie("isAdministration");
          toast.success("Logged out successfully");
-         navigate("/login");
+         navigate("/");
        } catch (error: any) {
          toast.error(error.message || "Something went wrong");
        }

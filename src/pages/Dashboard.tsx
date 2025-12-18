@@ -1435,7 +1435,7 @@ const Analytics: React.FC = () => {
             fontWeight="bold"
             color="gray.800"
           >
-            Dashboard
+            Business Performance Hub
           </Text>
           <Text fontSize={{ base: "sm", md: "md" }} color="gray.600">
             Monitor your business performance and insights

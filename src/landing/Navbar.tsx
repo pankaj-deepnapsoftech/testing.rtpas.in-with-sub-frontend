@@ -61,7 +61,7 @@ export default function Navbar() {
 
             {/* Desktop Menu */}
             <div className="hidden lg:flex flex-row gap-4 font-medium items-center">
-              {["Home", "About", "Pricing", "Services", "Contact"].map((label) => (
+              {["Home", "About-Us", "Pricing", "Services", "Contact"].map((label) => (
                 <motion.button
                   key={label}
                   onClick={() => handleNavigate(label)}
@@ -76,13 +76,14 @@ export default function Navbar() {
               <motion.button
                 whileHover={{
                   scale: 1.05,
-                  boxShadow: "0 10px 25px rgba(59, 130, 246, 0.4)",
+                  boxShadow: "0 10px 25px rgba(223, 55, 26, 0.4)",
                 }}
                 onClick={() => navigate("/login")}
                 whileTap={{ scale: 0.95 }}
-                className="ml-4 bg-gradient-to-r from-blue-600 to-sky-500 text-white font-semibold rounded-full px-6 py-2.5 shadow-lg hover:shadow-xl transition"
+              className="ml-4 bg-gradient-to-r from-red-500 to-rose-400 text-white font-semibold rounded-full px-6 py-2.5 shadow-lg hover:shadow-xl transition"
+
               >
-                Get Started
+              Subscribe-Now
               </motion.button>
                 <motion.button
                 whileHover={{
@@ -93,7 +94,18 @@ export default function Navbar() {
                 whileTap={{ scale: 0.95 }}
                 className="ml-4 bg-gradient-to-r from-blue-600 to-sky-500 text-white font-semibold rounded-full px-6 py-2.5 shadow-lg hover:shadow-xl transition"
               >
-                Login User
+                Admin Login
+              </motion.button>
+                <motion.button
+                whileHover={{
+                  scale: 1.05,
+                  boxShadow: "0 10px 25px rgba(59, 246, 168, 0.4)",
+                }}
+                onClick={() => navigate("/login")}
+                whileTap={{ scale: 0.95 }}
+                className="ml-4 bg-gradient-to-r from-blue-600 to-sky-500 text-white font-semibold rounded-full px-6 py-2.5 shadow-lg hover:shadow-xl transition"
+              >
+            User Login
               </motion.button>
             </div>
           </div>
@@ -135,7 +147,7 @@ export default function Navbar() {
 
               {/* Links */}
               <div className="flex flex-col px-4 pt-4 space-y-3">
-                {["Home", "About", "Pricing", "Services", "Contact"].map((label) => (
+                {["Home", "About-Us", "Pricing", "Services", "Contact"].map((label) => (
                   <motion.button
                     key={label}
                     variants={itemVariants}
@@ -157,7 +169,7 @@ export default function Navbar() {
                   }}
                   className="mt-4 bg-gradient-to-r from-blue-600 to-sky-500 text-white font-semibold rounded-lg px-3 py-2.5 shadow-lg hover:shadow-xl transition"
                 >
-                  Get Started
+                Get Started
                 </motion.button>
               </div>
             </motion.div>

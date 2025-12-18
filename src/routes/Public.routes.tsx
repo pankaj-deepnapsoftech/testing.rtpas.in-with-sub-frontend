@@ -15,7 +15,7 @@ import Terms from "../landing/Terms"
         element:<Landing />
     },
     {
-        path:"/about",
+        path:"/about-us",
         element:<AboutSection />
     },
     {
