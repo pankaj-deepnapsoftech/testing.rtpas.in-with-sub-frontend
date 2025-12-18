@@ -200,26 +200,59 @@ const BOMTable: React.FC<BOMTableProps> = ({
         _id: material?._id,
       }));
 
+      const updateScrapQuantities = async (scrapMaterialsToUpdate: any[]) => {
+        try {
+          const updatePromises = scrapMaterialsToUpdate.map(
+            async (scrapMaterial) => {
+              const scrapId = scrapMaterial.item || scrapMaterial.scrap_id;
+              const quantityToAdd = Number(scrapMaterial.quantity) || 0;
+
+              const currentScrap = scrapCatalog.find(
+                (s: any) => s._id === scrapId
+              );
+              if (!currentScrap) return;
+
+              const currentQty = Number(currentScrap.qty) || 0;
+              const newQty = currentQty + quantityToAdd;
+
+              await fetch(
+                `${process.env.REACT_APP_BACKEND_URL}scrap/update/${scrapId}`,
+                {
+                  method: "PUT",
+                  headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${cookies?.access_token}`,
+                  },
+                  body: JSON.stringify({ qty: newQty }),
+                }
+              );
+            }
+          );
+
+          await Promise.all(updatePromises);
+        } catch (error) {
+          console.error("Error updating scrap quantities", error);
+        }
+      };
+
+
+      
       const updatedScrapMaterials = bom.scrap_materials?.map(
         (material: any) => ({
-          item: material?.item?._id,
-          description: material?.description,
-          quantity:
-            Math.round(Number(material?.quantity || 0) * multiplier * 100) /
-            100,
-          uom: material?.uom,
-          unit_cost: material?.unit_cost,
-          total_part_cost:
-            Math.round(
-              Number(material?.quantity || 0) *
-                multiplier *
-                Number(material?.unit_cost || 0) *
-                100
-            ) / 100,
-          _id: material?._id,
+          item: material?.item?._id || material?.item,
+          scrap_id: material?.scrap_id,
+          scrap_name: material?.scrap_name,
+          quantity: Number(material.quantity) || 0,
         })
       );
 
+      if (updatedScrapMaterials?.length > 0) {
+        await updateScrapQuantities(updatedScrapMaterials);
+      }
+
+
+      
+      console.log(">>>>>>", await updateScrapQuantities(updatedScrapMaterials));
       const rawMaterialsCost =
         updatedRawMaterials?.reduce(
           (acc: number, m: any) => acc + (Number(m.total_part_cost) || 0),
@@ -533,12 +566,12 @@ const BOMTable: React.FC<BOMTableProps> = ({
                       Total Cost
                     </th>
                     {/* {page?.original?.is_production_started === false ? null : ( */}
-                      <th
-                        className="px-4 py-3 text-left text-sm font-semibold whitespace-nowrap"
-                        style={{ color: colors.table.headerText }}
-                      >
-                        Update Finished Good Qty
-                      </th>
+                    <th
+                      className="px-4 py-3 text-left text-sm font-semibold whitespace-nowrap"
+                      style={{ color: colors.table.headerText }}
+                    >
+                      Update Finished Good Qty
+                    </th>
                     {/* )} */}
 
                     <th
@@ -624,77 +657,81 @@ const BOMTable: React.FC<BOMTableProps> = ({
                         </td>
                         <td className="px-4 py-3 whitespace-nowrap">
                           <div className="flex items-center gap-2">
-                          <input
-                            type="number"
-                            min="1"
-                            placeholder={
-                            row.original.finished_good?.quantity?.toString() ||
-                            "Qty"
-                            }
-                            value={editingQuantity[row.original._id] ?? ""}
-                            onChange={(e) =>
-                            handleQuantityChange(
-                              row.original._id,
-                              Number(e.target.value)
-                            )
-                            }
-                            disabled={row?.original?.is_production_started === false}
-                            className="w-20 px-2 py-1.5 text-sm border rounded-lg focus:outline-none focus:ring-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                            style={{
-                            backgroundColor: row?.original?.is_production_started === false 
-                              ? colors.gray[100] 
-                              : colors.input.background,
-                            borderColor: colors.input.border,
-                            color: colors.text.primary,
-                            }}
-                            onFocus={(e) => {
-                            if (!e.currentTarget.disabled) {
-                              e.currentTarget.style.borderColor =
-                              colors.primary[500];
-                              e.currentTarget.style.boxShadow = `0 0 0 2px ${colors.primary[100]}`;
-                            }
-                            }}
-                            onBlur={(e) => {
-                            e.currentTarget.style.borderColor =
-                              colors.input.border;
-                            e.currentTarget.style.boxShadow = "none";
-                            }}
-                          />
-                          <button
-                            onClick={() =>
-                            handleUpdateFinishedGoodQty(row.original._id)
-                            }
-                            disabled={
-                            row?.original?.is_production_started === false ||
-                            updatingBomId === row.original._id ||
-                            !editingQuantity[row.original._id]
-                            }
-                            className="px-3 py-1.5 text-xs font-medium rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-                            style={{
-                            backgroundColor: colors.primary[500],
-                            color: colors.text.inverse,
-                            }}
-                            onMouseEnter={(e) => {
-                            if (!e.currentTarget.disabled) {
-                              e.currentTarget.style.backgroundColor =
-                              colors.primary[600];
-                            }
-                            }}
-                            onMouseLeave={(e) => {
-                            if (!e.currentTarget.disabled) {
-                              e.currentTarget.style.backgroundColor =
-                              colors.primary[500];
-                            }
-                            }}
-                          >
-                            {updatingBomId === row.original._id ? (
-                            <div className="flex items-center gap-1">
-                              <div className="animate-spin rounded-full h-3 w-3 border-2 border-b-transparent border-white"></div>
-                            </div>
-                            ) : (
-                            <SquarePen size={20} />
-                            )}
-                          </button>
+                            <input
+                              type="number"
+                              min="1"
+                              placeholder={
+                                row.original.finished_good?.quantity?.toString() ||
+                                "Qty"
+                              }
+                              value={editingQuantity[row.original._id] ?? ""}
+                              onChange={(e) =>
+                                handleQuantityChange(
+                                  row.original._id,
+                                  Number(e.target.value)
+                                )
+                              }
+                              disabled={
+                                row?.original?.is_production_started === false
+                              }
+                              className="w-20 px-2 py-1.5 text-sm border rounded-lg focus:outline-none focus:ring-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                              style={{
+                                backgroundColor:
+                                  row?.original?.is_production_started === false
+                                    ? colors.gray[100]
+                                    : colors.input.background,
+                                borderColor: colors.input.border,
+                                color: colors.text.primary,
+                              }}
+                              onFocus={(e) => {
+                                if (!e.currentTarget.disabled) {
+                                  e.currentTarget.style.borderColor =
+                                    colors.primary[500];
+                                  e.currentTarget.style.boxShadow = `0 0 0 2px ${colors.primary[100]}`;
+                                }
+                              }}
+                              onBlur={(e) => {
+                                e.currentTarget.style.borderColor =
+                                  colors.input.border;
+                                e.currentTarget.style.boxShadow = "none";
+                              }}
+                            />
+                            <button
+                              onClick={() =>
+                                handleUpdateFinishedGoodQty(row.original._id)
+                              }
+                              disabled={
+                                row?.original?.is_production_started ===
+                                  false ||
+                                updatingBomId === row.original._id ||
+                                !editingQuantity[row.original._id]
+                              }
+                              className="px-3 py-1.5 text-xs font-medium rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                              style={{
+                                backgroundColor: colors.primary[500],
+                                color: colors.text.inverse,
+                              }}
+                              onMouseEnter={(e) => {
+                                if (!e.currentTarget.disabled) {
+                                  e.currentTarget.style.backgroundColor =
+                                    colors.primary[600];
+                                }
+                              }}
+                              onMouseLeave={(e) => {
+                                if (!e.currentTarget.disabled) {
+                                  e.currentTarget.style.backgroundColor =
+                                    colors.primary[500];
+                                }
+                              }}
+                            >
+                              {updatingBomId === row.original._id ? (
+                                <div className="flex items-center gap-1">
+                                  <div className="animate-spin rounded-full h-3 w-3 border-2 border-b-transparent border-white"></div>
+                                </div>
+                              ) : (
+                                <SquarePen size={20} />
+                              )}
+                            </button>
                           </div>
                         </td>
                         <td
