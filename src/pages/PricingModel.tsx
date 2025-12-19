@@ -241,8 +241,7 @@ export default function PricingSection() {
       price: "Custom",
       button: "Contact Sales",
       highlight: false,
-      features: [
-        { name: "Dashboard Access", included: true },
+      features: [{ name: "Dashboard Access", included: true },
         { name: "Sensors Integration", included: true },
         { name: "Resource Status Monitoring", included: true },
         { name: "Machine ON/OFF Control (Remote)", included: true },
@@ -250,6 +249,8 @@ export default function PricingSection() {
         { name: "Machine Logs & Error Reports", included: true },
         { name: "Real-Time Production Monitoring", included: true },
         { name: "Production Monitoring", included: true },
+        { name: "Cloud Access (Web + Mobile)", included: true },
+        { name: "Users (5)", included: true },
         { name: "Employee Management", included: false },
         { name: "User Roles & Permissions", included: false },
         { name: "Resource Management", included: false },
@@ -269,9 +270,9 @@ export default function PricingSection() {
         { name: "Payments Module", included: false },
         { name: "Admin Approvals", included: false },
         { name: "User Profile & Settings", included: false },
-        { name: "Users (5)", included: true },
+
         { name: "Custom Integrations (Attendance, HR, CRM)", included: false },
-        { name: "Cloud Access (Web + Mobile)", included: true },
+
         { name: "Support Type", included: "Standard" },
       ],
     },
@@ -281,13 +282,9 @@ export default function PricingSection() {
       button: "Choose SOPAS",
       highlight: true,
       features: [
+        { name: "7-day Free Trial", included: true },
         { name: "Dashboard Access", included: true },
-        { name: "Sensors Integration", included: false },
-        { name: "Resource Status Monitoring", included: false },
-        { name: "Machine ON/OFF Control (Remote)", included: false },
-        { name: "View Production Data from Anywhere", included: false },
-        { name: "Machine Logs & Error Reports", included: false },
-        { name: "Real-Time Production Monitoring", included: false },
+
         { name: "Production Monitoring", included: true },
         { name: "Employee Management", included: true },
         { name: "User Roles & Permissions", included: true },
@@ -309,9 +306,17 @@ export default function PricingSection() {
         { name: "Admin Approvals", included: true },
         { name: "User Profile & Settings", included: true },
         { name: "Users (5)", included: true },
-        { name: "Charges for Additional Users ₹1000/user", included: true },
-        { name: "Custom Integrations (Attendance, HR, CRM)", included: true },
+        { name: "Charges for 1 Administrator + 5 Business Users ₹1000/user", included: true },
+
         { name: "Cloud Access (Web + Mobile)", included: true },
+        { name: "No Custom Integrations on Free Trial", included: false },
+        { name: "Sensors Integration", included: false },
+        { name: "Custom Integrations (Attendance, HR, CRM)", included: false },
+        { name: "Resource Status Monitoring", included: false },
+        { name: "Machine ON/OFF Control (Remote)", included: false },
+        { name: "View Production Data from Anywhere", included: false },
+        { name: "Machine Logs & Error Reports", included: false },
+        { name: "Real-Time Production Monitoring", included: false },
         { name: "Support Type", included: "Standard" },
       ],
     },
@@ -473,7 +478,7 @@ export default function PricingSection() {
         </motion.h2>
 
         <p className="text-center text-blue-700 text-lg mb-10">
-          Choose the plan that fits your automation workflow.
+          Choose the plan that fits your business workflow.
         </p>
 
         {/* Toggle Billing Cycle */}

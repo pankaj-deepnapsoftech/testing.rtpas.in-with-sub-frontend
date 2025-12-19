@@ -286,7 +286,7 @@ export default function PricingSection() {
         </motion.h2>
 
         <p className="text-center text-blue-700 text-lg mb-10">
-          Choose the plan that fits your automation workflow.
+          Choose the plan that fits your busines workflow.
         </p>
 
         {/* Toggle Billing Cycle */}

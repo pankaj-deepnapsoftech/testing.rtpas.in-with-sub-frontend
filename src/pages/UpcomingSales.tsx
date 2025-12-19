@@ -113,14 +113,15 @@ const UpcomingSales: React.FC = () => {
       );
 
       if (response.data.success) {
-        // Remove from both sales and filteredSales
-        const updatedSales = sales.filter((sale: any) => sale._id !== saleId);
-        const updatedFilteredSales = filteredSales.filter((sale: any) => sale._id !== saleId);
-
+        const updatedSales = sales.map((sale: any) =>
+          sale._id === saleId ? { ...sale, salestatus: "Production Completed" } : sale
+        );
+        const updatedFilteredSales = filteredSales.map((sale: any) =>
+          sale._id === saleId ? { ...sale, salestatus: "Production Completed" } : sale
+        );
         setSales(updatedSales);
         setFilteredSales(updatedFilteredSales);
-
-        toast.success("Order marked as completed and removed from list");
+        toast.success("Order marked as completed");
       }
     } catch (error: any) {
       toast.error(
@@ -402,15 +403,16 @@ const UpcomingSales: React.FC = () => {
                           }
                           size="sm"
                           style={{
-                            backgroundColor: colors.success[500],
-                            color: "white",
+                            backgroundColor: sale.salestatus === "Production Completed" ? colors.border.medium : colors.success[500],
+                            color: sale.salestatus === "Production Completed" ? colors.text.secondary : "white",
                           }}
                           _hover={{
-                            backgroundColor: colors.success[600],
+                            backgroundColor: sale.salestatus === "Production Completed" ? colors.border.medium : colors.success[600],
                           }}
+                          disabled={sale.salestatus === "Production Completed"}
                         >
 
-                         Completed
+                         {sale.salestatus === "Production Completed" ? "Completed" : "Mark Completed"}
 
                         </Button>
                       </td>
@@ -441,7 +443,7 @@ const UpcomingSales: React.FC = () => {
           <ModalBody>
             Are you sure you want to mark{" "}
             <strong>{selectedOrderId || "this order"}</strong> as completed? This
-            will remove it from the Coming Production list.
+            will update its status to Completed and disable the action.
           </ModalBody>
           <ModalFooter>
             <Button variant="ghost" mr={3} onClick={closeConfirmModal}>
