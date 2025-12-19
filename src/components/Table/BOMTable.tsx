@@ -298,6 +298,7 @@ const BOMTable: React.FC<BOMTableProps> = ({
             Number(material.quantity || 0) * multiplier
           );
           return {
+            _id: material?._id,
             item: material?.item?._id || material?.item,
             scrap_id: material?.scrap_id,
             scrap_name: material?.scrap_name,

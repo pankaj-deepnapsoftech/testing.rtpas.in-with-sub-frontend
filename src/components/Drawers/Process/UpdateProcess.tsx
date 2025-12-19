@@ -232,6 +232,12 @@ const UpdateProcess: React.FC<UpdateProcess> = ({
     });
   };
   // console.log("All Product", products)
+
+
+
+
+
+
   const updateProcessHandler = async (e: React.FormEvent) => {
     e.preventDefault();
     if (isCompleted) return; // no-op when already completed
@@ -245,7 +251,6 @@ const UpdateProcess: React.FC<UpdateProcess> = ({
       const usedUom = m.uom_used_quantity || itemUom; // user selected (example: "g")
       const used = Number(m.used_quantity) || 0;
 
-      // ✅ convert used qty into base UOM
       const usedInItemUom = convertUOM(used, usedUom, itemUom);
 
       return {
@@ -294,7 +299,7 @@ const UpdateProcess: React.FC<UpdateProcess> = ({
       ...material,
       uom_produced_quantity: material.uom_produced_quantity, // <-- this sends the selected dropdown value!
     }));
-    // console.log("ye hai modified scrap material", modifiedScrapMaterials);
+    console.log("ye hai modified scrap material", modifiedScrapMaterials);
 
     const data = {
       bom: {
@@ -329,8 +334,9 @@ const UpdateProcess: React.FC<UpdateProcess> = ({
       // Update scrap quantities in scrap management after successful process update
       if (modifiedScrapMaterials && modifiedScrapMaterials.length > 0) {
         await updateScrapQuantitiesFromProcess(modifiedScrapMaterials);
+        console.log("modifiedScrapMaterials", modifiedScrapMaterials);
       }
-
+   console.log("srpData", await updateScrapQuantitiesFromProcess(modifiedScrapMaterials))
       toast.success(response.message);
 
       setSelectedProducts(updatedProducts);
@@ -357,88 +363,92 @@ const UpdateProcess: React.FC<UpdateProcess> = ({
     }
   };
 
-  const updateScrapQuantitiesFromProcess = async (
-    updatedScrapMaterials: any[]
-  ) => {
-    try {
-      const currentProducedQty = Number(finishedGoodProducedQuantity) || 0;
-      const remainingQty = Number(finishedGoodRemainingQty) || 0;
+ 
+ const updateScrapQuantitiesFromProcess = async (
+   updatedScrapMaterials: any[]
+ ) => {
+  
+   try {
+     const currentProducedQty = Number(finishedGoodProducedQuantity) || 0;
+     const remainingQty = Number(finishedGoodRemainingQty) || 0;
 
-      console.log(
-        "Current Produced Qty:",
-        currentProducedQty,
-        "Remaining Qty:",
-        remainingQty
-      );
+     
 
-      if (currentProducedQty !== remainingQty) {
-        console.log(
-          "Skipping scrap update: Produced quantity does not equal remaining quantity",
-          { currentProducedQty, remainingQty }
-        );
-        return;
-      }
+     if (currentProducedQty !== remainingQty) {
+       console.log(
+         "Skipping scrap update: Produced quantity does not equal remaining quantity",
+         { currentProducedQty, remainingQty }
+       );
+       return;
+     }
+       console.log("line no. 384")
+     const updatePromises = updatedScrapMaterials.map(async (scrapMaterial) => {
+       const scrapId = scrapMaterial.item || scrapMaterial.item_name?.value;
+       const estimatedQty = Number(scrapMaterial.estimated_quantity) || 0;
+       const producedQty = Number(scrapMaterial.produced_quantity) || 0;
+  
+    
+      console.log("updatedScrapMaterials line no. 391", updatedScrapMaterials);
+    
+       const originalScrap = originalScrapMaterials.find(
+         (s: any) => (s.item || s.item_name?.value) === scrapId
+       );
+       const originalEstimatedQty = originalScrap
+         ? Number(originalScrap.estimated_quantity) || 0
+         : 0;
+       const originalProducedQty = originalScrap
+         ? Number(originalScrap.produced_quantity) || 0
+         : 0;
+ console.log("line no. 402");
+       const oldDifference = originalEstimatedQty - originalProducedQty;
+       const newDifference = estimatedQty - producedQty;
 
-      const updatePromises = updatedScrapMaterials.map(
-        async (scrapMaterial) => {
-          const scrapId = scrapMaterial.item || scrapMaterial.item_name?.value;
-          const estimatedQty = Number(scrapMaterial.estimated_quantity) || 0;
-          const producedQty = Number(scrapMaterial.produced_quantity) || 0;
+       const adjustmentAmount = newDifference - oldDifference;
 
-          const originalScrap = originalScrapMaterials.find(
-            (s: any) => (s.item || s.item_name?.value) === scrapId
-          );
-          const originalEstimatedQty = originalScrap
-            ? Number(originalScrap.estimated_quantity) || 0
-            : 0;
-          const originalProducedQty = originalScrap
-            ? Number(originalScrap.produced_quantity) || 0
-            : 0;
+       if (adjustmentAmount === 0) return;
+       console.log("?>?>?>?>", scrapCatalog);
 
-          const oldDifference = originalEstimatedQty - originalProducedQty;
-          const newDifference = estimatedQty - producedQty;
+       console.log("////", scrapId);
+       const currentScrap = scrapCatalog.find((s: any) => s._id === scrapId);
 
-          const adjustmentAmount = newDifference - oldDifference;
+       console.log("???????", currentScrap);
 
-          if (adjustmentAmount === 0) return;
+       if (!currentScrap) {
+         console.warn(`Scrap with ID ${scrapId} not found in catalog`);
+         return;
+       }
 
-          const currentScrap = scrapCatalog.find((s: any) => s._id === scrapId);
-          if (!currentScrap) {
-            console.warn(`Scrap with ID ${scrapId} not found in catalog`);
-            return;
-          }
+  
+       const currentQty = Number(currentScrap.qty) || 0;
+           console.log("currentQty", currentQty);
+       const newQty = currentQty - (estimatedQty - producedQty);
+          console.log("line no. 416");
+       const updateResponse = await fetch(
+         `${process.env.REACT_APP_BACKEND_URL}scrap/update/${scrapId}`,
+         {
+           method: "PUT",
+           headers: {
+             "Content-Type": "application/json",
+             Authorization: `Bearer ${cookies?.access_token}`,
+           },
+           body: JSON.stringify({
+             qty: newQty,
+           }),
+         }
+       );
 
-          const currentQty = Number(currentScrap.qty) || 0;
+       if (!updateResponse.ok) {
+         console.error(
+           `Failed to update scrap quantity for ${currentScrap.Scrap_name}`
+         );
+       }
+     });
 
-          const newQty = currentQty - (estimatedQty - producedQty);
-
-          const updateResponse = await fetch(
-            `${process.env.REACT_APP_BACKEND_URL}scrap/update/${scrapId}`,
-            {
-              method: "PUT",
-              headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${cookies?.access_token}`,
-              },
-              body: JSON.stringify({
-                qty: newQty,
-              }),
-            }
-          );
-
-          if (!updateResponse.ok) {
-            console.error(
-              `Failed to update scrap quantity for ${currentScrap.Scrap_name}`
-            );
-          }
-        }
-      );
-
-      await Promise.all(updatePromises);
-    } catch (error: any) {
-      console.error("Error updating scrap quantities:", error);
-    }
-  };
+     await Promise.all(updatePromises);
+   } catch (error: any) {
+     console.error("Error updating scrap quantities:", error);
+   }
+ };
 
   // ===== UOM conversion helpers =====
   const UNIT_FACTORS: Record<string, Record<string, number>> = {
@@ -824,56 +834,38 @@ const UpdateProcess: React.FC<UpdateProcess> = ({
             remaining_quantity: prod?.remaining_quantity || 0,
           };
         });
-
+       console.log("sracpData line no. 837",data.production_process?.bom?.scrap_materials)
       const scrap: any = [];
       data.production_process?.bom?.scrap_materials?.forEach(
         (material: any) => {
-          const itemObj = material && material.item ? material.item : null;
-          const itemId =
-            itemObj && itemObj._id
-              ? itemObj._id
-              : typeof material?.item === "string"
-              ? material.item
-              : undefined;
+          const itemObj = material.item || null;
+          const itemId = itemObj?._id || itemObj || "";
 
           const sc =
             (data.production_process.scrap_materials || []).find(
-              (p: any) => String(p?.item || "") === String(itemId || "")
+              (p: any) => String(p?.item) === String(itemId)
             ) || {};
-
-          const scFromCatalog = (scrapCatalog || []).find(
-            (s: any) => String(s?._id || "") === String(itemId || "")
-          );
-
-          const itemSelect =
-            itemObj && itemObj._id && itemObj.name
-              ? { value: itemObj._id, label: itemObj.name }
-              : scFromCatalog && scFromCatalog._id && scFromCatalog.Scrap_name
-              ? { value: scFromCatalog._id, label: scFromCatalog.Scrap_name }
-              : material?.scrap_name
-              ? { value: material?.scrap_id || "", label: material.scrap_name }
-              : null;
 
           scrap.push({
             _id: material?._id || "",
             item: itemId,
-            item_name: itemSelect,
+            item_name: itemObj
+              ? { value: itemObj._id, label: itemObj.Scrap_name }
+              : null,
             description: material?.description || "",
             estimated_quantity:
               sc?.estimated_quantity || material?.quantity || 0,
             produced_quantity: sc?.produced_quantity || 0,
-            uom: itemObj?.uom || scFromCatalog?.uom || material?.uom || "",
-            unit_cost:
-              itemObj?.price ||
-              scFromCatalog?.price ||
-              material?.unit_cost ||
-              "",
+            uom: itemObj?.uom || "",
+            unit_cost: itemObj?.price || 0,
             total_part_cost: material?.total_part_cost || "",
             uom_produced_quantity: material?.uom_used_quantity || "",
           });
         }
       );
 
+
+       console.log("scrapyyyyyyyyyyyyyyy", scrap);
       const processList = data?.production_process?.bom?.processes || [];
       const processesData = data.production_process?.processes || [];
       const processProgressData = processesData.map((p: any) => ({
@@ -996,6 +988,7 @@ const UpdateProcess: React.FC<UpdateProcess> = ({
       );
       const data = await response.json();
       const scrapData = Array.isArray(data?.data) ? data.data : [];
+      console.log("fechsrap",scrapData);
       setScrapCatalog(scrapData);
     } catch (error: any) {
       toast.error(error?.message || "Something went wrong");
