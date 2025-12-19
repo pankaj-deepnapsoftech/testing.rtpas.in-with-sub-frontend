@@ -397,7 +397,7 @@ const UpcomingSales: React.FC = () => {
                       </td>
                       <td className="px-4 py-3">
                         <Button
-                          onClick={() =>
+                          onClick={() =>  
                             promptCompletion(sale._id, sale.order_id || "")
                           }
                           size="sm"

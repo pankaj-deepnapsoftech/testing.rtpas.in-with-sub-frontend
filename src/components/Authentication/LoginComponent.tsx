@@ -204,7 +204,7 @@ const LoginComponent: React.FC<LoginComponentProps> = ({
         </div>
 
         <p className="text-center text-gray-600 text-sm mt-4">
-          © Itsybizz. All Rights Reserved.
+          © 2025 Itsybizz. All Rights Reserved.
         </p>
 
 

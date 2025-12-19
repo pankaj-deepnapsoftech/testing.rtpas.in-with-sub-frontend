@@ -154,7 +154,7 @@ export const routes = [
         icon: <MdOutlineProductionQuantityLimits />,
         sublink: [
              {
-                name: "Coming Production",
+                name: "Production Queue",
                 icon: <Calendar />,
                 path: "upcoming-sales",
                 element: <UpcomingSales />,
@@ -242,7 +242,7 @@ export const routes = [
     //   isSublink: false,
     // },
     {
-        name: "Admin Approval",
+        name: "Control Panel",
         icon: <FaRegCheckCircle />,
         path: "approval",
         element: <Approvals />,
