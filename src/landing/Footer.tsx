@@ -108,9 +108,9 @@ const Footer = () => {
               onClick={() => navigate("/")}
             >
               <img
-                src="/itsybizz.png"
+                src="/company.png"
                 alt="Itsybizz Logo"
-                className="h-20 w-auto mb-4"
+                className="h-10 w-auto mb-4"
               />
             </motion.div>
 
@@ -201,9 +201,9 @@ const Footer = () => {
           All rights reserved:{" "}
           <span className="text-blue-700 font-semibold">Itsybizz AI Pvt. Ltd.</span>
         </p>
-        <p className="text-xs text-blue-400 mt-1">
+        {/* <p className="text-xs text-blue-400 mt-1">
           Crafted with <span className="text-red-500">❤️</span> for modern manufacturers
-        </p>
+        </p> */}
       </motion.div>
     </footer>
   );

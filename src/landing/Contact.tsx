@@ -12,7 +12,7 @@ import { TbDeviceLandlinePhone } from "react-icons/tb";
 import { motion } from "framer-motion";
 import axios from "axios";
 import toast from "react-hot-toast";
-import contactGif from "../assets/contactUs.gif";
+import contactGif from "../assets/contact-uss.png";
 
 // Add custom styles for animations
 const customStyles = `
@@ -197,7 +197,7 @@ const Contact = () => {
         <div className="absolute -bottom-8 left-20 w-72 h-72 bg-sky-400 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob animation-delay-4000"></div>
 
         <div className="col-span-1 flex items-center justify-center md:justify-start relative z-10">
-          <div className="text-center md:text-left">
+          <div className="text-center ml-[50px] md:text-left">
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4">
               <span className="bg-gradient-to-r from-blue-500 via-sky-500 to-sky-500 bg-clip-text text-transparent">
                 Contact Us

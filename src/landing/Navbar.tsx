@@ -49,7 +49,7 @@ export default function Navbar() {
               className="cursor-pointer flex-shrink-0"
               onClick={() => navigate("/")}
             >
-              <img src="/itsybizz.png" alt="Itsybizz Logo" className="h-20 w-auto" />
+              <img src="/company.png" alt="Itsybizz Logo" className="h-10 w-auto" />
               {/* <p
                 className="text-xl font-extrabold bg-gradient-to-r from-gray-900 to-gray-500 
                 bg-clip-text text-transparent tracking-wide drop-shadow-[0_0_10px_rgba(59,130,246,0.4)]

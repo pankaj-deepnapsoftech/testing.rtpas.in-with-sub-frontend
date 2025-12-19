@@ -64,7 +64,7 @@ export default function AboutSection() {
         transition={{ duration: 0.7 }}
         className="text-4xl md:text-6xl font-bold text-center max-w-4xl mb-6 text-blue-900 leading-tight"
       >
-        About Us –
+        About Us
         <span className="block mt-2 text-transparent bg-clip-text bg-gradient-to-r from-blue-700 via-sky-400 to-blue-600">
           ITSYBIZZ AI PRIVATE LIMITED
         </span>
@@ -78,13 +78,11 @@ export default function AboutSection() {
         transition={{ duration: 0.75 }}
         className="text-blue-700 max-w-4xl text-center text-lg md:text-xl leading-relaxed mb-6"
       >
-        ITSYBIZZ AI Private Limited is a technology-driven company dedicated to
-        transforming the way modern industries operate through intelligent
-        automation and real-time data insights. Powered by innovation and backed
-        by Deepnap Softech's technological expertise, ITSYBIZZ specializes in
-        building advanced industrial automation solutions that help
-        manufacturing units achieve higher efficiency, accuracy, and
-        productivity.
+     ITSYBIZZ AI Private Limited is a technology-driven industrial automation and AI 
+solutions company dedicated to transforming modern manufacturing through real-time 
+production intelligence, intelligent automation, and data-driven decision systems. The 
+company builds advanced software platforms that help manufacturing units and industrial 
+enterprises achieve higher efficiency, accuracy, transparency, and operational control. 
       </motion.p>
 
       <motion.p
@@ -93,12 +91,37 @@ export default function AboutSection() {
         viewport={{ once: true }}
         transition={{ duration: 0.75, delay: 0.1 }}
         className="text-blue-600 max-w-4xl text-center text-base md:text-lg leading-relaxed"
+      >In today’s competitive manufacturing landscape, industries face challenges such as manual 
+reporting, machine downtime, lack of real-time visibility, fragmented workflows, and delayed 
+decision-making. ITSYBIZZ AI Private Limited addresses these challenges by delivering 
+end-to-end automation solutions that digitally connect machines, workforce, and 
+management into a unified, intelligent ecosystem.
+      </motion.p>
+        <motion.h1
+        initial={{ opacity: 0, y: -40 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.7 }}
+        className="text-4xl md:text-6xl font-bold text-center max-w-4xl mb-4 mt-[20px] text-blue-500 leading-tight"
       >
-        At ITSYBIZZ, we develop cutting-edge automation products designed to
-        simplify complex operations, eliminate manual dependencies, and enable
-        continuous monitoring across the production lifecycle. Our core vision
-        is to empower industries with AI-enabled tools that ensure transparency,
-        accountability, and operational excellence.
+     Who We Are
+      </motion.h1>
+      
+       <motion.p
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.75 }}
+        className="text-blue-700 max-w-4xl text-center text-lg md:text-xl leading-relaxed mb-6"
+      >
+   ITSYBIZZ AI Private Limited was founded with a clear vision: to simplify complex 
+industrial operations using AI-enabled automation and real-time data visibility. We 
+specialize in building Industrial IoT (IIoT) platforms, production automation software, 
+and intelligent monitoring systems tailored for manufacturing environments. <br />
+Our solutions are designed to replace manual processes, eliminate data silos, and provide 
+actionable insights across the complete production lifecycle — from raw material intake and 
+production execution to quality control and final delivery. We focus on creating scalable, 
+secure, and future-ready platforms that adapt to the evolving needs of industries. 
       </motion.p>
 
       {/* Flagship Products Section */}
