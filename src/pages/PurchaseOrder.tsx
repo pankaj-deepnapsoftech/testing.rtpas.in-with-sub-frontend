@@ -294,7 +294,7 @@ const getShortageKey = (shortage?: InventoryShortage | null) =>
           product.category.toLowerCase().includes("raw material")
       );
 
-      console.log("Raw materials found:", rawMaterials.length);
+      console.log("Raw materials found:", rawMaterials);
 
       // Now fetch inventory shortages
       const shortagesResponse = await axios.get(
@@ -315,8 +315,8 @@ const getShortageKey = (shortage?: InventoryShortage | null) =>
           return rawMaterials.some(
             (rawMaterial: any) =>
               rawMaterial.name.toLowerCase() ===
-                shortage.item_name?.toLowerCase() ||
-              rawMaterial._id === shortage.item
+                shortage?.item?.name?.toLowerCase() ||
+              rawMaterial?._id === shortage.item
           );
         });
 
@@ -758,11 +758,7 @@ const getShortageKey = (shortage?: InventoryShortage | null) =>
     }
   };
 
-  // Open edit raw material modal
-  const openEditRawMaterialModal = (item: InventoryShortage) => {
-    setSelectedRawMaterial(item);
-    setShowEditRawMaterialModal(true);
-  };
+  
 
   // Submit all changes in Raw Material Shortages modal
   const submitRawMaterialChanges = async () => {
@@ -834,7 +830,7 @@ const getShortageKey = (shortage?: InventoryShortage | null) =>
 
       itemsWithStockChanges.forEach((item) => {
         if (!item._id || !item.updated_stock || item.updated_stock <= 0) return;
-
+         console.log("lineno. 837",groupedShortages)
         // Check if this is a grouped item
         const groupedItem = groupedShortages.find(
           (gi) =>
@@ -1045,128 +1041,7 @@ const getShortageKey = (shortage?: InventoryShortage | null) =>
     }
   };
 
-  // Clear updated price (optional functionality)
-  const clearUpdatedPrice = async (productId: string) => {
-    try {
-      const response = await axios.put(
-        `${process.env.REACT_APP_BACKEND_URL}product/clear-updated-price`,
-        {
-          productId: productId,
-        },
-        {
-          headers: { Authorization: `Bearer ${cookies?.access_token}` },
-        }
-      );
-
-      if (response.data.success) {
-        toast.success("Updated price cleared successfully");
-        // Refresh all data to sync across components
-        await Promise.all([
-          fetchInventoryShortages(),
-          fetchUpdateInventoryForm(),
-        ]);
-      } else {
-        toast.error(response.data.message || "Failed to clear updated price");
-      }
-    } catch (error: any) {
-      toast.error(
-        error?.response?.data?.message || "Failed to clear updated price"
-      );
-    }
-  };
-
-  // Clear updated stock (optional functionality)
-  const clearUpdatedStock = async (productId: string) => {
-    try {
-      const response = await axios.put(
-        `${process.env.REACT_APP_BACKEND_URL}product/clear-updated-stock`,
-        {
-          productId: productId,
-        },
-        {
-          headers: { Authorization: `Bearer ${cookies?.access_token}` },
-        }
-      );
-
-      if (response.data.success) {
-        toast.success("Updated stock cleared successfully");
-        // Refresh all data to sync across components
-        await Promise.all([
-          fetchInventoryShortages(),
-          fetchUpdateInventoryForm(),
-        ]);
-      } else {
-        toast.error(response.data.message || "Failed to clear updated stock");
-      }
-    } catch (error: any) {
-      toast.error(
-        error?.response?.data?.message || "Failed to clear updated stock"
-      );
-    }
-  };
-
-  // Remove item from inventory shortages (when item has been updated)
-  const removeFromShortages = async (productId: string) => {
-    try {
-      const response = await axios.put(
-        `${process.env.REACT_APP_BACKEND_URL}product/remove-from-shortages`,
-        {
-          productId: productId,
-        },
-        {
-          headers: { Authorization: `Bearer ${cookies?.access_token}` },
-        }
-      );
-
-      if (response.data.success) {
-        toast.success(
-          `Item removed from shortages (${response.data.deletedShortages} shortages removed)`
-        );
-        // Refresh all data to sync across components
-        await Promise.all([
-          fetchInventoryShortages(),
-          fetchUpdateInventoryForm(),
-        ]);
-      } else {
-        toast.error(response.data.message || "Failed to remove from shortages");
-      }
-    } catch (error: any) {
-      toast.error(
-        error?.response?.data?.message || "Failed to remove from shortages"
-      );
-    }
-  };
-
-  // Update raw material details
-  const updateRawMaterial = async (itemId: string, updates: any) => {
-    try {
-      const response = await axios.put(
-        `${process.env.REACT_APP_BACKEND_URL}product/update`,
-        {
-          _id: itemId,
-          ...updates,
-        },
-        {
-          headers: { Authorization: `Bearer ${cookies?.access_token}` },
-        }
-      );
-
-      if (response.data.success) {
-        toast.success("Raw material updated successfully");
-        // Refresh all data to sync across components
-        await Promise.all([
-          fetchInventoryShortages(),
-          fetchUpdateInventoryForm(),
-        ]);
-      } else {
-        toast.error("Failed to update raw material");
-      }
-    } catch (error: any) {
-      toast.error(
-        error?.response?.data?.message || "Failed to update raw material"
-      );
-    }
-  };
+ 
 
   useEffect(() => {
     fetchPurchaseOrders();
@@ -1180,7 +1055,7 @@ const getShortageKey = (shortage?: InventoryShortage | null) =>
       return item.shortage_quantity > 0 || remainingShortage > 0;
     });
   }, [inventoryShortages]);
-
+ 
   // Group and combine duplicate raw materials by adding their shortage quantities
   const groupedShortages = useMemo(() => {
     const groupedMap = new Map<string, InventoryShortage>();
@@ -1278,7 +1153,7 @@ const getShortageKey = (shortage?: InventoryShortage | null) =>
     
     return Array.from(groupedMap.values());
   }, [activeShortages, groupedItemInputs]);
-
+  console.log(">>>>>groupedShortages",groupedShortages)
   // Filter purchase orders based on search key
   useEffect(() => {
     const searchLower = searchKey.toLowerCase();
@@ -1830,7 +1705,7 @@ const getShortageKey = (shortage?: InventoryShortage | null) =>
                                   handlePriceUpdate(item, Number(e.target.value));
                                 }}
                                 className="w-20 px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                placeholder={item.current_price.toString()}
+                                placeholder={item?.current_price?.toString()}
                                 min="0"
                                 step="0.01"
                               />
