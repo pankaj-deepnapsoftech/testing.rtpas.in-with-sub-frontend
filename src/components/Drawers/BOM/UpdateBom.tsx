@@ -1,6 +1,5 @@
 //@ts-nocheck
 
-
 import { BiX } from "react-icons/bi";
 import React, { useEffect, useRef, useState } from "react";
 import Select from "react-select";
@@ -24,6 +23,7 @@ const UpdateBom: React.FC<UpdateBomProps> = ({
 }) => {
   const [cookies] = useCookies();
   const [isLoadingBom, setIsLoadingBom] = useState<boolean>(false);
+  const [isApproved, setIsApproved] = useState<boolean>(false);
 
   const [bomName, setBomName] = useState<string | undefined>();
   const [partsCount, setPartsCount] = useState<number>(0);
@@ -68,12 +68,6 @@ const UpdateBom: React.FC<UpdateBomProps> = ({
   const [updateBom] = useUpdateBOMMutation();
 
   const [initialScrapMaterials, setInitialScrapMaterials] = useState<any[]>([]);
-
-
-
-
-
-
 
   const [labourCharges, setLabourCharges] = useState<number | undefined>();
   const [machineryCharges, setMachineryCharges] = useState<
@@ -123,7 +117,7 @@ const UpdateBom: React.FC<UpdateBomProps> = ({
   >([]);
   const [manpowerInput, setManpowerInput] = useState<string>("");
   const [manpowerCount, setManpowerCount] = useState<number>(0);
-  const [value, setValue] = useState(0)
+  const [value, setValue] = useState(0);
   const [rawMaterials, setRawMaterials] = useState<any[]>([
     {
       _id: "",
@@ -163,6 +157,7 @@ const UpdateBom: React.FC<UpdateBomProps> = ({
   // ---------- Helpers ----------
 
   const addRawMaterial = () => {
+    if (isApproved) return;
     setRawMaterials([
       ...rawMaterials,
       {
@@ -183,12 +178,14 @@ const UpdateBom: React.FC<UpdateBomProps> = ({
   };
 
   const removeRawMaterial = (index: number) => {
+    if (isApproved) return;
     if (rawMaterials.length > 1) {
       setRawMaterials(rawMaterials.filter((_, i) => i !== index));
     }
   };
 
   const updateRawMaterial = (index: number, field: number, value: any) => {
+    if (isApproved) return;
     const updatedMaterials = [...rawMaterials];
     updatedMaterials[index] = { ...updatedMaterials[index], [field]: value };
 
@@ -204,6 +201,7 @@ const UpdateBom: React.FC<UpdateBomProps> = ({
   };
 
   const addScrapMaterial = () => {
+    if (isApproved) return;
     setScrapMaterials([
       ...scrapMaterials,
       {
@@ -219,12 +217,14 @@ const UpdateBom: React.FC<UpdateBomProps> = ({
   };
 
   const removeScrapMaterial = (index: number) => {
+    if (isApproved) return;
     if (scrapMaterials.length > 1) {
       setScrapMaterials(scrapMaterials.filter((_, i) => i !== index));
     }
   };
 
   const updateScrapMaterial = (index: number, field: string, value: any) => {
+    if (isApproved) return;
     const updatedMaterials = [...scrapMaterials];
     updatedMaterials[index] = { ...updatedMaterials[index], [field]: value };
 
@@ -275,6 +275,7 @@ const UpdateBom: React.FC<UpdateBomProps> = ({
       const data = await response.json();
       if (!data.success) throw new Error(data.message);
       // console.log(data)
+      setIsApproved(data.bom.approved || false);
       setBomName(data.bom.bom_name);
       setPartsCount(data.bom.parts_count);
       setTotalPartsCost(data.bom.total_cost);
@@ -655,8 +656,6 @@ const UpdateBom: React.FC<UpdateBomProps> = ({
     }
   };
 
-
-
   // ---------- Effects ----------
   const fetchResourceHandler = async () => {
     try {
@@ -738,11 +737,11 @@ const UpdateBom: React.FC<UpdateBomProps> = ({
         );
         return sc
           ? {
-            ...m,
-            item_name: { value: sc._id, label: sc.Scrap_name },
-            uom: m.uom || sc.uom || "",
-            unit_cost: m.unit_cost || sc.price || "",
-          }
+              ...m,
+              item_name: { value: sc._id, label: sc.Scrap_name },
+              uom: m.uom || sc.uom || "",
+              unit_cost: m.unit_cost || sc.price || "",
+            }
           : m;
       })
     );
@@ -818,7 +817,6 @@ const UpdateBom: React.FC<UpdateBomProps> = ({
     }),
   };
 
-
   const calculateAllmaterials = (qty: number) => {
     if (!value || value === 0) return;
 
@@ -853,17 +851,11 @@ const UpdateBom: React.FC<UpdateBomProps> = ({
     setScrapMaterials(newScrapMaterials);
   };
 
-
-
-
   // console.log("heyyyyyyyyy Rm", initialRawMaterials)
-
 
   // useEffect(() => {
   //   // calculateAllmaterials()
   // }, [quantity])
-
-
 
   // ---------- UI ----------
 
@@ -924,8 +916,8 @@ const UpdateBom: React.FC<UpdateBomProps> = ({
                           cookies?.role === "admin"
                             ? totalPartsCost || ""
                             : totalPartsCost
-                              ? "*****"
-                              : ""
+                            ? "*****"
+                            : ""
                         }
                         readOnly
                         className="w-full px-3 py-2 border border-gray-300 rounded bg-gray-100"
@@ -975,8 +967,10 @@ const UpdateBom: React.FC<UpdateBomProps> = ({
                         <input
                           type="number"
                           value={quantity || ""}
-                          onChange={(e) => { onFinishedGoodQntyChangeHandler(+e.target.value); calculateAllmaterials(+e.target.value) }
-                          }
+                          onChange={(e) => {
+                            onFinishedGoodQntyChangeHandler(+e.target.value);
+                            calculateAllmaterials(+e.target.value);
+                          }}
                           placeholder="Quantity"
                           className="w-full px-2 py-1 border border-gray-300 rounded text-sm"
                           required
@@ -1030,8 +1024,8 @@ const UpdateBom: React.FC<UpdateBomProps> = ({
                             cookies?.role === "admin"
                               ? unitCost || ""
                               : unitCost
-                                ? "*****"
-                                : ""
+                              ? "*****"
+                              : ""
                           }
                           readOnly
                           className="w-full px-2 py-1 border border-gray-300 rounded text-sm bg-gray-100"
@@ -1048,8 +1042,8 @@ const UpdateBom: React.FC<UpdateBomProps> = ({
                             cookies?.role === "admin"
                               ? cost || ""
                               : cost
-                                ? "*****"
-                                : ""
+                              ? "*****"
+                              : ""
                           }
                           readOnly
                           className="w-full px-2 py-1 border border-gray-300 rounded text-sm bg-gray-100"
@@ -1095,7 +1089,9 @@ const UpdateBom: React.FC<UpdateBomProps> = ({
                             options={rawMaterialsOptions}
                             placeholder="Select"
                             value={material.item_name}
+                            isDisabled={isApproved}
                             onChange={(d: any) => {
+                              if (isApproved) return;
                               const newMaterials = [...rawMaterials];
                               newMaterials[index].item_name = d;
                               const product = products.find(
@@ -1122,15 +1118,19 @@ const UpdateBom: React.FC<UpdateBomProps> = ({
                           <input
                             type="number"
                             value={material.quantity || ""}
-                            onChange={(e) =>
+                            onChange={(e) => {
+                              if (isApproved) return;
                               updateRawMaterial(
                                 index,
                                 "quantity",
                                 e.target.value
-                              )
-                            }
+                              );
+                            }}
                             placeholder="0"
-                            className="w-full px-2 py-1 border border-gray-300 rounded text-sm"
+                            disabled={isApproved}
+                            className={`w-full px-2 py-1 border border-gray-300 rounded text-sm ${
+                              isApproved ? "bg-gray-100 cursor-not-allowed" : ""
+                            }`}
                           />
                         </div>
 
@@ -1165,15 +1165,19 @@ const UpdateBom: React.FC<UpdateBomProps> = ({
                           <input
                             type="text"
                             value={material.comments || ""}
-                            onChange={(e) =>
+                            onChange={(e) => {
+                              if (isApproved) return;
                               updateRawMaterial(
                                 index,
                                 "comments",
                                 e.target.value
-                              )
-                            }
+                              );
+                            }}
                             placeholder="Comments"
-                            className="w-full px-2 py-1 border border-gray-300 rounded text-sm"
+                            disabled={isApproved}
+                            className={`w-full px-2 py-1 border border-gray-300 rounded text-sm ${
+                              isApproved ? "bg-gray-100 cursor-not-allowed" : ""
+                            }`}
                           />
                         </div>
 
@@ -1187,8 +1191,8 @@ const UpdateBom: React.FC<UpdateBomProps> = ({
                               cookies?.role === "admin"
                                 ? material.unit_cost || ""
                                 : material.unit_cost
-                                  ? "*****"
-                                  : ""
+                                ? "*****"
+                                : ""
                             }
                             readOnly
                             className="w-full px-2 py-1 border border-gray-300 rounded text-sm bg-gray-100"
@@ -1205,8 +1209,8 @@ const UpdateBom: React.FC<UpdateBomProps> = ({
                               cookies?.role === "admin"
                                 ? material.total_part_cost || ""
                                 : material.total_part_cost
-                                  ? "*****"
-                                  : ""
+                                ? "*****"
+                                : ""
                             }
                             readOnly
                             className="w-full px-2 py-1 border border-gray-300 rounded text-sm bg-gray-100"
@@ -1214,20 +1218,24 @@ const UpdateBom: React.FC<UpdateBomProps> = ({
                         </div>
 
                         <div className="flex sm:justify-center items-center gap-2">
-                          <button
-                            type="button"
-                            className="inline-flex items-center justify-center px-2 py-1 text-red-600 hover:text-red-800"
-                            onClick={() => removeRawMaterial(index)}
-                          >
-                            <Trash2 size={18} />
-                          </button>
-                          <button
-                            type="button"
-                            className="px-2 py-1 whitespace-nowrap flex justify-center items-center gap-1 bg-gradient-to-r from-blue-500 to-blue-500 text-white text-sm rounded transition-colors"
-                            onClick={addRawMaterial}
-                          >
-                            <Plus size={16} /> Add RM
-                          </button>
+                          {!isApproved && (
+                            <>
+                              <button
+                                type="button"
+                                className="inline-flex items-center justify-center px-2 py-1 text-red-600 hover:text-red-800"
+                                onClick={() => removeRawMaterial(index)}
+                              >
+                                <Trash2 size={18} />
+                              </button>
+                              <button
+                                type="button"
+                                className="px-2 py-1 whitespace-nowrap flex justify-center items-center gap-1 bg-gradient-to-r from-blue-500 to-blue-500 text-white text-sm rounded transition-colors"
+                                onClick={addRawMaterial}
+                              >
+                                <Plus size={16} /> Add RM
+                              </button>
+                            </>
+                          )}
                         </div>
                       </div>
                     ))}
@@ -1330,9 +1338,9 @@ const UpdateBom: React.FC<UpdateBomProps> = ({
                               ...updated[index],
                               name: selected
                                 ? {
-                                  value: selected.value,
-                                  label: selected.label,
-                                }
+                                    value: selected.value,
+                                    label: selected.label,
+                                  }
                                 : null,
                               customId: selected?.customId || "",
                               type: selected?.type
@@ -1479,6 +1487,7 @@ const UpdateBom: React.FC<UpdateBomProps> = ({
                             className="text-sm"
                             options={scarpMaterials}
                             placeholder="Select"
+                            isDisabled={isApproved}
                             value={
                               material.item_name ||
                               scarpMaterials.find(
@@ -1487,6 +1496,7 @@ const UpdateBom: React.FC<UpdateBomProps> = ({
                               null
                             }
                             onChange={(d: any) => {
+                              if (isApproved) return;
                               const newMaterials = [...scrapMaterials];
                               newMaterials[index].item_name = d;
                               const sc = scrapCatalog.find(
@@ -1513,15 +1523,19 @@ const UpdateBom: React.FC<UpdateBomProps> = ({
                           <input
                             type="text"
                             value={material.description || ""}
-                            onChange={(e) =>
+                            onChange={(e) => {
+                              if (isApproved) return;
                               updateScrapMaterial(
                                 index,
                                 "description",
                                 e.target.value
-                              )
-                            }
+                              );
+                            }}
                             placeholder="Comment"
-                            className="w-full px-2 py-1 border border-gray-300 rounded text-sm"
+                            disabled={isApproved}
+                            className={`w-full px-2 py-1 border border-gray-300 rounded text-sm ${
+                              isApproved ? "bg-gray-100 cursor-not-allowed" : ""
+                            }`}
                           />
                         </div>
 
@@ -1532,15 +1546,19 @@ const UpdateBom: React.FC<UpdateBomProps> = ({
                           <input
                             type="number"
                             value={material.quantity || ""}
-                            onChange={(e) =>
+                            onChange={(e) => {
+                              if (isApproved) return;
                               updateScrapMaterial(
                                 index,
                                 "quantity",
                                 e.target.value
-                              )
-                            }
+                              );
+                            }}
                             placeholder="Quantity"
-                            className="w-full px-2 py-1 border border-gray-300 rounded text-sm"
+                            disabled={isApproved}
+                            className={`w-full px-2 py-1 border border-gray-300 rounded text-sm ${
+                              isApproved ? "bg-gray-100 cursor-not-allowed" : ""
+                            }`}
                           />
                         </div>
 
@@ -1566,8 +1584,8 @@ const UpdateBom: React.FC<UpdateBomProps> = ({
                               cookies?.role === "admin"
                                 ? material.unit_cost || ""
                                 : material.unit_cost
-                                  ? "*****"
-                                  : ""
+                                ? "*****"
+                                : ""
                             }
                             readOnly
                             className="w-full px-2 py-1 border border-gray-300 rounded text-sm bg-gray-100"
@@ -1584,8 +1602,8 @@ const UpdateBom: React.FC<UpdateBomProps> = ({
                               cookies?.role === "admin"
                                 ? material.total_part_cost || ""
                                 : material.total_part_cost
-                                  ? "*****"
-                                  : ""
+                                ? "*****"
+                                : ""
                             }
                             readOnly
                             className="w-full px-2 py-1 border border-gray-300 rounded text-sm bg-gray-100"
@@ -1593,20 +1611,24 @@ const UpdateBom: React.FC<UpdateBomProps> = ({
                         </div>
 
                         <div className="flex sm:justify-center items-center gap-2">
-                          <button
-                            type="button"
-                            className="inline-flex items-center justify-center px-2 py-1 text-red-600 hover:text-red-800"
-                            onClick={() => removeScrapMaterial(index)}
-                          >
-                            <Trash2 size={18} />
-                          </button>
-                          <button
-                            type="button"
-                            className="px-3 py-1 flex  justify-center items-center gap-2 bg-gradient-to-r from-blue-500 to-blue-500 text-white text-sm rounded transition-colors"
-                            onClick={addScrapMaterial}
-                          >
-                            <Plus size={16} /> Add SM
-                          </button>
+                          {!isApproved && (
+                            <>
+                              <button
+                                type="button"
+                                className="inline-flex items-center justify-center px-2 py-1 text-red-600 hover:text-red-800"
+                                onClick={() => removeScrapMaterial(index)}
+                              >
+                                <Trash2 size={18} />
+                              </button>
+                              <button
+                                type="button"
+                                className="px-3 py-1 flex  justify-center items-center gap-2 bg-gradient-to-r from-blue-500 to-blue-500 text-white text-sm rounded transition-colors"
+                                onClick={addScrapMaterial}
+                              >
+                                <Plus size={16} /> Add SM
+                              </button>
+                            </>
+                          )}
                         </div>
                       </div>
                     ))}
