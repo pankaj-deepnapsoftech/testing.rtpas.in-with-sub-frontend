@@ -762,7 +762,14 @@ const PurchaseOrder: React.FC = () => {
   };
 
   
-
+  const activeShortages = useMemo(() => {
+    return inventoryShortages.filter((item) => {
+      const usedUpdatedStock = item.updated_stock || 0;
+      const remainingShortage = Math.max(0, (item.shortage_quantity || 0) - usedUpdatedStock);
+      return item.shortage_quantity > 0 || remainingShortage > 0;
+    });
+  }, [inventoryShortages]);
+  console.log("activeShortages", activeShortages)
   // Submit all changes in Raw Material Shortages modal
   const submitRawMaterialChanges = async () => {
     setIsSavingChanges(true);
@@ -777,14 +784,14 @@ const PurchaseOrder: React.FC = () => {
           item.updated_price !== item.current_price
       );
 
-      const itemsWithStockChanges = inventoryShortages.filter(
+      const itemsWithStockChanges = activeShortages.filter(
         (item) =>
           item.updated_stock &&
           item.updated_stock !== null &&
           item.updated_stock > 0
       );
-
-      // console.log("All inventory shortages:", inventoryShortages);
+      console.log("itemsWithStockChanges>>>>", itemsWithStockChanges)
+      console.log("All inventory shortages:", inventoryShortages);
       // console.log("Items with price changes:", itemsWithPriceChanges);
       // console.log("Items with stock changes:", itemsWithStockChanges);
       // console.log(
@@ -832,6 +839,7 @@ const PurchaseOrder: React.FC = () => {
       const processedGroupedItemIds = new Set<string>();
 
       itemsWithStockChanges.forEach((item) => {
+        console.log(" line no.835 itemData>>>",item)
         if (!item._id || !item.updated_stock || item.updated_stock <= 0) return;
         //  console.log("lineno. 837",groupedShortages)
         // Check if this is a grouped item
@@ -951,7 +959,7 @@ const PurchaseOrder: React.FC = () => {
           });
         }
       );
-
+      console.log("nonGroupedStockUpdates", nonGroupedStockUpdates)
       // Update non-grouped items: Individual shortage updates
       const individualShortageUpdates = nonGroupedStockUpdates.map(({ shortageId, stockToAdd }) =>
         axios.put(
@@ -1051,14 +1059,14 @@ const PurchaseOrder: React.FC = () => {
   }, [refreshTrigger]);
 
   // Filter out fully resolved items (shortage_quantity = 0 and remaining_shortage = 0)
-  const activeShortages = useMemo(() => {
-    return inventoryShortages.filter((item) => {
-      const usedUpdatedStock = item.updated_stock || 0;
-      const remainingShortage = Math.max(0, (item.shortage_quantity || 0) - usedUpdatedStock);
-      return item.shortage_quantity > 0 || remainingShortage > 0;
-    });
-  }, [inventoryShortages]);
-  console.log("activeShortages>>>", activeShortages)
+  // const activeShortages = useMemo(() => {
+  //   return inventoryShortages.filter((item) => {
+  //     const usedUpdatedStock = item.updated_stock || 0;
+  //     const remainingShortage = Math.max(0, (item.shortage_quantity || 0) - usedUpdatedStock);
+  //     return item.shortage_quantity > 0 || remainingShortage > 0;
+  //   });
+  // }, [inventoryShortages]);
+  // console.log("activeShortages>>>", activeShortages)
   // Group and combine duplicate raw materials by adding their shortage quantities
   const groupedShortages = useMemo(() => {
     const groupedMap = new Map<string, InventoryShortage>();
@@ -1511,18 +1519,19 @@ const PurchaseOrder: React.FC = () => {
                               {item.bom_name || "-"}
                             </td> */}
                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                              {item?.item?.name || "-"}
+                              {item?.item_name || "-"}
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                              {item?.item?.current_stock}
+                              {item?.current_stock}
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap">
                               <input
                                 type="number"
+                               
                                 value={
                                   (() => {
                                     // For grouped items, check direct input first
-                                    console.log("item.is_grouped", item)
+                                    
                                     if (item.is_grouped) {
                                       const directInput = groupedItemInputs.get(getShortageKey(item));
 
@@ -1532,22 +1541,23 @@ const PurchaseOrder: React.FC = () => {
                                     }
                                     // Otherwise use the item's updated_stock
                                     if (item.updated_stock !== null && item.updated_stock !== undefined && item.updated_stock > 0) {
+                                      console.log("line no.1535",item)
                                       return String(item.updated_stock);
                                     }
                                     return "";
                                   })()
                                 }
                                 onChange={(e) => {
-                                  const inputValue = e.target.value;
+                                  const inputValue = e.target.value ;
 
-                                  console.log("inputValue",inputValue)
+                                  
                                   if (inputValue === "" || inputValue === "-") {
                                     handleStockUpdate(item, 0);
                                     return;
                                   }
                                   
                                   const cleanValue = inputValue.replace(/[^0-9]/g, '');
-                                  
+                                  console.log("cleanValue", cleanValue)
                                   if (cleanValue === "") {
                                     handleStockUpdate(item, 0);
                                     return;
@@ -1640,7 +1650,7 @@ const PurchaseOrder: React.FC = () => {
                               })()}
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                              ₹{item?.item?.price}
+                              ₹{item?.current_price}
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap">
                               <input
@@ -1960,7 +1970,7 @@ const PurchaseOrder: React.FC = () => {
                             <td className="px-6 py-4 whitespace-nowrap">
                               <input
                                 type="number"
-                                value={item.updatedPrice}
+                                value={item.updated_price}
                                 onChange={(e) =>
                                   handleUpdateInventoryPriceChange(
                                     index,
@@ -1973,7 +1983,7 @@ const PurchaseOrder: React.FC = () => {
                                 step="0.01"
                               />
                             </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm">
+                            <td className="px-6 py-4  whitespace-nowrap text-sm">
                               {item.updatedPrice &&
                               item.updatedPrice !== item.currentPrice ? (
                                 <div className="flex flex-col">
