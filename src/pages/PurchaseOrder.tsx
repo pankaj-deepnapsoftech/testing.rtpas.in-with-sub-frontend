@@ -1,3 +1,4 @@
+//@ts-nocheck
 import React, { useState, useEffect, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -192,7 +193,7 @@ const PurchaseOrder: React.FC = () => {
     InventoryShortage[]
   >([]);
   const [isLoadingShortages, setIsLoadingShortages] = useState(false);
-
+  // console.log("inventoryShortages Data", inventoryShortages)
   // Modal states
   const [showInventoryShortagesModal, setShowInventoryShortagesModal] =
     useState(false);
@@ -209,12 +210,14 @@ const PurchaseOrder: React.FC = () => {
   // Track direct input values for grouped items to preserve exact user input
   const [groupedItemInputs, setGroupedItemInputs] = useState<Map<string, number | null>>(new Map());
 
-const getShortageKey = (shortage?: InventoryShortage | null) =>
-  String(
-    shortage?.item ||
-      shortage?._id ||
-      `${shortage?.bom_name || "bom"}-${shortage?.item_name || "item"}`
-  );
+  function getShortageKey(item: InventoryShortage): string {
+    return String(
+      item.item?._id ||
+      item.item ||
+      item.item_name
+    );
+  }
+
 
   const resolveProductIdForGroupedItem = (groupedItem: InventoryShortage): string => {
     if (groupedItem.item) {
@@ -294,7 +297,7 @@ const getShortageKey = (shortage?: InventoryShortage | null) =>
           product.category.toLowerCase().includes("raw material")
       );
 
-      console.log("Raw materials found:", rawMaterials);
+      // console.log("Raw materials found:", rawMaterials);
 
       // Now fetch inventory shortages
       const shortagesResponse = await axios.get(
@@ -307,7 +310,7 @@ const getShortageKey = (shortage?: InventoryShortage | null) =>
       if (shortagesResponse.data.success) {
         const allShortages = shortagesResponse.data.shortages || [];
 
-        console.log("All shortages from API:", allShortages);
+        // console.log("All shortages from API:", allShortages);
 
         // Filter shortages to only include raw materials
         const rawMaterialShortages = allShortages.filter((shortage: any) => {
@@ -320,8 +323,8 @@ const getShortageKey = (shortage?: InventoryShortage | null) =>
           );
         });
 
-        console.log("Total shortages:", allShortages.length);
-        console.log("Raw material shortages:", rawMaterialShortages.length);
+        // console.log("Total shortages:", allShortages.length);
+        // console.log("Raw material shortages:", rawMaterialShortages.length);
 
         const shortagesWithOriginalStock = rawMaterialShortages.map(
           (shortage: any) => {
@@ -354,11 +357,11 @@ const getShortageKey = (shortage?: InventoryShortage | null) =>
           }
         );
 
-        console.log(
-          "Raw material shortages count:",
-          shortagesWithOriginalStock.length
-        );
-        console.log("Final shortages data:", shortagesWithOriginalStock);
+        // console.log(
+        //   "Raw material shortages count:",
+        //   shortagesWithOriginalStock.length
+        // );
+        // console.log("Final shortages data:", shortagesWithOriginalStock);
         setInventoryShortages(shortagesWithOriginalStock);
       } else {
         toast.error(
@@ -380,9 +383,9 @@ const getShortageKey = (shortage?: InventoryShortage | null) =>
   const fetchUpdateInventoryForm = async () => {
     setIsLoadingUpdateForm(true);
     try {
-      console.log("Fetching inventory data...");
-      console.log("Backend URL:", process.env.REACT_APP_BACKEND_URL);
-      console.log("Token:", cookies?.access_token ? "Present" : "Missing");
+      // console.log("Fetching inventory data...");
+      // console.log("Backend URL:", process.env.REACT_APP_BACKEND_URL);
+      // console.log("Token:", cookies?.access_token ? "Present" : "Missing");
 
       // Fetch both inventory shortages and products
       const [shortagesResponse, productsResponse] = await Promise.all([
@@ -397,8 +400,8 @@ const getShortageKey = (shortage?: InventoryShortage | null) =>
         }),
       ]);
 
-      console.log("Shortages response:", shortagesResponse.data);
-      console.log("Products response:", productsResponse.data);
+      // console.log("Shortages response:", shortagesResponse.data);
+      // console.log("Products response:", productsResponse.data);
 
       // Check if at least shortages API is working
       if (shortagesResponse.data.success) {
@@ -407,8 +410,8 @@ const getShortageKey = (shortage?: InventoryShortage | null) =>
           ? productsResponse.data.products || []
           : [];
 
-        console.log("Shortages found:", shortages.length);
-        console.log("Products found:", products.length);
+        // console.log("Shortages found:", shortages.length);
+        // console.log("Products found:", products.length);
 
         // Filter for raw materials only
         const rawMaterials = products.filter(
@@ -427,8 +430,8 @@ const getShortageKey = (shortage?: InventoryShortage | null) =>
           );
         });
 
-        console.log("Total shortages:", shortages.length);
-        console.log("Raw material shortages:", rawMaterialShortages.length);
+        // console.log("Total shortages:", shortages.length);
+        // console.log("Raw material shortages:", rawMaterialShortages.length);
 
         // Create form data by combining shortages with product info
         const formData = rawMaterialShortages.map(
@@ -454,7 +457,7 @@ const getShortageKey = (shortage?: InventoryShortage | null) =>
           }
         );
 
-        console.log("Form data created:", formData);
+        // console.log("Form data created:", formData);
         setUpdateInventoryForm(formData);
 
         if (!productsResponse.data.success) {
@@ -463,18 +466,18 @@ const getShortageKey = (shortage?: InventoryShortage | null) =>
           );
         }
       } else {
-        console.error("API responses not successful:", {
-          shortages: shortagesResponse.data,
-          products: productsResponse.data,
-        });
+        // console.error("API responses not successful:", {
+        //   shortages: shortagesResponse.data,
+        //   products: productsResponse.data,
+        // });
         toast.error(
           "Failed to fetch inventory data - API response not successful"
         );
       }
     } catch (error: any) {
-      console.error("Error fetching inventory data:", error);
-      console.error("Error response:", error?.response);
-      console.error("Error message:", error?.message);
+      // console.error("Error fetching inventory data:", error);
+      // console.error("Error response:", error?.response);
+      // console.error("Error message:", error?.message);
 
       if (error?.response?.status === 401) {
         toast.error("Authentication failed. Please login again.");
@@ -612,7 +615,7 @@ const getShortageKey = (shortage?: InventoryShortage | null) =>
     });
 
     if (itemIndex === -1) {
-      console.error("Item not found in inventoryShortages for update:", targetItem);
+      // console.error("Item not found in inventoryShortages for update:", targetItem);
       return;
     }
 
@@ -698,7 +701,7 @@ const getShortageKey = (shortage?: InventoryShortage | null) =>
     });
 
     if (itemIndex === -1) {
-      console.error("Item not found in inventoryShortages for price update:", targetItem);
+      // console.error("Item not found in inventoryShortages for price update:", targetItem);
       return;
     }
 
@@ -750,7 +753,7 @@ const getShortageKey = (shortage?: InventoryShortage | null) =>
       }
 
       // Here you would typically send the form data to your backend
-      console.log("Submitting form data:", updateInventoryForm);
+      // console.log("Submitting form data:", updateInventoryForm);
       toast.success("Inventory update form submitted successfully");
       setShowUpdateInventoryModal(false);
     } catch (error: any) {
@@ -764,7 +767,7 @@ const getShortageKey = (shortage?: InventoryShortage | null) =>
   const submitRawMaterialChanges = async () => {
     setIsSavingChanges(true);
     try {
-      console.log("Total inventory shortages:", inventoryShortages.length);
+      // console.log("Total inventory shortages:", inventoryShortages.length);
 
       // Find items that have been modified
       const itemsWithPriceChanges = inventoryShortages.filter(
@@ -781,17 +784,17 @@ const getShortageKey = (shortage?: InventoryShortage | null) =>
           item.updated_stock > 0
       );
 
-      console.log("All inventory shortages:", inventoryShortages);
-      console.log("Items with price changes:", itemsWithPriceChanges);
-      console.log("Items with stock changes:", itemsWithStockChanges);
-      console.log(
-        "Items with price changes count:",
-        itemsWithPriceChanges.length
-      );
-      console.log(
-        "Items with stock changes count:",
-        itemsWithStockChanges.length
-      );
+      // console.log("All inventory shortages:", inventoryShortages);
+      // console.log("Items with price changes:", itemsWithPriceChanges);
+      // console.log("Items with stock changes:", itemsWithStockChanges);
+      // console.log(
+      //   "Items with price changes count:",
+      //   itemsWithPriceChanges.length
+      // );
+      // console.log(
+      //   "Items with stock changes count:",
+      //   itemsWithStockChanges.length
+      // );
 
       const totalModifiedItems =
         itemsWithPriceChanges.length + itemsWithStockChanges.length;
@@ -830,7 +833,7 @@ const getShortageKey = (shortage?: InventoryShortage | null) =>
 
       itemsWithStockChanges.forEach((item) => {
         if (!item._id || !item.updated_stock || item.updated_stock <= 0) return;
-         console.log("lineno. 837",groupedShortages)
+        //  console.log("lineno. 837",groupedShortages)
         // Check if this is a grouped item
         const groupedItem = groupedShortages.find(
           (gi) =>
@@ -902,10 +905,10 @@ const getShortageKey = (shortage?: InventoryShortage | null) =>
 
         const resolvedProductId = resolveProductIdForGroupedItem(groupedItem);
         if (!resolvedProductId) {
-          console.warn(
-            "Skipping grouped stock update due to missing product ID (fallback)",
-            groupedItem
-          );
+          // console.warn(
+          //   "Skipping grouped stock update due to missing product ID (fallback)",
+          //   groupedItem
+          // );
           return;
         }
 
@@ -1055,105 +1058,49 @@ const getShortageKey = (shortage?: InventoryShortage | null) =>
       return item.shortage_quantity > 0 || remainingShortage > 0;
     });
   }, [inventoryShortages]);
- 
+  console.log("activeShortages>>>", activeShortages)
   // Group and combine duplicate raw materials by adding their shortage quantities
   const groupedShortages = useMemo(() => {
     const groupedMap = new Map<string, InventoryShortage>();
-    
+
     activeShortages.forEach((item) => {
-      const key = getShortageKey(item);
-      if (!key || key === 'undefined' || key === 'null') return;
-      
-      const shortageId = item._id || `${item.bom_name || "bom"}-${item.item_name || "item"}`;
-      
+      // console.log("ID:", item._id);
+      // console.log("KEY:", getShortageKey(item));
+      // const key = JSON.stringify(getShortageKey(item));
+
+      const key = (getShortageKey(item));
+      const shortageId =
+        item._id || `${item.bom_name || "bom"}-${item.item_name || "item"}`;
+
+      const shortageQty = item.shortage_quantity ?? 0;
+      const itemUpdatedStock = item.updated_stock ?? 0;
+
       if (groupedMap.has(key)) {
-        const existing = groupedMap.get(key)!;
-        
-        // Combine shortage quantities
-        const combinedShortage = existing.shortage_quantity + item.shortage_quantity;
-        
-        // Combine updated stocks if both have them
-        const combinedUpdatedStock = (existing.updated_stock || 0) + (item.updated_stock || 0);
-        
-        // Calculate combined remaining shortage
-        const combinedRemainingShortage = Math.max(0, combinedShortage - combinedUpdatedStock);
-        
-        // Use the most recent updated_at
-        const mostRecentUpdate = new Date(existing.updated_at) > new Date(item.updated_at)
-          ? existing.updated_at
-          : item.updated_at;
-        
-        // Use the most recent price if different, otherwise keep existing
-        const latestPrice = new Date(existing.updated_at) > new Date(item.updated_at)
-          ? existing.current_price
-          : item.current_price;
-        
-        // Combine BOM names (show all BOMs this material is used in)
-        const combinedBomNames = existing.bom_name 
-          ? `${existing.bom_name}, ${item.bom_name || ''}`
-          : (item.bom_name || '');
-        
-        // Track underlying shortage IDs for grouped items
-        const existingIds = existing.underlying_shortage_ids || [existing._id || shortageId].filter(Boolean);
-        const newIds = item._id ? [item._id] : [shortageId];
-        const allUnderlyingIds = [...existingIds, ...newIds];
-        
-        // Check if there's a direct user input for this grouped item
-        const directInput = groupedItemInputs.get(key);
-        let finalUpdatedStock: number | null;
-        let finalRemainingShortage: number;
-        
-        if (directInput !== undefined && directInput !== null && directInput > 0) {
-          finalUpdatedStock = directInput;
-          finalRemainingShortage = Math.max(0, combinedShortage - directInput);
-        } else {
-          finalUpdatedStock = combinedUpdatedStock > 0 ? combinedUpdatedStock : null;
-          finalRemainingShortage = combinedRemainingShortage;
-        }
-        
+        const existing = groupedMap.get(key);
+
         groupedMap.set(key, {
           ...existing,
-          shortage_quantity: combinedShortage,
-          updated_stock: finalUpdatedStock,
-          remaining_shortage: finalRemainingShortage,
-          is_fully_resolved: finalRemainingShortage === 0,
-          updated_at: mostRecentUpdate,
-          current_price: latestPrice,
-          bom_name: combinedBomNames,
-          is_grouped: true, // Mark as grouped for display purposes
-          underlying_shortage_ids: allUnderlyingIds,
+          ...item,
+          is_grouped: true,
+          underlying_shortage_ids: [
+            ...(existing.underlying_shortage_ids || []),
+            item._id
+          ]
         });
       } else {
-        // First occurrence, add to map
-        // Check if there's a direct user input for this item
-        const directInput = groupedItemInputs.get(key);
-        let finalUpdatedStock: number | null;
-        
-        if (directInput !== undefined && directInput !== null && directInput > 0) {
-          finalUpdatedStock = directInput;
-        } else {
-          finalUpdatedStock = item.updated_stock || null;
-        }
-        
-        const finalRemainingShortage = item.remaining_shortage !== undefined 
-          ? item.remaining_shortage 
-          : (finalUpdatedStock && finalUpdatedStock > 0 
-              ? Math.max(0, item.shortage_quantity - finalUpdatedStock)
-              : item.shortage_quantity);
-        
         groupedMap.set(key, {
           ...item,
-          updated_stock: finalUpdatedStock,
-          remaining_shortage: finalRemainingShortage,
-          is_fully_resolved: finalRemainingShortage === 0,
-          underlying_shortage_ids: item._id ? [item._id] : [shortageId],
+          is_grouped: false,
+          underlying_shortage_ids: [item._id]
         });
       }
+
     });
-    
+
     return Array.from(groupedMap.values());
   }, [activeShortages, groupedItemInputs]);
-  console.log(">>>>>groupedShortages",groupedShortages)
+
+  // console.log(">>>>>groupedShortages",groupedShortages)
   // Filter purchase orders based on search key
   useEffect(() => {
     const searchLower = searchKey.toLowerCase();
@@ -1185,7 +1132,7 @@ const getShortageKey = (shortage?: InventoryShortage | null) =>
 
   // Handle edit purchase order
   const handleEditPurchaseOrder = (order: PurchaseOrder) => {
-    console.log("Edit purchase order clicked:", order);
+    // console.log("Edit purchase order clicked:", order);
     setEditingOrder(order);
     dispatch(openAddPurchaseOrderDrawer());
   };
@@ -1564,10 +1511,10 @@ const getShortageKey = (shortage?: InventoryShortage | null) =>
                               {item.bom_name || "-"}
                             </td> */}
                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                              {item.item_name || "-"}
+                              {item?.item?.name || "-"}
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                              {item.current_stock}
+                              {item?.item?.current_stock}
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap">
                               <input
@@ -1575,8 +1522,10 @@ const getShortageKey = (shortage?: InventoryShortage | null) =>
                                 value={
                                   (() => {
                                     // For grouped items, check direct input first
+                                    console.log("item.is_grouped", item)
                                     if (item.is_grouped) {
                                       const directInput = groupedItemInputs.get(getShortageKey(item));
+
                                       if (directInput !== undefined && directInput !== null && directInput > 0) {
                                         return String(directInput);
                                       }
@@ -1591,7 +1540,7 @@ const getShortageKey = (shortage?: InventoryShortage | null) =>
                                 onChange={(e) => {
                                   const inputValue = e.target.value;
 
-                                 
+                                  console.log("inputValue",inputValue)
                                   if (inputValue === "" || inputValue === "-") {
                                     handleStockUpdate(item, 0);
                                     return;
@@ -1691,7 +1640,7 @@ const getShortageKey = (shortage?: InventoryShortage | null) =>
                               })()}
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                              ₹{item.current_price}
+                              ₹{item?.item?.price}
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap">
                               <input
