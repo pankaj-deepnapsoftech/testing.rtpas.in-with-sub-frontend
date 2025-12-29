@@ -14,12 +14,18 @@ const SuperAdminDashboard = () => {
   const [showAdminModal, setShowAdminModal] = useState(false);
   const [superAdminProfile, setSuperAdminProfile] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
+  const [EmpByAdmin, setEmpByAdmin] = useState([])
   const [viewMode, setViewMode] = useState("cards");
   const [selectedAdminEmployees, setSelectedAdminEmployees] = useState([]);
   const [showEmployeesModal, setShowEmployeesModal] = useState(false);
   const [loadingEmployees, setLoadingEmployees] = useState(false);
   const navigate = useNavigate();
   const [cookies] = useCookies();
+  const [expandedAdminId, setExpandedAdminId] = useState(null);
+
+  const toggleRow = (id) => {
+    setExpandedAdminId(expandedAdminId === id ? null : id);
+  };
 
   useEffect(() => {
     const fetchDashboardData = async () => {
@@ -66,20 +72,26 @@ const SuperAdminDashboard = () => {
         );
 
         const raw = res.data?.data || [];
-
+        setEmpByAdmin(raw)
         const mappedAdmins = raw.map((u) => ({
           _id: u._id,
           name: `${u.first_name} ${u.last_name}`,
           email: u.email,
           phone: u.phone,
-          role: "Super Admin", // important
+          role: "Super Admin",
           verified: u.isVerified,
           designation: "Super Admin",
           subscriptionPlan: u.subscription?.plan || "Inactive",
+          period: u.subscription?.period || "N/A",
+          startDate: u.subscription?.startDate || null,
+          endDate: u.subscription?.endDate || null,
+          allowedUsers: u.subscription?.allowedUsers || 0,
+          amount: u.subscription?.amount || 0,
+          subscription_count: u.subscription_count - 1 || 0 ,
           createdAt: u.createdAt,
-          
         }));
-       
+
+
 
         setAdmins(mappedAdmins);
         console.log("Super Admins Loaded: ", mappedAdmins);
@@ -102,6 +114,12 @@ const SuperAdminDashboard = () => {
       toast.error(error.message || "Something went wrong");
     }
   };
+  const formatDate = (date) => {
+    if (!date) return "—";
+    const options = { year: 'numeric', month: 'short', day: 'numeric' }; 
+    return new Date(date).toLocaleDateString("en-GB", options); 
+  };
+
 
   // Demo-only Export
   const handleExportAdmins = () => {
@@ -194,6 +212,13 @@ const SuperAdminDashboard = () => {
       </div>
     );
   }
+  const getEmployeesOfAdmin = (adminId) => {
+    console.log(adminId)
+    return EmpByAdmin.find((a) => a?._id === adminId) || [];
+  };
+
+
+  console.log("currentAdmins", EmpByAdmin)
 
   return (
     <div className="p-3 sm:p-6 bg-gray-50 min-h-screen overflow-x-hidden">
@@ -284,21 +309,19 @@ const SuperAdminDashboard = () => {
           <div className="bg-white rounded-lg shadow p-1 flex">
             <button
               onClick={() => setViewMode("cards")}
-              className={`px-6 py-2 rounded-md font-medium ${
-                viewMode === "cards"
-                  ? "bg-blue-600 text-white"
-                  : "text-gray-700"
-              }`}
+              className={`px-6 py-2 rounded-md font-medium ${viewMode === "cards"
+                ? "bg-blue-600 text-white"
+                : "text-gray-700"
+                }`}
             >
               Cards View
             </button>
             <button
               onClick={() => setViewMode("table")}
-              className={`px-6 py-2 rounded-md font-medium ${
-                viewMode === "table"
-                  ? "bg-blue-600 text-white"
-                  : "text-gray-700"
-              }`}
+              className={`px-6 py-2 rounded-md font-medium ${viewMode === "table"
+                ? "bg-blue-600 text-white"
+                : "text-gray-700"
+                }`}
             >
               Table View
             </button>
@@ -316,7 +339,7 @@ const SuperAdminDashboard = () => {
                   <div
                     key={admin._id}
                     className="bg-gradient-to-br from-blue-50 to-indigo-100 rounded-xl p-6 shadow hover:shadow-xl transition cursor-pointer border border-blue-200"
-                    // onClick={() => fetchEmployeesByAdmin(admin._id)}
+                  // onClick={() => fetchEmployeesByAdmin(admin._id)}
                   >
                     <div className="text-center">
                       <div className="w-20 h-20 bg-blue-600 rounded-full mx-auto mb-4 flex items-center justify-center text-white text-3xl font-bold">
@@ -336,7 +359,7 @@ const SuperAdminDashboard = () => {
                             admin.verified
                               ? "bg-green-100 text-green-800"
                               : "bg-yellow-100 text-yellow-800" +
-                                " text-xs px-3 py-1 rounded-full"
+                              " text-xs px-3 py-1 rounded-full"
                           }
                         >
                           {admin.verified ? "Verified" : "Pending"}
@@ -366,74 +389,105 @@ const SuperAdminDashboard = () => {
             </h2>
 
             {/* Table */}
-            <div className="overflow-x-auto rounded-lg border border-gray-200">
-              <table className="min-w-full bg-white text-sm">
+            <div className="overflow-x-auto rounded-xl border border-gray-200 shadow-sm">
+              <table className="min-w-full bg-white text-sm whitespace-nowrap">
                 <thead>
-                  <tr className="bg-gray-50 border-b border-gray-200 text-gray-600 text-xs md:text-sm">
-                    <th className="px-3 py-2 text-left font-semibold">Name</th>
-                    <th className="px-3 py-2 text-left font-semibold">Email</th>
-                    <th className="px-3 py-2 text-left font-semibold">Phone</th>
-                    <th className="px-3 py-2 text-left font-semibold">
-                      Verified
-                    </th>
-                    <th className="px-3 py-2 text-left font-semibold">
-                      Subscription
-                    </th>
-                    <th className="px-3 py-2 text-left font-semibold">
-                      Created At
-                    </th>
+                  <tr className="bg-gray-100 border-b border-gray-300 text-gray-700 text-xs md:text-sm uppercase tracking-wide">
+                    <th className="px-4 py-3 text-left font-semibold">Name</th>
+                    <th className="px-4 py-3 text-left font-semibold">Email</th>
+                    <th className="px-4 py-3 text-left font-semibold">Phone</th>
+                    <th className="px-4 py-3 text-left font-semibold">Verified</th>
+                    <th className="px-4 py-3 text-left font-semibold">Subscription</th>
+                    <th className="px-4 py-3 text-left font-semibold">Period</th>
+                    <th className="px-4 py-3 text-left font-semibold">Start Date</th>
+                    <th className="px-4 py-3 text-left font-semibold">End Date</th>
+                    <th className="px-4 py-3 text-left font-semibold">Allowed User</th>
+                    <th className="px-4 py-3 text-left font-semibold">Number of Times Subscribed</th>
+                    <th className="px-4 py-3 text-left font-semibold">Amount</th>
+                    <th className="px-4 py-3 text-left font-semibold">Created At</th>
                   </tr>
                 </thead>
 
-                <tbody className="text-gray-700 text-xs md:text-sm">
+                <tbody className="text-gray-700 text-xs md:text-sm whitespace-nowrap">
                   {currentAdmins.length === 0 ? (
                     <tr>
-                      <td
-                        colSpan="6"
-                        className="text-center py-6 text-gray-500 text-sm"
-                      >
+                      <td colSpan="6" className="text-center py-8 text-gray-500">
                         No Admins Found
                       </td>
                     </tr>
                   ) : (
                     currentAdmins.map((admin, index) => (
-                      <tr
-                        key={admin._id}
-                        className={`border-b transition-all ${
-                          index % 2 === 0 ? "bg-white" : "bg-gray-50"
-                        } hover:bg-blue-50 cursor-pointer`}
-                      >
-                        <td className="px-3 py-2 font-medium">{admin.name}</td>
-                        <td className="px-3 py-2">{admin.email}</td>
-                        <td className="px-3 py-2">{admin.phone}</td>
+                      <React.Fragment key={admin._id}>
+                        {/* ADMIN ROW */}
+                        <tr
+                          onClick={() => toggleRow(admin._id)}
+                          className={`border-b transition-all duration-200 ${index % 2 === 0 ? "bg-white" : "bg-gray-50"
+                            } hover:bg-blue-50 cursor-pointer`}
+                        >
+                          <td className="px-4 py-3 font-semibold text-gray-900">
+                            {admin.name}
+                          </td>
+                          <td className="px-4 py-3 text-gray-600">{admin.email}</td>
+                          <td className="px-4 py-3">{admin.phone}</td>
 
-                        <td className="px-3 py-2">
-                          <span
-                            className={`px-2 py-0.5 rounded-full text-[10px] md:text-xs font-semibold ${
-                              admin.verified
+                          <td className="px-4 py-3">
+                            <span
+                              className={`px-3 py-1 rounded-full text-[11px] font-semibold ${admin.verified
                                 ? "bg-green-100 text-green-700 border border-green-200"
                                 : "bg-yellow-100 text-yellow-700 border border-yellow-200"
-                            }`}
-                          >
-                            {admin.verified ? "Verified" : "Pending"}
-                          </span>
-                        </td>
+                                }`}
+                            >
+                              {admin.verified ? "Verified" : "Pending"}
+                            </span>
+                          </td>
+                          <td className="px-4 py-3">
+                            <span className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-[11px] font-semibold border border-blue-200">
+                              {admin.subscriptionPlan || "N/A"}
+                            </span>
+                          </td>
 
-                        <td className="px-3 py-2">
-                          <span className="px-2 py-0.5 bg-blue-100 text-blue-700 rounded-full text-[10px] md:text-xs border border-blue-200">
-                            {admin.subscriptionPlan || "N/A"}
-                          </span>
-                        </td>
+                          <td className="px-4 py-3">
+                            <span className="px-3 py-1 capitalize bg-blue-100 text-blue-700 rounded-full text-[11px] font-semibold border border-blue-200">
+                              {admin.period || "N/A"}
+                            </span>
+                          </td>
+                          <td className="px-4 py-3">
+                            {formatDate(admin.startDate)}
+                          </td>
 
-                        <td className="px-3 py-2">
-                          {admin.createdAt?.slice(0, 10)}
-                        </td>
-                      </tr>
+                          <td className="px-4 py-3">
+                            {formatDate(admin.endDate)}
+                          </td>
+                          <td className="px-4 py-3 text-center">
+                            {admin?.allowedUsers}
+                          </td>
+                          <td className="px-4 py-3 text-center">
+                            {admin?.subscription_count}
+                          </td>
+                          <td className="px-4 py-3 text-center">
+                            <span className={`font-semibold ${admin?.amount / 100 > 0 ? 'text-green-600' : 'text-red-600'}`}>
+                              ₹{(admin?.amount / 100).toFixed(2)}
+                            </span>
+                          </td>
+
+                          <td className="px-4 py-3 text-gray-600">
+                            {formatDate(admin.createdAt)}
+                          </td>
+
+                        </tr>
+
+
+                      </React.Fragment>
                     ))
                   )}
                 </tbody>
               </table>
             </div>
+
+
+
+
+
 
             {/* Pagination */}
             <div className="flex flex-col sm:flex-row justify-between items-center gap-3 mt-5">
@@ -451,11 +505,10 @@ const SuperAdminDashboard = () => {
                 <button
                   onClick={handlePreviousPage}
                   disabled={currentPage === 1}
-                  className={`px-3 py-1.5 rounded-md text-xs md:text-sm font-medium transition ${
-                    currentPage === 1
-                      ? "bg-gray-200 text-gray-400 cursor-not-allowed"
-                      : "bg-white border hover:bg-gray-100"
-                  }`}
+                  className={`px-3 py-1.5 rounded-md text-xs md:text-sm font-medium transition ${currentPage === 1
+                    ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+                    : "bg-white border hover:bg-gray-100"
+                    }`}
                 >
                   Previous
                 </button>
@@ -463,11 +516,10 @@ const SuperAdminDashboard = () => {
                 <button
                   onClick={handleNextPage}
                   disabled={currentPage === totalPages}
-                  className={`px-3 py-1.5 rounded-md text-xs md:text-sm font-medium transition ${
-                    currentPage === totalPages
-                      ? "bg-gray-200 text-gray-400 cursor-not-allowed"
-                      : "bg-white border hover:bg-gray-100"
-                  }`}
+                  className={`px-3 py-1.5 rounded-md text-xs md:text-sm font-medium transition ${currentPage === totalPages
+                    ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+                    : "bg-white border hover:bg-gray-100"
+                    }`}
                 >
                   Next
                 </button>
@@ -516,7 +568,7 @@ const SuperAdminDashboard = () => {
                             emp.verified
                               ? "bg-green-100 text-green-800"
                               : "bg-yellow-100 text-yellow-800" +
-                                " px-3 py-1 rounded-full text-xs"
+                              " px-3 py-1 rounded-full text-xs"
                           }
                         >
                           {emp.verified ? "Verified" : "Pending"}
