@@ -390,7 +390,7 @@ const AddInvoice: React.FC<AddInvoiceProps> = ({
                   className="block text-sm font-medium mb-2"
                   style={{ color: colors.text.primary }}
                 >
-                  Consignee Name (Buyer) *
+                  Consignee Name (Buyer)<span className="text-red-500">*</span>
                 </label>
                 <select
                   name="consigneeShipTo"
@@ -468,7 +468,7 @@ const AddInvoice: React.FC<AddInvoiceProps> = ({
                   className="block text-sm font-medium mb-2"
                   style={{ color: colors.text.primary }}
                 >
-                  Address *
+                  Address<span className="text-red-500">*</span>
                 </label>
                 <input
                   name="address"
@@ -589,7 +589,7 @@ const AddInvoice: React.FC<AddInvoiceProps> = ({
                   className="block text-sm font-medium mb-2"
                   style={{ color: colors.text.primary }}
                 >
-                  Address *
+                  Address<span className="text-red-500">*</span>
                 </label>
                 <input
                   name="billerAddress"
@@ -734,7 +734,7 @@ const AddInvoice: React.FC<AddInvoiceProps> = ({
                   className="block text-sm font-medium mb-2"
                   style={{ color: colors.text.primary }}
                 >
-                  Mode/Terms of Payment *
+                  Mode/Terms of Payment<span className="text-red-500">*</span>
                 </label>
                 <select
                   name="modeTermsOfPayment"
@@ -818,7 +818,7 @@ const AddInvoice: React.FC<AddInvoiceProps> = ({
                   className="block text-sm font-medium mb-2"
                   style={{ color: colors.text.primary }}
                 >
-                  Buyer's Order No *
+                  Buyer's Order No<span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
@@ -851,7 +851,7 @@ const AddInvoice: React.FC<AddInvoiceProps> = ({
                   className="block text-sm font-medium mb-2"
                   style={{ color: colors.text.primary }}
                 >
-                  Date *
+                  Date<span className="text-red-500">*</span>
                 </label>
                 <input
                   type="date"
@@ -904,7 +904,7 @@ const AddInvoice: React.FC<AddInvoiceProps> = ({
                   className="block text-sm font-medium mb-2"
                   style={{ color: colors.text.primary }}
                 >
-                  Delivery Note Date *
+                  Delivery Note Date<span className="text-red-500">*</span>
                 </label>
                 <input
                   type="date"

@@ -251,7 +251,7 @@ const AddNewSale = ({ show, setShow, fetchPurchases, editTable }) => {
               <div className="space-y-2">
                 <label className="flex items-center gap-2 text-sm font-medium text-gray-700">
                   <Users className="h-4 w-4 text-gray-500" />
-                  Merchant *
+                  Merchant<span className="text-red-500">*</span>
                 </label>
                 <select
                   required
@@ -282,7 +282,7 @@ const AddNewSale = ({ show, setShow, fetchPurchases, editTable }) => {
               <div className="space-y-2">
                 <label className="flex items-center gap-2 text-sm font-medium text-gray-700">
                   <Package className="h-4 w-4 text-gray-500" />
-                  Product *
+                  Product<span className="text-red-500">*</span>
                 </label>
                 <select
                   required
@@ -422,7 +422,7 @@ const AddNewSale = ({ show, setShow, fetchPurchases, editTable }) => {
               <div className="space-y-2">
                 <label className="flex items-center gap-2 text-sm font-medium text-gray-700">
                   <IndianRupee className="h-4 w-4 text-gray-500" />
-                  Price *
+                  Price<span className="text-red-500">*</span>
                 </label>
                 <input
                   type="number"
@@ -442,7 +442,7 @@ const AddNewSale = ({ show, setShow, fetchPurchases, editTable }) => {
               <div className="space-y-2">
                 <label className="flex items-center gap-2 text-sm font-medium text-gray-700">
                   <Hash className="h-4 w-4 text-gray-500" />
-                  Quantity *
+                  Quantity<span className="text-red-500">*</span>
                 </label>
                 <input
                   type="number"
@@ -463,7 +463,7 @@ const AddNewSale = ({ show, setShow, fetchPurchases, editTable }) => {
               <div className="space-y-3">
                 <label className="flex items-center gap-2 text-sm font-medium text-gray-700">
                   <Calculator className="h-4 w-4 text-gray-500" />
-                  GST Rate *
+                  GST Rate<span className="text-red-500">*</span>
                 </label>
                 <div className="grid grid-cols-3 gap-3">
                   {[18, 12, 5].map((rate) => (
@@ -497,7 +497,7 @@ const AddNewSale = ({ show, setShow, fetchPurchases, editTable }) => {
               <div className="space-y-2">
                 <label className="flex items-center gap-2 text-sm font-medium text-gray-700">
                   <MessageSquare className="h-4 w-4 text-gray-500" />
-                  Mode of Payment *
+                  Mode of Payment<span className="text-red-500">*</span>
                 </label>
                 <select
                   name="mode_of_payment"

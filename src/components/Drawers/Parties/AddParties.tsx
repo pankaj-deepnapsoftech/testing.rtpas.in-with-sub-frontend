@@ -219,7 +219,7 @@ const AddParties = ({
                   <div className="space-y-2">
                     <label className="flex items-center gap-2 text-sm font-medium text-gray-700">
                       <User className="h-4 w-4 text-gray-500" />
-                      Type *
+                      Type<span className="text-red-500">*</span>
                     </label>
                     <select
                       name="type"
@@ -251,7 +251,7 @@ const AddParties = ({
                   <div className="space-y-2">
                     <label className="flex items-center gap-2 text-sm font-medium text-gray-700">
                       <Users className="h-4 w-4 text-gray-500" />
-                      Merchant Type *
+                      Merchant Type<span className="text-red-500">*</span>
                     </label>
                     <select
                       name="parties_type"
@@ -276,7 +276,7 @@ const AddParties = ({
                     <div className="space-y-2 md:col-span-2">
                       <label className="flex items-center gap-2 text-sm font-medium text-gray-700">
                         <Building2 className="h-4 w-4 text-gray-500" />
-                        Company Name *
+                        Company Name<span className="text-red-500">*</span>
                       </label>
                       <input
                         type="text"
@@ -345,7 +345,7 @@ const AddParties = ({
                   <div className="space-y-2">
                     <label className="flex items-center gap-2 text-sm font-medium text-gray-700">
                       <MapPin className="h-4 w-4 text-gray-500" />
-                      Shipped To
+                      Shipped To<span className="text-red-500">*</span>
                     </label>
                     <input
                       type="text"
@@ -366,7 +366,7 @@ const AddParties = ({
                     <div className="space-y-2">
                       <label className="flex items-center gap-2 text-sm font-medium text-gray-700">
                         <MapPin className="h-4 w-4 text-gray-500" />
-                        Shipped GSTIN
+                        Shipped GSTIN<span className="text-red-500">*</span>
                       </label>
                       <input
                         type="text"
@@ -398,7 +398,7 @@ const AddParties = ({
                     <div className="flex justify-between items-center">
                       <label className="flex items-center gap-2 text-sm font-medium text-gray-700">
                         <FileText className="h-4 w-4 text-gray-500" />
-                        Bill To
+                        Bill To<span className="text-red-500">*</span>
                       </label>
                       <div className="flex items-center gap-2">
                         <input
@@ -453,7 +453,7 @@ const AddParties = ({
                     <div className="space-y-2">
                       <label className="flex items-center gap-2 text-sm font-medium text-gray-700">
                         <FileText className="h-4 w-4 text-gray-500" />
-                        Bill GSTIN
+                        Bill GSTIN<span className="text-red-500">*</span>
                       </label>
                       <input
                         type="text"
