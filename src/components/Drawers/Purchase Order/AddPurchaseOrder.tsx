@@ -777,7 +777,7 @@ const AddPurchaseOrder: React.FC<AddPurchaseOrderProps> = ({
                         fontWeight="medium"
                       >
                         <BiCalendar size={16} />
-                        Order Date *
+                        Order Date<span className="text-red-500">*</span>
                       </FormLabel>
                       <Input
                         type="date"
@@ -811,7 +811,7 @@ const AddPurchaseOrder: React.FC<AddPurchaseOrderProps> = ({
                         fontWeight="medium"
                       >
                         <BiUser size={16} />
-                        Supplier Name *
+                        Supplier Name<span className="text-red-500">*</span>
                       </FormLabel>
                       <Select
                         placeholder={
@@ -881,7 +881,7 @@ const AddPurchaseOrder: React.FC<AddPurchaseOrderProps> = ({
                         fontWeight="medium"
                       >
                         <Users size={16} />
-                        Supplier Type *
+                        Supplier Type<span className="text-red-500">*</span>
                       </FormLabel>
                       <Select
                         placeholder="Select Supplier Type"
@@ -954,7 +954,7 @@ const AddPurchaseOrder: React.FC<AddPurchaseOrderProps> = ({
                                   formik.errors.items?.[index]?.itemName
                                 }
                               >
-                                <FormLabel>Item Name *</FormLabel>
+                                <FormLabel>Item Name<span className="text-red-500">*</span></FormLabel>
                                 <Select
                                   placeholder="Select Item"
                                   value={item.itemName}
@@ -1003,7 +1003,7 @@ const AddPurchaseOrder: React.FC<AddPurchaseOrderProps> = ({
                                   formik.errors.items?.[index]?.quantity
                                 }
                               >
-                                <FormLabel>Quantity *</FormLabel>
+                                <FormLabel>Quantity<span className="text-red-500">*</span></FormLabel>
                                 <Input
                                   type="number"
                                   value={item.quantity}
@@ -1139,7 +1139,7 @@ const AddPurchaseOrder: React.FC<AddPurchaseOrderProps> = ({
                         fontWeight="medium"
                       >
                         <MapPin size={16} />
-                        Shipped To *
+                        Shipped To<span className="text-red-500">*</span>
                       </FormLabel>
                       <Input
                         name="supplierShippedTo"
@@ -1263,7 +1263,7 @@ const AddPurchaseOrder: React.FC<AddPurchaseOrderProps> = ({
                         fontWeight="medium"
                       >
                         <MapPin size={16} />
-                        Bill To *
+                        Bill To<span className="text-red-500">*</span>
                       </FormLabel>
                       <Input
                         name="supplierBillTo"
@@ -1360,7 +1360,7 @@ const AddPurchaseOrder: React.FC<AddPurchaseOrderProps> = ({
                         fontSize="sm"
                         fontWeight="medium"
                       >
-                        GST Applicable *
+                        GST Applicable<span className="text-red-500">*</span>
                       </FormLabel>
                       <Select
                         name="GSTApply"
@@ -1394,7 +1394,7 @@ const AddPurchaseOrder: React.FC<AddPurchaseOrderProps> = ({
                         fontSize="sm"
                         fontWeight="medium"
                       >
-                        Mode of Payment *
+                        Mode of Payment<span className="text-red-500">*</span>
                       </FormLabel>
                       <Select
                         name="modeOfPayment"

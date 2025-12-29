@@ -277,7 +277,7 @@ const Buyers: React.FC = () => {
               >
                 <MdOutlineRefresh size="20px" />
                 Refresh
-              </button>
+                </button>
 
               <button
                 onClick={() => setShowBulkUploadMenu(true)}

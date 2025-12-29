@@ -158,7 +158,7 @@ const AddResource = ({
         resetForm();
         closeDrawerHandler();
       } catch (error) {
-        toast.error("Failed to create/update resource");
+        toast.error(error.response.data.message || "Failed to create/update resource");
       } finally {
         setIsSubmitting(false);
       }
