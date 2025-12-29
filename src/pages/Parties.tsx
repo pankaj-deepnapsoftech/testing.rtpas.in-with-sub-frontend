@@ -295,7 +295,7 @@ const Parties = () => {
                   backgroundColor: colors.background.card,
                 }}
                 onMouseEnter={(e) =>
-                  (e.currentTarget.style.backgroundColor = colors.gray[50])
+                  (e.currentTarget.style.backgroundColor = colors.gray[100])
                 }
                 onMouseLeave={(e) =>
                   (e.currentTarget.style.backgroundColor =

@@ -337,23 +337,25 @@ const Dispatch = () => {
 
 
   useEffect(() => {
-    GetDispatch();
+    setTimeout(()=>{
+      GetDispatch();
+    },500)
   }, [page, productFilter, paymentFilter, searchTerm]);
 
 
 
-  if (isLoading) {
-    return (
-      <div
-        className="min-h-screen"
-        style={{ backgroundColor: colors.background.page }}
-      >
-        <div className="p-2 lg:p-3">
-          <Loading />
-        </div>
-      </div>
-    );
-  }
+  // if () {
+  //   return (
+  //     <div
+  //       className="min-h-screen"
+  //       style={{ backgroundColor: colors.background.page }}
+  //     >
+  //       <div className="p-2 lg:p-3">
+          
+  //       </div>
+  //     </div>
+  //   );
+  // }
 
   // if (!data || data.length === 0) {
   //   return (
@@ -795,7 +797,7 @@ const Dispatch = () => {
             <div className="space-y-6">
               {!data || data.length === 0 ? (
                 <EmptyData />
-              ) : (
+              ) :  isLoading ? <Loading /> : (
                 data?.map((dispatch: any) => (
                   <div
                     key={dispatch?._id}
