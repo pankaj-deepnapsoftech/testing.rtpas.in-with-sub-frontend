@@ -290,7 +290,7 @@ const AddDispatch: React.FC<AddDispatchProps> = ({
                   className="block text-sm font-medium mb-2"
                   style={{ color: colors.text.primary }}
                 >
-                  Sales Order *
+                  Sales Order<span className="text-red-500">*</span>
                 </label>
                 <select
                   name="sales_order_id"
@@ -539,7 +539,7 @@ const AddDispatch: React.FC<AddDispatchProps> = ({
                   className="block text-sm font-medium mb-2"
                   style={{ color: colors.text.primary }}
                 >
-                  Dispatch Quantity *
+                  Dispatch Quantity<span className="text-red-500">*</span>
                 </label>
 
                 {/* Order Quantity Information */}

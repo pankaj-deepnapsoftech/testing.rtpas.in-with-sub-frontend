@@ -119,9 +119,9 @@ const AddStore: React.FC<AddStoreProps> = ({
                 placeholder="Product Name"
               />
             </FormControl>
-            <FormControl className="mt-3 mb-5">
+            <FormControl className="mt-3 mb-5" isRequired>
               <FormLabel fontWeight="bold" color="black">
-                GST Number *
+                GST Number
               </FormLabel>
               <Input
                 className="text-gray-800"
