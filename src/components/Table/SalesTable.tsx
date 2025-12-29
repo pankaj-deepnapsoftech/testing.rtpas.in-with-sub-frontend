@@ -606,7 +606,9 @@ const SalesTable = ({
                             : "bg-yellow-100 text-yellow-800"
                         }`}
                       >
-                        {purchase.approved ? "✓ Approved" : "⏳ Pending Approval"}
+                        {purchase.approved
+                          ? "✓ Approved"
+                          : "⏳ Pending Approval"}
                       </span>
                     )}
                   </div>
@@ -645,7 +647,6 @@ const SalesTable = ({
                     <FaEdit size="16px" />
                     Edit
                   </button>
-
                   <button
                     className="inline-flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors"
                     style={{
@@ -661,15 +662,18 @@ const SalesTable = ({
                         colors.button.primaryHover;
                     }}
                     onMouseLeave={(e) => {
-                      e.currentTarget.style.backgroundColor = colors.button.primary;
+                      e.currentTarget.style.backgroundColor =
+                        colors.button.primary;
                     }}
                   >
                     <FaUserPlus size="16px" />
                     Assign
                   </button>
-
+                  {console.log(purchase)}
                   <PDFDownloadLink
-                    document={<SalesOrderPDF sale={purchase} userData={userData} />}
+                    document={
+                      <SalesOrderPDF sale={purchase} userData={userData} />
+                    }
                     fileName={`SalesOrder_${purchase.order_id}.pdf`}
                   >
                     {({ loading }) =>
@@ -699,9 +703,10 @@ const SalesTable = ({
                       className="ml-2 text-sm"
                       style={{ color: colors.text.primary }}
                     >
-                      {purchase?.party?.consignee_name[0] || purchase?.party?.company_name }      
+                      {purchase?.party?.consignee_name[0] ||
+                        purchase?.party?.company_name}
                     </span>
-                  </div>   
+                  </div>
                   <div>
                     <span
                       className="text-sm font-medium"
@@ -845,7 +850,6 @@ const SalesTable = ({
                   {purchase?.terms_of_delivery || purchase?.comment || "N/A"}
                 </Textarea>
               </div>
-              
 
               {/* Action Buttons */}
               {/* <div
@@ -1187,8 +1191,10 @@ const SalesTable = ({
               </div> */}
 
               {/* Action Buttons for Status Management */}
-              <div className="flex flex-wrap gap-3 pt-4 mt-3 border-t" style={{ borderColor: colors.border.light }}>
-                
+              <div
+                className="flex flex-wrap gap-3 pt-4 mt-3 border-t"
+                style={{ borderColor: colors.border.light }}
+              >
                 {/* Create BOM Button - Commented out */}
                 {/* {salesOrderStatuses[purchase._id]?.canCreateBOM && (
                   <button

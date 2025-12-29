@@ -201,6 +201,9 @@ const styles = StyleSheet.create({
   },
   termsWritingSpace: {
     marginTop: 10,
+    color: "#333",
+    fontSize: 12,
+    fontWeight: "bold",
   },
   blankLine: {
     fontSize: 10,
@@ -232,10 +235,16 @@ const toWords = new ToWords({
 
 const SalesOrderPDF = ({ sale, userData }: any) => {
   const safeSale = sale || {};
-  const subtotal = Number(safeSale.price || 0) * Number(safeSale.product_qty || 0);
+  const subtotal =
+    Number(safeSale.price || 0) * Number(safeSale.product_qty || 0);
   const gstAmount = (subtotal * Number(safeSale.GST || 0)) / 100;
   const total = subtotal + gstAmount;
   const safeUser = userData || {};
+
+  console.log("",sale);
+
+  
+
   return (
     <Document>
       <Page size="A4" style={styles.page}>
@@ -265,7 +274,9 @@ const SalesOrderPDF = ({ sale, userData }: any) => {
           <View style={styles.headerRow}>
             <View style={styles.companySection}>
               <Text style={styles.sectionLabel}>Company Name</Text>
-              <Text style={styles.sectionValue}>{safeUser?.cpny_name || ""}</Text>
+              <Text style={styles.sectionValue}>
+                {safeUser?.cpny_name || ""}
+              </Text>
             </View>
             <View style={styles.paymentSection}>
               <Text style={styles.sectionLabel}>Mode of Payment</Text>
@@ -280,7 +291,9 @@ const SalesOrderPDF = ({ sale, userData }: any) => {
             <View style={styles.dateSection}>
               <Text style={styles.sectionLabel}>Date</Text>
               <Text style={styles.sectionValue}>
-                {safeSale.createdAt ? new Date(safeSale.createdAt).toLocaleDateString() : ""}
+                {safeSale.createdAt
+                  ? new Date(safeSale.createdAt).toLocaleDateString()
+                  : ""}
               </Text>
             </View>
           </View>
@@ -344,8 +357,10 @@ const SalesOrderPDF = ({ sale, userData }: any) => {
           <View style={styles.bankDetailsAboveSignature}>
             <Text style={styles.bankLabel}>Company Bank Details:</Text>
             <Text style={styles.bankDetails}>
-              Bank Name: {safeUser?.Bank_Name || "N/A"}{"\n"}
-              Account No.: {safeUser?.Account_No || "N/A"}{"\n"}
+              Bank Name: {safeUser?.Bank_Name || "N/A"}
+              {"\n"}
+              Account No.: {safeUser?.Account_No || "N/A"}
+              {"\n"}
               IFSC Code: {safeUser?.IFSC_Code || "N/A"}
             </Text>
           </View>
@@ -359,13 +374,9 @@ const SalesOrderPDF = ({ sale, userData }: any) => {
 
         <View style={styles.termsOfDeliverySection}>
           <Text style={styles.termsOfDeliveryLabel}>Terms of Delivery:</Text>
-          <View style={styles.termsWritingSpace}>
-            {[...Array(6)].map((_, i) => (
-              <Text key={i} style={styles.blankLine}>
-                _________________________________________________________________
-              </Text>
-            ))}
-          </View>
+          <Text style={styles.termsWritingSpace}>
+            {safeSale?.terms_of_delivery || "N/A"}
+          </Text>
         </View>
       </Page>
     </Document>
