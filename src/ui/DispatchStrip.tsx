@@ -75,7 +75,6 @@ const PartyStrip: React.FC<{ setDispatchData: (data: Shipment) => void, setShowA
         }
     }, [filtering, page])
 
- console.log(">>",shipmentsData)
 
     return (
         <main className="px-6 py-8 bg-slate-50">
@@ -156,7 +155,7 @@ const PartyStrip: React.FC<{ setDispatchData: (data: Shipment) => void, setShowA
                             </div>
                         </div>
                     ))}
-                </div> : <div className="flex flex-col items-center justify-center min-h-96 bg-white rounded-xl border border-slate-200 p-8">
+                </div> : <div className="flex flex-col items-center justify-center min-h-[1vh] bg-white rounded-xl border border-slate-200 p-8">
                     <div className="text-6xl mb-4">📦</div>
                     <h2 className="text-2xl font-bold text-slate-900 mb-2">
                         No Orders Dispatched
