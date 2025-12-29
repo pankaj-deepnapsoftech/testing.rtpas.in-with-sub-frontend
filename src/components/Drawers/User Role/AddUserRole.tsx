@@ -28,7 +28,7 @@ const AddUserRole: React.FC<AddUserRoleProps> = ({
   const permissionOptions = [
     { value: "inventory", label: "Inventory" },
     // { value: "direct", label: "Direct" },
-    { value: "store", label: "Store" },
+    // { value: "store", label: "Store" },
     { value: "approval", label: "Control Panel" },
     { value: "production", label: "Production" },
     { value: "sales", label: "Sales" },
