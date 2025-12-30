@@ -452,8 +452,10 @@ const PorformaInvoicePDF = ({ proformaInvoice, userData }: any) => {
           <View style={styles.bankDetailsSection}>
             <Text style={styles.sectionLabel}>Bank Details</Text>
             <Text style={styles.sectionValue}>
-              Bank Name: {userData?.Bank_Name}{"\n"}
-              Account No.: {userData?.Account_No}{"\n"}
+              Bank Name: {userData?.Bank_Name}
+              {"\n"}
+              Account No.: {userData?.Account_No}
+              {"\n"}
               IFSC Code: {userData?.IFSC_Code}
             </Text>
           </View>
@@ -468,13 +470,7 @@ const PorformaInvoicePDF = ({ proformaInvoice, userData }: any) => {
           <Text style={styles.additionalInfoDetailLabel}>
             Additional Information:
           </Text>
-          <View style={styles.additionalInfoWritingSpace}>
-            {[...Array(6)].map((_, i) => (
-              <Text key={i} style={styles.blankLine}>
-                _________________________________________________________________
-              </Text>
-            ))}
-          </View>
+          <Text style={styles.sectionValue}>{proformaInvoice.note}</Text>
         </View>
       </Page>
     </Document>
