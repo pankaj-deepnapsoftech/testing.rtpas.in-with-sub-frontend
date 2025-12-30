@@ -28,7 +28,7 @@ const Layout: React.FC = () => {
       if (!data.success) {
         throw new Error(data.message);
       }
-      sessionStorage.setItem("Auth-data",JSON.stringify(data.user))
+      localStorage.setItem("Auth-data", JSON.stringify(data.user))
       setCookie("access_token", data.token, { maxAge: 86400 });
       dispatch(userExists(data.user));
     } catch (err: any) {
@@ -44,7 +44,7 @@ const Layout: React.FC = () => {
       loginWithTokenHandler(cookies?.access_token);
     }
   }, []);
-     
+
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="flex h-screen">
@@ -62,7 +62,7 @@ const Layout: React.FC = () => {
         <div className="flex-1 flex flex-col overflow-hidden">
           {/* Header */}
           <Header />
-          
+
           {/* Page Content */}
           <div className="flex-1 overflow-auto">
             <Container>

@@ -1,7 +1,7 @@
 import { BiLockAlt, BiUser } from "react-icons/bi";
 import { FaStarOfLife } from "react-icons/fa";
 import { IoEyeOffOutline, IoEyeOutline } from "react-icons/io5";
-import {  useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useLoginMutation } from "../../redux/api/api";
 import { toast } from "react-toastify";
 import { useDispatch } from "react-redux";
@@ -64,9 +64,9 @@ const LoginComponent: React.FC<LoginComponentProps> = ({
         });
       }
 
-      sessionStorage.setItem("Auth-data",JSON.stringify(data.user))
+      localStorage.setItem("Auth-data", JSON.stringify(data.user))
       setCookie("access_token", data.token, { maxAge: 1000 * 60 * 60 * 24 });
-     
+
       setCookie("name", data.user.first_name, { maxAge: 1000 * 60 * 60 * 24 });
       setCookie("email", data.user.email, { maxAge: 1000 * 60 * 60 * 24 });
       toast.success(data.message);

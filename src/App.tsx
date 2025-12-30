@@ -35,7 +35,7 @@ const App: React.FC = () => {
    *  FIXED USER ID RESOLUTION LOGIC
    *  ------------------------------- */
   const getSavedUserId = () => {
-    const raw = sessionStorage.getItem("Auth-data");
+    const raw = localStorage.getItem("Auth-data");
     if (!raw) return null;
 
     try {
@@ -60,7 +60,7 @@ const App: React.FC = () => {
 
 
 
-   const handleRoutes = (plan: string) => {
+  const handleRoutes = (plan: string) => {
     console.log(plan)
     if (isSubscriptionEnd(user?.user?.subscription_end)) return [];
 
@@ -76,7 +76,7 @@ const App: React.FC = () => {
         return KONTRONIX;
 
       default:
-        return RTPAS.filter(item => user?.user?.role?.permissions?.some((ite)=> item.path.includes(ite) ));
+        return RTPAS.filter(item => user?.user?.role?.permissions?.some((ite) => item.path.includes(ite)));
     }
   };
 
