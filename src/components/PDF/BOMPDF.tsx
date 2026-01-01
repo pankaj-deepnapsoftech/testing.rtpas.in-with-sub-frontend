@@ -356,11 +356,15 @@ const BOMPDF = ({ bom,userData }: any) => {
                 <Text style={styles.col2}>{material?.item?.name || "N/A"}</Text>
                 <Text style={styles.col4}>{material?.quantity || 0}</Text>
                 <Text style={styles.col5}>{material?.item?.uom || "PCS"}</Text>
-                <Text style={styles.col6}>
-                  {Number(
-                    material?.item?.price || material?.unit_cost || 0
-                  ).toFixed(2)}
-                </Text>
+                {cookies?.role === "admin" ? (
+                  <Text style={[styles.col6, { width: "10%" }]}>
+                    {Number(
+                      material?.item?.price || material?.unit_cost || 0
+                    ).toFixed(2)}
+                  </Text>
+                ) : (
+                  <Text style={[styles.col6, { width: "10%" }]}>*****</Text>
+                )}
                 {cookies?.role === "admin" ? (
                   <Text style={[styles.col7, { width: "10%" }]}>
                     {Number(material?.total_part_cost || 0).toFixed(2)}
@@ -401,14 +405,22 @@ const BOMPDF = ({ bom,userData }: any) => {
                 <Text style={styles.col2}>{material?.item?.name || "N/A"}</Text>
                 <Text style={styles.col4}>{material?.quantity || 0}</Text>
                 <Text style={styles.col5}>{material?.item?.uom || "PCS"}</Text>
-                <Text style={styles.col6}>
-                  {Number(
-                    material?.item?.price || material?.unit_cost || 0
-                  ).toFixed(2)}
-                </Text>
-                <Text style={styles.col7}>
-                  {Number(material?.total_part_cost || 0).toFixed(2)}
-                </Text>
+                {cookies?.role === "admin" ? (
+                  <Text style={styles.col6}>
+                    {Number(
+                      material?.item?.price || material?.unit_cost || 0
+                    ).toFixed(2)}
+                  </Text>
+                ) : (
+                  <Text style={styles.col6}>*****</Text>
+                )}
+                {cookies?.role === "admin" ? (
+                  <Text style={styles.col7}>
+                    {Number(material?.total_part_cost || 0).toFixed(2)}
+                  </Text>
+                ) : (
+                  <Text style={styles.col7}>*****</Text>
+                )}
               </View>
             ))}
           </View>
@@ -477,7 +489,6 @@ const BOMPDF = ({ bom,userData }: any) => {
           </View>
         )}
 
-        
         <View style={styles.amountInWords}>
           <Text style={styles.amountLabel}>Total Cost in Words:</Text>
           {cookies?.role === "admin" ? (
