@@ -97,13 +97,22 @@ const UpdateProduct: React.FC<UpdateProductProps> = ({
         !id ||
         !uom ||
         !category ||
-        !currentStock ||
-        !price ||
+        currentStock === undefined ||
+        currentStock === null ||
+        currentStock === "" ||
+        price === undefined ||
+        price === null ||
+        price === "" ||
+        mrp === undefined ||
+        mrp === null ||
+        !store ||
         name.trim().length === 0 ||
         id.trim().length === 0 ||
-        !uom
+        !uom.value ||
+        !category.value ||
+        !store.value
       ) {
-        throw new Error("Please fill all the fileds");
+        throw new Error("Please fill all the required fields");
       }
 
       // Check if stock has changed and if shortage adjustment is enabled
@@ -415,7 +424,7 @@ const UpdateProduct: React.FC<UpdateProductProps> = ({
                   placeholder="Regular Buying Price"
                 />
               </FormControl>
-              <FormControl className="mt-3 mb-5">
+              <FormControl className="mt-3 mb-5" isRequired>
                 <FormLabel fontWeight="bold" color="black">
                   MRP
                 </FormLabel>
@@ -545,7 +554,7 @@ const UpdateProduct: React.FC<UpdateProductProps> = ({
                   placeholder="HSN"
                 />
               </FormControl>
-              <FormControl className="mt-3 mb-5">
+              <FormControl className="mt-3 mb-5" isRequired>
                 <FormLabel fontWeight="bold" color="black">
                   Store
                 </FormLabel>

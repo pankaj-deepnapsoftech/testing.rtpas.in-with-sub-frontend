@@ -382,7 +382,7 @@ const AddBom: React.FC<AddBomProps> = ({
         throw new Error(results?.message);
       }
       const manPowerUsers = results?.users?.filter((user: any) =>
-        user.role?.role?.toLowerCase().includes("man power")
+        user.role?.role?.toLowerCase().includes("manpower")
       );
 
       setEmpData(manPowerUsers);
@@ -558,7 +558,7 @@ const AddBom: React.FC<AddBomProps> = ({
     if (!empData || empData.length === 0) return;
 
     const filtered = empData.filter((emp) =>
-      emp.role?.role?.toLowerCase().includes("man power")
+      emp.role?.role?.toLowerCase().includes("manpower")
     );
 
     const options = filtered.map((emp) => ({

@@ -52,7 +52,7 @@ const AddUserRole: React.FC<AddUserRoleProps> = ({
       toast.error("Please provide all the required fields");
       return;
     }
-    if (role !== "Man Power" && permissions.length === 0) {
+    if (role !== "ManPower" && permissions.length === 0) {
       toast.error("Select at least 1 permission");
       return;
     }

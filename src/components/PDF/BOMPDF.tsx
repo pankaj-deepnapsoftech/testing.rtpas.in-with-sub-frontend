@@ -432,7 +432,7 @@ const BOMPDF = ({ bom,userData }: any) => {
             <Text
               style={[
                 styles.sectionLabel,
-                { marginBottom: 5, fontSize: 12, fontWeight: "bold" },
+                { marginBottom: 5, fonmanpowertSize: 12, fontWeight: "bold" },
               ]}
             >
               RESOURCES

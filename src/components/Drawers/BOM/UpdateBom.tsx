@@ -687,7 +687,7 @@ const UpdateBom: React.FC<UpdateBomProps> = ({
       if (!results.success) throw new Error(results?.message);
 
       const manPowerUsers = results?.users?.filter((user: any) =>
-        user.role?.role?.toLowerCase().includes("man power")
+        user.role?.role?.toLowerCase().includes("manpower")
       );
 
       setEmpData(manPowerUsers);
